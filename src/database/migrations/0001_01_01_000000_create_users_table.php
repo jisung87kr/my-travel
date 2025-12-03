@@ -16,9 +16,21 @@ return new class extends Migration
             $table->string('name');
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
-            $table->string('password');
+            $table->string('password')->nullable();
+            $table->string('phone', 20)->nullable();
+            $table->string('avatar')->nullable();
+            $table->string('preferred_language', 5)->default('ko');
+            $table->string('provider')->nullable();
+            $table->string('provider_id')->nullable();
+            $table->unsignedTinyInteger('no_show_count')->default(0);
+            $table->boolean('is_blocked')->default(false);
+            $table->timestamp('blocked_at')->nullable();
+            $table->boolean('is_active')->default(true);
             $table->rememberToken();
             $table->timestamps();
+            $table->softDeletes();
+
+            $table->index(['provider', 'provider_id']);
         });
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {
