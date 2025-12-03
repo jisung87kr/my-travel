@@ -54,6 +54,599 @@ github: [Will be updated when synced to GitHub]
 
 ---
 
+## Coding Standards (코드 작성 규칙)
+
+### 1. 서비스 레이어 분리 (Service Layer Pattern)
+
+**컨트롤러에 비즈니스 로직을 담지 않는다.** 컨트롤러는 요청 검증과 응답 반환만 담당.
+
+```php
+// ❌ Bad - 컨트롤러에 비즈니스 로직
+class BookingController extends Controller
+{
+    public function store(Request $request)
+    {
+        // 비즈니스 로직이 컨트롤러에...
+        $schedule = ProductSchedule::where('product_id', $request->product_id)
+            ->where('date', $request->date)
+            ->lockForUpdate()
+            ->first();
+
+        if ($schedule->available_count < $request->persons) {
+            return response()->json(['error' => '재고 부족'], 400);
+        }
+        // ... 더 많은 로직
+    }
+}
+
+// ✅ Good - 서비스 레이어로 분리
+class BookingController extends Controller
+{
+    public function __construct(
+        private BookingService $bookingService
+    ) {}
+
+    public function store(StoreBookingRequest $request)
+    {
+        $booking = $this->bookingService->create(
+            $request->validated(),
+            $request->user()
+        );
+
+        return response()->success($booking, '예약이 완료되었습니다.', 201);
+    }
+}
+```
+
+**서비스 레이어 구조:**
+
+```
+app/Services/
+├── BookingService.php       # 예약 생성, 취소, 상태 변경
+├── InventoryService.php     # 재고 확인, 차감, 복구
+├── ProductService.php       # 상품 CRUD, 검색
+├── NotificationService.php  # 알림 발송
+├── ImageService.php         # 이미지 업로드, 리사이징
+└── MessageService.php       # 메시지 송수신
+```
+
+### 2. Enum 클래스로 상수 관리
+
+**상수는 문자열/숫자 대신 Enum 클래스로 관리한다.**
+
+```php
+// app/Enums/UserRole.php
+enum UserRole: string
+{
+    case TRAVELER = 'traveler';
+    case VENDOR = 'vendor';
+    case GUIDE = 'guide';
+    case ADMIN = 'admin';
+
+    public function label(): string
+    {
+        return match($this) {
+            self::TRAVELER => '관광객',
+            self::VENDOR => '제공자',
+            self::GUIDE => '가이드',
+            self::ADMIN => '관리자',
+        };
+    }
+}
+
+// app/Enums/BookingStatus.php
+enum BookingStatus: string
+{
+    case PENDING = 'pending';
+    case CONFIRMED = 'confirmed';
+    case CANCELLED = 'cancelled';
+    case COMPLETED = 'completed';
+    case NO_SHOW = 'no_show';
+
+    public function label(): string
+    {
+        return match($this) {
+            self::PENDING => '대기중',
+            self::CONFIRMED => '확정',
+            self::CANCELLED => '취소됨',
+            self::COMPLETED => '완료',
+            self::NO_SHOW => '노쇼',
+        };
+    }
+
+    public function canTransitionTo(BookingStatus $status): bool
+    {
+        return match($this) {
+            self::PENDING => in_array($status, [self::CONFIRMED, self::CANCELLED]),
+            self::CONFIRMED => in_array($status, [self::COMPLETED, self::CANCELLED, self::NO_SHOW]),
+            default => false,
+        };
+    }
+}
+
+// app/Enums/ProductType.php
+enum ProductType: string
+{
+    case DAY_TOUR = 'day_tour';
+    case PACKAGE = 'package';
+    case ACTIVITY = 'activity';
+}
+
+// app/Enums/BookingType.php
+enum BookingType: string
+{
+    case INSTANT = 'instant';    // 자동 확정
+    case REQUEST = 'request';    // 승인 필요
+}
+```
+
+**Enum 디렉토리 구조:**
+
+```
+app/Enums/
+├── UserRole.php
+├── BookingStatus.php
+├── BookingType.php
+├── ProductType.php
+├── ProductStatus.php
+├── VendorStatus.php
+├── ReportStatus.php
+└── Locale.php
+```
+
+### 3. API 응답 클래스 (일관된 응답 포맷)
+
+**모든 API 응답은 일관된 구조를 따른다. 별도의 ApiResponse 클래스를 생성하여 매크로를 등록한다.**
+
+#### ApiResponse 클래스
+
+```php
+// app/Http/Responses/ApiResponse.php
+<?php
+
+namespace App\Http\Responses;
+
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Http\JsonResponse;
+
+class ApiResponse
+{
+    /**
+     * 성공 응답
+     */
+    public static function success(
+        mixed $data = null,
+        ?string $message = null,
+        int $code = 200
+    ): JsonResponse {
+        return response()->json([
+            'success' => true,
+            'message' => $message,
+            'data' => $data,
+        ], $code);
+    }
+
+    /**
+     * 생성 성공 응답 (201)
+     */
+    public static function created(
+        mixed $data = null,
+        ?string $message = '리소스가 생성되었습니다.'
+    ): JsonResponse {
+        return self::success($data, $message, 201);
+    }
+
+    /**
+     * 에러 응답
+     */
+    public static function error(
+        string $message,
+        int $code = 400,
+        mixed $errors = null
+    ): JsonResponse {
+        return response()->json([
+            'success' => false,
+            'message' => $message,
+            'errors' => $errors,
+        ], $code);
+    }
+
+    /**
+     * 유효성 검사 에러 응답 (422)
+     */
+    public static function validationError(
+        mixed $errors,
+        string $message = '입력값을 확인해주세요.'
+    ): JsonResponse {
+        return self::error($message, 422, $errors);
+    }
+
+    /**
+     * 권한 없음 응답 (403)
+     */
+    public static function forbidden(
+        string $message = '권한이 없습니다.'
+    ): JsonResponse {
+        return self::error($message, 403);
+    }
+
+    /**
+     * 리소스 없음 응답 (404)
+     */
+    public static function notFound(
+        string $message = '리소스를 찾을 수 없습니다.'
+    ): JsonResponse {
+        return self::error($message, 404);
+    }
+
+    /**
+     * 서버 에러 응답 (500)
+     */
+    public static function serverError(
+        string $message = '서버 오류가 발생했습니다.'
+    ): JsonResponse {
+        return self::error($message, 500);
+    }
+
+    /**
+     * 페이지네이션 응답
+     */
+    public static function paginated(
+        LengthAwarePaginator $paginator,
+        ?string $message = null
+    ): JsonResponse {
+        return response()->json([
+            'success' => true,
+            'message' => $message,
+            'data' => $paginator->items(),
+            'meta' => [
+                'current_page' => $paginator->currentPage(),
+                'last_page' => $paginator->lastPage(),
+                'per_page' => $paginator->perPage(),
+                'total' => $paginator->total(),
+                'from' => $paginator->firstItem(),
+                'to' => $paginator->lastItem(),
+            ],
+            'links' => [
+                'first' => $paginator->url(1),
+                'last' => $paginator->url($paginator->lastPage()),
+                'prev' => $paginator->previousPageUrl(),
+                'next' => $paginator->nextPageUrl(),
+            ],
+        ]);
+    }
+
+    /**
+     * 삭제 성공 응답 (204 No Content 또는 200)
+     */
+    public static function deleted(
+        ?string $message = '삭제되었습니다.'
+    ): JsonResponse {
+        return self::success(null, $message);
+    }
+}
+```
+
+#### Response 매크로 등록
+
+```php
+// app/Providers/ResponseServiceProvider.php
+<?php
+
+namespace App\Providers;
+
+use App\Http\Responses\ApiResponse;
+use Illuminate\Support\Facades\Response;
+use Illuminate\Support\ServiceProvider;
+
+class ResponseServiceProvider extends ServiceProvider
+{
+    public function register(): void
+    {
+        //
+    }
+
+    public function boot(): void
+    {
+        // 성공 응답 매크로
+        Response::macro('success', function ($data = null, $message = null, $code = 200) {
+            return ApiResponse::success($data, $message, $code);
+        });
+
+        // 생성 성공 매크로
+        Response::macro('created', function ($data = null, $message = '리소스가 생성되었습니다.') {
+            return ApiResponse::created($data, $message);
+        });
+
+        // 에러 응답 매크로
+        Response::macro('error', function ($message, $code = 400, $errors = null) {
+            return ApiResponse::error($message, $code, $errors);
+        });
+
+        // 유효성 검사 에러 매크로
+        Response::macro('validationError', function ($errors, $message = '입력값을 확인해주세요.') {
+            return ApiResponse::validationError($errors, $message);
+        });
+
+        // 권한 없음 매크로
+        Response::macro('forbidden', function ($message = '권한이 없습니다.') {
+            return ApiResponse::forbidden($message);
+        });
+
+        // 리소스 없음 매크로
+        Response::macro('notFound', function ($message = '리소스를 찾을 수 없습니다.') {
+            return ApiResponse::notFound($message);
+        });
+
+        // 페이지네이션 매크로
+        Response::macro('paginated', function ($paginator, $message = null) {
+            return ApiResponse::paginated($paginator, $message);
+        });
+
+        // 삭제 성공 매크로
+        Response::macro('deleted', function ($message = '삭제되었습니다.') {
+            return ApiResponse::deleted($message);
+        });
+    }
+}
+```
+
+#### 서비스 프로바이더 등록
+
+```php
+// bootstrap/providers.php (Laravel 11+)
+return [
+    App\Providers\AppServiceProvider::class,
+    App\Providers\ResponseServiceProvider::class,  // 추가
+];
+
+// 또는 config/app.php (Laravel 10)
+'providers' => [
+    // ...
+    App\Providers\ResponseServiceProvider::class,
+],
+```
+
+#### 디렉토리 구조
+
+```
+app/
+├── Http/
+│   └── Responses/
+│       └── ApiResponse.php      # API 응답 클래스
+└── Providers/
+    └── ResponseServiceProvider.php  # 매크로 등록
+```
+
+#### 사용 예시
+
+```php
+use App\Http\Responses\ApiResponse;
+
+// 방법 1: ApiResponse 클래스 직접 사용 (권장)
+return ApiResponse::success($product, '상품이 등록되었습니다.', 201);
+return ApiResponse::created($booking, '예약이 완료되었습니다.');
+return ApiResponse::error('재고가 부족합니다.', 400);
+return ApiResponse::paginated($products);
+return ApiResponse::notFound('상품을 찾을 수 없습니다.');
+return ApiResponse::forbidden('접근 권한이 없습니다.');
+
+// 방법 2: Response 매크로 사용
+return response()->success($product, '상품이 등록되었습니다.');
+return response()->created($booking, '예약이 완료되었습니다.');
+return response()->error('재고가 부족합니다.', 400);
+return response()->paginated($products);
+return response()->notFound('상품을 찾을 수 없습니다.');
+```
+
+#### 응답 예시
+
+```json
+// 성공 응답
+{
+    "success": true,
+    "message": "상품이 등록되었습니다.",
+    "data": { "id": 1, "name": "전주 한옥마을 투어" }
+}
+
+// 에러 응답
+{
+    "success": false,
+    "message": "재고가 부족합니다.",
+    "errors": null
+}
+
+// 페이지네이션 응답
+{
+    "success": true,
+    "message": null,
+    "data": [...],
+    "meta": {
+        "current_page": 1,
+        "last_page": 5,
+        "per_page": 20,
+        "total": 100,
+        "from": 1,
+        "to": 20
+    },
+    "links": {
+        "first": "http://...",
+        "last": "http://...",
+        "prev": null,
+        "next": "http://...?page=2"
+    }
+}
+```
+
+### 4. 디자인 패턴 활용
+
+**유지보수성 향상을 위해 적절한 디자인 패턴을 사용한다.**
+
+#### Repository Pattern (선택적)
+복잡한 쿼리가 많은 경우 Repository 패턴 적용.
+
+```php
+// app/Repositories/ProductRepository.php
+class ProductRepository
+{
+    public function findWithFilters(array $filters): LengthAwarePaginator
+    {
+        $query = Product::query()
+            ->with(['translations', 'prices', 'images', 'vendor']);
+
+        if (isset($filters['region'])) {
+            $query->where('region', $filters['region']);
+        }
+
+        if (isset($filters['type'])) {
+            $query->where('type', $filters['type']);
+        }
+
+        if (isset($filters['date'])) {
+            $query->whereHas('schedules', fn($q) =>
+                $q->where('date', $filters['date'])
+                  ->where('available_count', '>', 0)
+            );
+        }
+
+        return $query->paginate($filters['per_page'] ?? 20);
+    }
+}
+```
+
+#### Strategy Pattern
+다양한 알림 채널 처리 등.
+
+```php
+// app/Services/Notification/NotificationChannel.php
+interface NotificationChannel
+{
+    public function send(User $user, string $message): void;
+}
+
+// app/Services/Notification/EmailChannel.php
+class EmailChannel implements NotificationChannel
+{
+    public function send(User $user, string $message): void
+    {
+        Mail::to($user)->send(new GenericNotification($message));
+    }
+}
+
+// app/Services/Notification/KakaoChannel.php
+class KakaoChannel implements NotificationChannel
+{
+    public function send(User $user, string $message): void
+    {
+        // 카카오 알림톡 발송
+    }
+}
+```
+
+#### Factory Pattern
+예약 생성 시 상품 타입별 처리.
+
+```php
+// app/Services/Booking/BookingFactory.php
+class BookingFactory
+{
+    public function create(Product $product, array $data): Booking
+    {
+        return match($product->booking_type) {
+            BookingType::INSTANT => $this->createInstantBooking($product, $data),
+            BookingType::REQUEST => $this->createRequestBooking($product, $data),
+        };
+    }
+}
+```
+
+### 5. 프론트엔드: Blade + Vue.js 하이브리드
+
+**Blade 템플릿과 Vue.js 컴포넌트를 조합하여 사용한다.**
+
+#### 구조 원칙
+
+| 영역 | 기술 | 이유 |
+|------|------|------|
+| 레이아웃, 메인 페이지 | Blade | SEO, 초기 로드 속도 |
+| 상품 목록/상세 | Blade + 부분 Vue | SEO 중요, 일부 인터랙션 |
+| 예약 폼, 대시보드 | Vue.js | 복잡한 인터랙션, 실시간 업데이트 |
+| 캘린더, 차트 | Vue.js | 외부 라이브러리 통합 |
+
+#### Blade에서 Vue 컴포넌트 사용
+
+```blade
+{{-- resources/views/traveler/products/show.blade.php --}}
+@extends('layouts.app')
+
+@section('content')
+<div class="product-detail">
+    {{-- SEO를 위한 Blade 렌더링 --}}
+    <h1>{{ $product->getTranslation()->name }}</h1>
+    <p>{{ $product->getTranslation()->description }}</p>
+
+    {{-- 인터랙티브 예약 폼은 Vue 컴포넌트 --}}
+    <div id="booking-form">
+        <booking-form
+            :product="{{ json_encode($product) }}"
+            :prices="{{ json_encode($product->prices) }}"
+            :schedules="{{ json_encode($product->schedules) }}"
+        />
+    </div>
+</div>
+@endsection
+```
+
+#### Vue 컴포넌트 등록
+
+```js
+// resources/js/app.js
+import { createApp } from 'vue'
+import { createPinia } from 'pinia'
+
+// 컴포넌트 임포트
+import BookingForm from './components/booking/BookingForm.vue'
+import ProductCalendar from './components/calendar/ProductCalendar.vue'
+import ImageGallery from './components/product/ImageGallery.vue'
+
+const app = createApp({})
+const pinia = createPinia()
+
+app.use(pinia)
+
+// 전역 컴포넌트 등록
+app.component('booking-form', BookingForm)
+app.component('product-calendar', ProductCalendar)
+app.component('image-gallery', ImageGallery)
+
+app.mount('#app')
+```
+
+### 6. 추가 코딩 규칙
+
+- **Form Request**: 모든 입력 검증은 Form Request 클래스에서 처리
+- **Policy**: 권한 검사는 Policy 클래스에서 처리
+- **Resource**: API 응답 변환은 API Resource 클래스 사용
+- **Event/Listener**: 부수 효과(알림 발송 등)는 이벤트로 분리
+- **Exception**: 커스텀 예외 클래스로 에러 상황 명확화
+
+```
+app/
+├── Enums/              # 상수 Enum 클래스
+├── Services/           # 비즈니스 로직
+├── Repositories/       # 복잡한 쿼리 (선택적)
+├── Http/
+│   ├── Controllers/    # 요청/응답만 처리
+│   ├── Requests/       # Form Request (입력 검증)
+│   └── Resources/      # API Resource (응답 변환)
+├── Policies/           # 권한 검사
+├── Events/             # 이벤트 정의
+├── Listeners/          # 이벤트 리스너
+└── Exceptions/         # 커스텀 예외
+```
+
+---
+
 ## Technical Approach
 
 ### Frontend Architecture
@@ -367,3 +960,24 @@ Task 10 (테스트/배포)
 - 소셜 로그인 연동 (Apple이 가장 복잡)
 - 실시간 재고 동시성 처리
 - 다국어 컨텐츠 관리 복잡도
+
+---
+
+## Tasks Created
+
+| # | 태스크 | 규모 | 병렬 | 의존성 |
+|---|--------|------|------|--------|
+| 001 | 프로젝트 초기 설정 | S | ❌ | - |
+| 002 | 데이터베이스 설계 및 마이그레이션 | M | ❌ | 001 |
+| 003 | 인증 시스템 구현 | M | ❌ | 001, 002 |
+| 004 | 상품 관리 시스템 | L | ✅ | 002, 003 |
+| 005 | 예약 시스템 구현 | L | ❌ | 002, 003, 004 |
+| 006 | 관광객 프론트엔드 | L | ✅ | 003, 004, 005 |
+| 007 | 제공자 대시보드 | L | ✅ | 003, 004, 005 |
+| 008 | 가이드 & 관리자 대시보드 | M | ✅ | 003, 005 |
+| 009 | 리뷰 & 커뮤니케이션 | M | ❌ | 005, 006, 007 |
+| 010 | 테스트 & 배포 준비 | M | ❌ | 006, 007, 008, 009 |
+
+**총 태스크**: 10개
+**병렬 가능 태스크**: 4개 (004, 006, 007, 008)
+**순차 태스크**: 6개
