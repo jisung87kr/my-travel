@@ -12,6 +12,12 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+// Public product routes
+Route::prefix('products')->name('products.')->group(function () {
+    Route::get('/', [\App\Http\Controllers\ProductController::class, 'index'])->name('index');
+    Route::get('/{product}', [\App\Http\Controllers\ProductController::class, 'show'])->name('show');
+});
+
 // Guest routes (unauthenticated users only)
 Route::middleware('guest')->group(function () {
     // Registration
@@ -51,7 +57,19 @@ Route::middleware(['auth', 'user.active'])->group(function () {
 
 // Vendor routes
 Route::middleware(['auth', 'user.active', 'role:vendor,admin'])->prefix('vendor')->name('vendor.')->group(function () {
-    // Vendor routes will be added in Task 006
+    Route::apiResource('products', \App\Http\Controllers\Vendor\ProductController::class);
+    Route::post('products/{product}/images', [\App\Http\Controllers\Vendor\ProductController::class, 'uploadImages'])
+        ->name('products.images.upload');
+    Route::put('products/{product}/images/reorder', [\App\Http\Controllers\Vendor\ProductController::class, 'reorderImages'])
+        ->name('products.images.reorder');
+    Route::delete('products/{product}/images/{image}', [\App\Http\Controllers\Vendor\ProductController::class, 'deleteImage'])
+        ->name('products.images.destroy');
+    Route::post('products/{product}/submit', [\App\Http\Controllers\Vendor\ProductController::class, 'submitForReview'])
+        ->name('products.submit');
+    Route::post('products/{product}/activate', [\App\Http\Controllers\Vendor\ProductController::class, 'activate'])
+        ->name('products.activate');
+    Route::post('products/{product}/deactivate', [\App\Http\Controllers\Vendor\ProductController::class, 'deactivate'])
+        ->name('products.deactivate');
 });
 
 // Admin routes

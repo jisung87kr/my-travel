@@ -5,6 +5,7 @@ namespace App\Enums;
 enum Region: string
 {
     case SEOUL = 'seoul';
+    case BUSAN = 'busan';
     case GYEONGGI = 'gyeonggi';
     case GANGWON = 'gangwon';
     case CHUNGBUK = 'chungbuk';
@@ -19,6 +20,7 @@ enum Region: string
     {
         return match ($this) {
             self::SEOUL => '서울',
+            self::BUSAN => '부산',
             self::GYEONGGI => '경기',
             self::GANGWON => '강원',
             self::CHUNGBUK => '충북',
@@ -35,6 +37,7 @@ enum Region: string
     {
         return match ($this) {
             self::SEOUL => 'Seoul',
+            self::BUSAN => 'Busan',
             self::GYEONGGI => 'Gyeonggi',
             self::GANGWON => 'Gangwon',
             self::CHUNGBUK => 'Chungbuk',
