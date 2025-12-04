@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Traveler;
 
-use App\Enums\ProductRegion;
+use App\Enums\Region;
 use App\Enums\ProductType;
 use App\Http\Controllers\Controller;
 use App\Models\Product;
@@ -75,7 +75,7 @@ class ProductController extends Controller
         });
 
         // Get filter options
-        $regions = collect(ProductRegion::cases())->map(fn ($r) => [
+        $regions = collect(Region::cases())->map(fn ($r) => [
             'value' => $r->value,
             'label' => $r->label(),
         ]);
