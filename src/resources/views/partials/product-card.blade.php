@@ -5,7 +5,7 @@
             <img src="{{ $product['image'] }}"
                  alt="{{ $product['title'] }}"
                  class="w-full h-full object-cover group-hover:scale-105 transition duration-300"
-                 onerror="this.src='/images/placeholder.jpg'">
+                 onerror="this.src='https://placehold.co/300x300?text=NO+IMAGE'">
 
             <!-- Wishlist Button -->
             @auth

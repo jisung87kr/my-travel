@@ -63,7 +63,7 @@ class Review extends Model
         return !is_null($this->vendor_reply);
     }
 
-    public function reply(string $content): void
+    public function addVendorReply(string $content): void
     {
         $this->update([
             'vendor_reply' => $content,

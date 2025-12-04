@@ -157,94 +157,13 @@
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                @php
-                    $sampleProducts = [
-                        (object)[
-                            'id' => 1,
-                            'slug' => 'seoul-palace-tour',
-                            'title' => '서울 궁궐 투어',
-                            'location' => '서울, 대한민국',
-                            'image' => 'https://images.unsplash.com/photo-1517154421773-0529f29ea451?w=800',
-                            'price' => 45000,
-                            'rating' => 4.9,
-                            'reviewCount' => 234
-                        ],
-                        (object)[
-                            'id' => 2,
-                            'slug' => 'busan-temple-stay',
-                            'title' => '부산 해동용궁사 템플스테이',
-                            'location' => '부산, 대한민국',
-                            'image' => 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=800',
-                            'price' => 89000,
-                            'rating' => 4.8,
-                            'reviewCount' => 187
-                        ],
-                        (object)[
-                            'id' => 3,
-                            'slug' => 'jeju-hiking',
-                            'title' => '제주 한라산 등반',
-                            'location' => '제주도, 대한민국',
-                            'image' => 'https://images.unsplash.com/photo-1605649487212-47bdab064df7?w=800',
-                            'price' => 120000,
-                            'rating' => 4.95,
-                            'reviewCount' => 312
-                        ],
-                        (object)[
-                            'id' => 4,
-                            'slug' => 'jeonju-hanok-village',
-                            'title' => '전주 한옥마을 투어',
-                            'location' => '전주, 대한민국',
-                            'image' => 'https://images.unsplash.com/photo-1583417319070-4a69db38a482?w=800',
-                            'price' => 55000,
-                            'rating' => 4.7,
-                            'reviewCount' => 156
-                        ],
-                        (object)[
-                            'id' => 5,
-                            'slug' => 'gangneung-coffee-tour',
-                            'title' => '강릉 커피 거리 투어',
-                            'location' => '강릉, 대한민국',
-                            'image' => 'https://images.unsplash.com/photo-1511920170033-f8396924c348?w=800',
-                            'price' => 38000,
-                            'rating' => 4.6,
-                            'reviewCount' => 98
-                        ],
-                        (object)[
-                            'id' => 6,
-                            'slug' => 'gyeongju-history',
-                            'title' => '경주 역사 탐방',
-                            'location' => '경주, 대한민국',
-                            'image' => 'https://images.unsplash.com/photo-1542744173-05336fcc7ad4?w=800',
-                            'price' => 75000,
-                            'rating' => 4.85,
-                            'reviewCount' => 203
-                        ],
-                        (object)[
-                            'id' => 7,
-                            'slug' => 'dmz-tour',
-                            'title' => 'DMZ 평화 투어',
-                            'location' => '파주, 대한민국',
-                            'image' => 'https://images.unsplash.com/photo-1528360983277-13d401cdc186?w=800',
-                            'price' => 95000,
-                            'rating' => 4.75,
-                            'reviewCount' => 267
-                        ],
-                        (object)[
-                            'id' => 8,
-                            'slug' => 'seoul-night-market',
-                            'title' => '서울 야시장 푸드 투어',
-                            'location' => '서울, 대한민국',
-                            'image' => 'https://images.unsplash.com/photo-1590846406792-0adc7f938f1d?w=800',
-                            'price' => 42000,
-                            'rating' => 4.8,
-                            'reviewCount' => 421
-                        ],
-                    ];
-                @endphp
-
-                @foreach($sampleProducts as $product)
-                    <x-product.card :product="$product" :showWishlist="true" />
-                @endforeach
+                @forelse($recommendedProducts as $product)
+                    <x-product.card :product="(object) $product" :showWishlist="true" />
+                @empty
+                    <div class="col-span-full text-center py-12 text-gray-500">
+                        등록된 상품이 없습니다.
+                    </div>
+                @endforelse
             </div>
 
             <!-- View All Button -->
@@ -269,26 +188,15 @@
             </div>
 
             <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-                @php
-                    $regions = [
-                        ['name' => '서울', 'count' => 156, 'image' => 'https://images.unsplash.com/photo-1517154421773-0529f29ea451?w=400'],
-                        ['name' => '부산', 'count' => 89, 'image' => 'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=400'],
-                        ['name' => '제주도', 'count' => 234, 'image' => 'https://images.unsplash.com/photo-1605649487212-47bdab064df7?w=400'],
-                        ['name' => '전주', 'count' => 45, 'image' => 'https://images.unsplash.com/photo-1583417319070-4a69db38a482?w=400'],
-                        ['name' => '경주', 'count' => 67, 'image' => 'https://images.unsplash.com/photo-1542744173-05336fcc7ad4?w=400'],
-                        ['name' => '강릉', 'count' => 52, 'image' => 'https://images.unsplash.com/photo-1511920170033-f8396924c348?w=400'],
-                    ];
-                @endphp
-
                 @foreach($regions as $region)
-                    <a href="{{ route('products.index', ['locale' => app()->getLocale(), 'region' => strtolower($region['name'])]) }}"
+                    <a href="{{ route('products.index', ['locale' => app()->getLocale(), 'region' => $region['value']]) }}"
                        class="relative group overflow-hidden rounded-xl aspect-square shadow-md hover:shadow-xl transition-all duration-300">
                         <!-- Background Image -->
                         <div class="absolute inset-0">
                             <img src="{{ $region['image'] }}"
                                  alt="{{ $region['name'] }}"
                                  class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                                 onerror="this.src='/images/placeholder-region.jpg'">
+                                 onerror="this.src='https://placehold.co/400x400?text={{ urlencode($region['name']) }}'">
                             <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent"></div>
                         </div>
 
@@ -312,66 +220,15 @@
             </div>
 
             <div class="flex gap-6 overflow-x-auto scrollbar-hide pb-4">
-                @php
-                    $popularExperiences = [
-                        (object)[
-                            'id' => 9,
-                            'slug' => 'seoul-hanbok',
-                            'title' => '경복궁 한복 체험',
-                            'location' => '서울, 대한민국',
-                            'image' => 'https://images.unsplash.com/photo-1548873902-365f20e8c25f?w=800',
-                            'price' => 35000,
-                            'rating' => 4.95,
-                            'reviewCount' => 567
-                        ],
-                        (object)[
-                            'id' => 10,
-                            'slug' => 'korean-cooking',
-                            'title' => '전통 한식 쿠킹 클래스',
-                            'location' => '서울, 대한민국',
-                            'image' => 'https://images.unsplash.com/photo-1590846406792-0adc7f938f1d?w=800',
-                            'price' => 68000,
-                            'rating' => 4.9,
-                            'reviewCount' => 432
-                        ],
-                        (object)[
-                            'id' => 11,
-                            'slug' => 'nami-island',
-                            'title' => '남이섬 & 쁘띠프랑스 투어',
-                            'location' => '가평, 대한민국',
-                            'image' => 'https://images.unsplash.com/photo-1544735716-392fe2489ffa?w=800',
-                            'price' => 85000,
-                            'rating' => 4.85,
-                            'reviewCount' => 398
-                        ],
-                        (object)[
-                            'id' => 12,
-                            'slug' => 'han-river-cruise',
-                            'title' => '한강 유람선 투어',
-                            'location' => '서울, 대한민국',
-                            'image' => 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=800',
-                            'price' => 28000,
-                            'rating' => 4.7,
-                            'reviewCount' => 289
-                        ],
-                        (object)[
-                            'id' => 13,
-                            'slug' => 'jeju-udo',
-                            'title' => '제주 우도 자전거 투어',
-                            'location' => '제주도, 대한민국',
-                            'image' => 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=800',
-                            'price' => 45000,
-                            'rating' => 4.88,
-                            'reviewCount' => 341
-                        ],
-                    ];
-                @endphp
-
-                @foreach($popularExperiences as $experience)
+                @forelse($popularProducts as $product)
                     <div class="flex-shrink-0 w-80">
-                        <x-product.card :product="$experience" :showWishlist="true" />
+                        <x-product.card :product="(object) $product" :showWishlist="true" />
                     </div>
-                @endforeach
+                @empty
+                    <div class="w-full text-center py-12 text-gray-500">
+                        등록된 상품이 없습니다.
+                    </div>
+                @endforelse
             </div>
         </div>
     </section>

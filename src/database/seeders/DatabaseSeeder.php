@@ -25,12 +25,38 @@ class DatabaseSeeder extends Seeder
         ]);
         $admin->assignRole(UserRole::ADMIN->value);
 
-        // Create test traveler
+        // Create test travelers
         $traveler = User::factory()->create([
             'name' => 'Test Traveler',
             'email' => 'traveler@test.com',
             'password' => bcrypt('password'),
         ]);
         $traveler->assignRole(UserRole::TRAVELER->value);
+
+        // Create additional test travelers for reviews
+        $testTravelers = [
+            ['name' => '김민수', 'email' => 'minsu@test.com'],
+            ['name' => '이영희', 'email' => 'younghee@test.com'],
+            ['name' => '박지훈', 'email' => 'jihoon@test.com'],
+            ['name' => '최수진', 'email' => 'sujin@test.com'],
+            ['name' => '정대현', 'email' => 'daehyun@test.com'],
+        ];
+
+        foreach ($testTravelers as $data) {
+            $user = User::factory()->create([
+                'name' => $data['name'],
+                'email' => $data['email'],
+                'password' => bcrypt('password'),
+            ]);
+            $user->assignRole(UserRole::TRAVELER->value);
+        }
+
+        // Call vendor, product, booking, and review seeders
+        $this->call([
+            VendorSeeder::class,
+            ProductSeeder::class,
+            BookingSeeder::class,
+            ReviewSeeder::class,
+        ]);
     }
 }

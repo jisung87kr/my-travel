@@ -232,7 +232,7 @@
 
 <script setup>
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
-import { debounce } from 'lodash'
+import debounce from 'lodash/debounce'
 
 const props = defineProps({
   categories: {

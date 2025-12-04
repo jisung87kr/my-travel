@@ -132,21 +132,25 @@ class ProductController extends Controller
     {
         $translation = $product->getTranslation($locale);
         $lowestPrice = $product->prices->where('is_active', true)->min('price');
+        $primaryImage = $product->images->firstWhere('is_primary', true) ?? $product->images->first();
 
         return [
             'id' => $product->id,
             'slug' => $product->slug,
-            'title' => $translation?->title ?? $product->getTranslation('ko')?->title ?? '',
-            'description' => $translation?->short_description ?? '',
-            'image' => $product->images->first()?->url ?? '/images/placeholder.jpg',
+            'title' => $translation?->name ?? $product->getTranslation('ko')?->name ?? '',
+            'description' => $translation?->description ?? '',
+            'image' => $primaryImage?->path ?? 'https://placehold.co/800x600?text=NO+IMAGE',
             'region' => $product->region->label(),
             'region_value' => $product->region->value,
             'type' => $product->type->label(),
             'type_value' => $product->type->value,
             'price' => $lowestPrice,
             'formatted_price' => $lowestPrice ? number_format($lowestPrice) : null,
-            'rating' => $product->average_rating,
+            'rating' => (float) $product->average_rating,
             'review_count' => $product->review_count,
+            'reviewCount' => $product->review_count,
+            'url' => route('products.show', ['locale' => $locale, 'product' => $product->slug]),
+            'isWishlisted' => false,
         ];
     }
 }

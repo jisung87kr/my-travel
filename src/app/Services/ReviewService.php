@@ -66,7 +66,7 @@ class ReviewService
 
     public function reply(Review $review, string $content): Review
     {
-        $review->reply($content);
+        $review->addVendorReply($content);
 
         return $review->fresh();
     }

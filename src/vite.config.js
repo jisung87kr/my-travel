@@ -6,7 +6,11 @@ import vue from '@vitejs/plugin-vue';
 export default defineConfig({
     plugins: [
         laravel({
-            input: ['resources/css/app.css', 'resources/js/app.js'],
+            input: [
+                'resources/css/app.css',
+                'resources/js/app.js',
+                'resources/js/pages/products-index.js',
+            ],
             refresh: true,
         }),
         tailwindcss(),
@@ -22,6 +26,7 @@ export default defineConfig({
     resolve: {
         alias: {
             '@': '/resources/js',
+            'vue': 'vue/dist/vue.esm-bundler.js',
         },
     },
     build: {
@@ -34,5 +39,15 @@ export default defineConfig({
                 },
             },
         },
+    },
+    server: {
+        host: '0.0.0.0',
+        port: 9600,
+        strictPort: true,
+        // hmr: {
+        //     host: 'localhost',
+        //     port: 9600,
+        // },
+        // origin: 'http://localhost:9600',
     },
 });

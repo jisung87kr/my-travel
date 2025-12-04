@@ -8,10 +8,10 @@
        class="block">
         <!-- Image Container -->
         <div class="relative aspect-[4/3] overflow-hidden rounded-xl mb-3">
-            <img src="{{ $product->image ?? '/images/placeholder.jpg' }}"
+            <img src="{{ $product->image ?? 'https://placehold.co/300x300?text=NO+IMAGE' }}"
                  alt="{{ $product->title }}"
                  class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                 onerror="this.src='/images/placeholder.jpg'">
+                 onerror="this.src='https://placehold.co/300x300?text=NO+IMAGE'">
 
             <!-- Wishlist Button -->
             @if($showWishlist)

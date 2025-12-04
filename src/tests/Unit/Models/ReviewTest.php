@@ -65,7 +65,7 @@ class ReviewTest extends TestCase
     {
         $review = Review::factory()->create();
 
-        $review->reply('Thank you for your feedback!');
+        $review->addVendorReply('Thank you for your feedback!');
         $review->refresh();
 
         $this->assertTrue($review->hasReply());
