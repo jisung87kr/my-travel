@@ -1,15 +1,17 @@
 import './bootstrap';
 import { createApp } from 'vue';
 import { createPinia } from 'pinia';
+import api from './plugins/axios';
 import BookingForm from './components/BookingForm.vue';
 
-// Vue 컴포넌트들을 필요한 곳에서 동적으로 마운트
+// Pinia 인스턴스 생성
 const pinia = createPinia();
 
 // 전역 Vue 인스턴스 설정 함수
 window.createVueApp = (component, selector, props = {}) => {
     const app = createApp(component, props);
     app.use(pinia);
+    app.config.globalProperties.$api = api;
     app.mount(selector);
     return app;
 };
@@ -28,6 +30,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const app = createApp(BookingForm, props);
         app.use(pinia);
+        app.config.globalProperties.$api = api;
         app.mount('#booking-form-container');
     }
 });
+
+// Export api for direct usage
+export { api };

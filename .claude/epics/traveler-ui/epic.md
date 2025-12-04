@@ -4,7 +4,7 @@ status: backlog
 created: 2025-12-04T12:37:59Z
 progress: 0%
 prd: .claude/prds/traveler-ui.md
-github: [Will be updated when synced to GitHub]
+github: https://github.com/jisung87kr/my-travel/issues/1
 ---
 
 # Epic: traveler-ui
@@ -112,15 +112,15 @@ github: [Will be updated when synced to GitHub]
 
 ## Tasks Created
 
-- [ ] 001.md - 프론트엔드 기반 설정 (parallel: false)
-- [ ] 002.md - 공통 UI 컴포넌트 (parallel: true)
-- [ ] 003.md - 레이아웃 컴포넌트 (parallel: true)
-- [ ] 004.md - 메인 페이지 (parallel: true)
-- [ ] 005.md - 상품 목록 페이지 (parallel: true)
-- [ ] 006.md - 상품 상세 페이지 (parallel: true)
-- [ ] 007.md - 예약 플로우 (parallel: false)
-- [ ] 008.md - 마이페이지 (parallel: true)
-- [ ] 009.md - 반응형 최적화 및 테스트 (parallel: false)
+- [ ] #2 - 프론트엔드 기반 설정 (parallel: false)
+- [ ] #3 - 공통 UI 컴포넌트 (parallel: true)
+- [ ] #4 - 레이아웃 컴포넌트 (parallel: true)
+- [ ] #5 - 메인 페이지 (parallel: true)
+- [ ] #6 - 상품 목록 페이지 (parallel: true)
+- [ ] #7 - 상품 상세 페이지 (parallel: true)
+- [ ] #8 - 예약 플로우 (parallel: false)
+- [ ] #9 - 마이페이지 (parallel: true)
+- [ ] #10 - 반응형 최적화 및 테스트 (parallel: false)
 
 **Total tasks:** 9
 **Parallel tasks:** 6

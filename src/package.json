@@ -8,7 +8,6 @@
     },
     "devDependencies": {
         "@tailwindcss/vite": "^4.0.0",
-        "axios": "^1.11.0",
         "concurrently": "^9.0.1",
         "laravel-vite-plugin": "^2.0.0",
         "tailwindcss": "^4.0.0",
@@ -20,7 +19,10 @@
         "@fullcalendar/interaction": "^6.1.19",
         "@fullcalendar/vue3": "^6.1.19",
         "@vitejs/plugin-vue": "^6.0.2",
+        "@vueuse/core": "^10.7.0",
         "@zxing/library": "^0.21.3",
+        "axios": "^1.6.0",
+        "lodash": "^4.17.21",
         "pinia": "^3.0.4",
         "vue": "^3.5.25",
         "vue-router": "^4.6.3"
