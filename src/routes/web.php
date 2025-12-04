@@ -30,6 +30,7 @@ Route::prefix('{locale}')->where(['locale' => 'ko|en|zh|ja'])->middleware('local
             Route::get('/bookings', [MyController::class, 'bookings'])->name('bookings');
             Route::get('/bookings/{booking}', [MyController::class, 'bookingDetail'])->name('booking.detail');
             Route::get('/wishlist', [MyController::class, 'wishlist'])->name('wishlist');
+            Route::get('/reviews', [MyController::class, 'reviews'])->name('reviews');
         });
     });
 });
@@ -84,8 +85,10 @@ Route::middleware(['auth', 'user.active'])->group(function () {
     // Booking routes (traveler)
     Route::prefix('bookings')->name('bookings.')->group(function () {
         Route::get('/', [\App\Http\Controllers\BookingController::class, 'index'])->name('index');
+        Route::get('/create/{product}', [\App\Http\Controllers\BookingController::class, 'create'])->name('create');
         Route::post('/', [\App\Http\Controllers\BookingController::class, 'store'])->name('store');
         Route::get('/{booking}', [\App\Http\Controllers\BookingController::class, 'show'])->name('show');
+        Route::get('/{booking}/complete', [\App\Http\Controllers\BookingController::class, 'complete'])->name('complete');
         Route::delete('/{booking}', [\App\Http\Controllers\BookingController::class, 'cancel'])->name('cancel');
     });
 

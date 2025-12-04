@@ -118,4 +118,35 @@ class MyController extends Controller
 
         return view('traveler.my.wishlist', compact('wishlists'));
     }
+
+    public function reviews(): View
+    {
+        $user = auth()->user();
+        $locale = app()->getLocale();
+
+        $reviews = $user->reviews()
+            ->with(['product.translations', 'product.images', 'booking'])
+            ->latest()
+            ->paginate(10);
+
+        // Transform for view
+        $reviews->getCollection()->transform(function ($review) use ($locale) {
+            $product = $review->product;
+            $translation = $product->getTranslation($locale);
+
+            return [
+                'id' => $review->id,
+                'product_id' => $product->id,
+                'product_title' => $translation?->title ?? $product->getTranslation('ko')?->title ?? '',
+                'product_image' => $product->images->first()?->url ?? '/images/placeholder.jpg',
+                'booking_code' => $review->booking?->booking_code,
+                'rating' => $review->rating,
+                'content' => $review->content,
+                'created_at' => $review->created_at->format('Y-m-d'),
+                'formatted_date' => $review->created_at->format('M d, Y'),
+            ];
+        });
+
+        return view('traveler.my.reviews', compact('reviews'));
+    }
 }
