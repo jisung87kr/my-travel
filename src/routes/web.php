@@ -148,5 +148,57 @@ Route::middleware(['auth', 'user.active', 'role:vendor,admin'])->prefix('vendor'
 
 // Admin routes
 Route::middleware(['auth', 'user.active', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
-    // Admin routes will be added in Task 010
+    // Dashboard
+    Route::get('/', [\App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('dashboard');
+
+    // User management
+    Route::get('users', [\App\Http\Controllers\Admin\UserController::class, 'index'])->name('users.index');
+    Route::get('users/{user}', [\App\Http\Controllers\Admin\UserController::class, 'show'])->name('users.show');
+    Route::patch('users/{user}/toggle', [\App\Http\Controllers\Admin\UserController::class, 'toggle'])->name('users.toggle');
+    Route::patch('users/{user}/block', [\App\Http\Controllers\Admin\UserController::class, 'block'])->name('users.block');
+    Route::patch('users/{user}/unblock', [\App\Http\Controllers\Admin\UserController::class, 'unblock'])->name('users.unblock');
+
+    // Vendor management
+    Route::get('vendors', [\App\Http\Controllers\Admin\VendorController::class, 'index'])->name('vendors.index');
+    Route::get('vendors/{vendor}', [\App\Http\Controllers\Admin\VendorController::class, 'show'])->name('vendors.show');
+    Route::patch('vendors/{vendor}/approve', [\App\Http\Controllers\Admin\VendorController::class, 'approve'])->name('vendors.approve');
+    Route::patch('vendors/{vendor}/reject', [\App\Http\Controllers\Admin\VendorController::class, 'reject'])->name('vendors.reject');
+
+    // Product management
+    Route::get('products', [\App\Http\Controllers\Admin\ProductController::class, 'index'])->name('products.index');
+    Route::get('products/{product}', [\App\Http\Controllers\Admin\ProductController::class, 'show'])->name('products.show');
+    Route::patch('products/{product}/approve', [\App\Http\Controllers\Admin\ProductController::class, 'approve'])->name('products.approve');
+    Route::patch('products/{product}/reject', [\App\Http\Controllers\Admin\ProductController::class, 'reject'])->name('products.reject');
+    Route::patch('products/{product}/toggle', [\App\Http\Controllers\Admin\ProductController::class, 'toggle'])->name('products.toggle');
+
+    // Booking management
+    Route::get('bookings', [\App\Http\Controllers\Admin\BookingController::class, 'index'])->name('bookings.index');
+    Route::get('bookings/{booking}', [\App\Http\Controllers\Admin\BookingController::class, 'show'])->name('bookings.show');
+    Route::patch('bookings/{booking}/cancel', [\App\Http\Controllers\Admin\BookingController::class, 'cancel'])->name('bookings.cancel');
+
+    // No-show management
+    Route::get('no-shows', [\App\Http\Controllers\Admin\NoShowController::class, 'index'])->name('no-shows.index');
+    Route::patch('no-shows/{user}/unblock', [\App\Http\Controllers\Admin\NoShowController::class, 'unblock'])->name('no-shows.unblock');
+    Route::patch('no-shows/{user}/reset', [\App\Http\Controllers\Admin\NoShowController::class, 'resetNoShowCount'])->name('no-shows.reset');
+});
+
+// Guide routes
+Route::middleware(['auth', 'user.active', 'role:guide,admin'])->prefix('guide')->name('guide.')->group(function () {
+    // Dashboard
+    Route::get('/', [\App\Http\Controllers\Guide\DashboardController::class, 'index'])->name('dashboard');
+
+    // Schedules
+    Route::get('schedules', [\App\Http\Controllers\Guide\ScheduleController::class, 'index'])->name('schedules.index');
+    Route::get('schedules/events', [\App\Http\Controllers\Guide\ScheduleController::class, 'events'])->name('schedules.events');
+    Route::get('schedules/{booking}', [\App\Http\Controllers\Guide\ScheduleController::class, 'show'])->name('schedules.show');
+
+    // Check-in
+    Route::get('checkin', [\App\Http\Controllers\Guide\CheckinController::class, 'index'])->name('checkin.index');
+    Route::get('checkin/lookup', [\App\Http\Controllers\Guide\CheckinController::class, 'lookup'])->name('checkin.lookup');
+    Route::post('checkin/{booking}', [\App\Http\Controllers\Guide\CheckinController::class, 'checkin'])->name('checkin.store');
+
+    // Booking actions
+    Route::patch('bookings/{booking}/start', [\App\Http\Controllers\Guide\BookingController::class, 'start'])->name('bookings.start');
+    Route::patch('bookings/{booking}/complete', [\App\Http\Controllers\Guide\BookingController::class, 'complete'])->name('bookings.complete');
+    Route::patch('bookings/{booking}/no-show', [\App\Http\Controllers\Guide\BookingController::class, 'noShow'])->name('bookings.no-show');
 });

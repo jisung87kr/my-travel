@@ -19,6 +19,7 @@ class Booking extends Model
         'user_id',
         'product_id',
         'schedule_id',
+        'guide_id',
         'booking_code',
         'status',
         'adult_count',
@@ -30,6 +31,9 @@ class Booking extends Model
         'contact_phone',
         'contact_email',
         'confirmed_at',
+        'checked_in_at',
+        'started_at',
+        'completed_at',
         'cancelled_at',
         'cancellation_reason',
         'cancelled_by',
@@ -44,6 +48,9 @@ class Booking extends Model
             'infant_count' => 'integer',
             'total_price' => 'integer',
             'confirmed_at' => 'datetime',
+            'checked_in_at' => 'datetime',
+            'started_at' => 'datetime',
+            'completed_at' => 'datetime',
             'cancelled_at' => 'datetime',
         ];
     }
@@ -86,6 +93,11 @@ class Booking extends Model
         return $this->belongsTo(User::class, 'cancelled_by');
     }
 
+    public function guide(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'guide_id');
+    }
+
     public function review(): HasOne
     {
         return $this->hasOne(Review::class);
@@ -99,6 +111,21 @@ class Booking extends Model
     public function getTotalPersonsAttribute(): int
     {
         return $this->adult_count + $this->child_count + $this->infant_count;
+    }
+
+    public function getQuantityAttribute(): int
+    {
+        return $this->total_persons;
+    }
+
+    public function getTotalAmountAttribute(): int
+    {
+        return $this->total_price;
+    }
+
+    public function getBookingDateAttribute()
+    {
+        return $this->schedule?->date ?? $this->created_at;
     }
 
     public function getFormattedPriceAttribute(): string
