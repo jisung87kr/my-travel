@@ -43,7 +43,7 @@ services:
       MYSQL_USER: ${DB_USERNAME:-laravel}
       MYSQL_PASSWORD: ${DB_PASSWORD:-secret}
     ports:
-      - "3306:3306"
+      - "3305:3306"
     volumes:
       - mysql-data:/var/lib/mysql
     networks:
@@ -69,7 +69,7 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD:-secret}
       MONGO_INITDB_DATABASE: ${MONGO_DATABASE:-laravel}
     ports:
-      - "27017:27017"
+      - "27016:27017"
     volumes:
       - mongodb-data:/data/db
     networks:
