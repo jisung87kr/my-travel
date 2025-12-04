@@ -88,6 +88,18 @@ Route::middleware(['auth', 'user.active'])->group(function () {
         Route::get('/{booking}', [\App\Http\Controllers\BookingController::class, 'show'])->name('show');
         Route::delete('/{booking}', [\App\Http\Controllers\BookingController::class, 'cancel'])->name('cancel');
     });
+
+    // Review routes
+    Route::post('/bookings/{booking}/review', [\App\Http\Controllers\ReviewController::class, 'store'])->name('reviews.store');
+    Route::put('/reviews/{review}', [\App\Http\Controllers\ReviewController::class, 'update'])->name('reviews.update');
+    Route::delete('/reviews/{review}', [\App\Http\Controllers\ReviewController::class, 'destroy'])->name('reviews.destroy');
+    Route::post('/reviews/{review}/report', [\App\Http\Controllers\ReviewController::class, 'report'])->name('reviews.report');
+
+    // Message routes
+    Route::get('/messages', [\App\Http\Controllers\MessageController::class, 'conversations'])->name('messages.index');
+    Route::get('/bookings/{booking}/messages', [\App\Http\Controllers\MessageController::class, 'index'])->name('messages.thread');
+    Route::post('/bookings/{booking}/messages', [\App\Http\Controllers\MessageController::class, 'store'])->name('messages.store');
+    Route::patch('/messages/{message}/read', [\App\Http\Controllers\MessageController::class, 'markAsRead'])->name('messages.read');
 });
 
 // Vendor routes (API + Web UI)
@@ -144,6 +156,10 @@ Route::middleware(['auth', 'user.active', 'role:vendor,admin'])->prefix('vendor'
         ->name('bookings.complete');
     Route::patch('bookings/{booking}/no-show', [\App\Http\Controllers\Vendor\BookingController::class, 'markNoShow'])
         ->name('bookings.no-show');
+
+    // Review reply
+    Route::post('reviews/{review}/reply', [\App\Http\Controllers\ReviewController::class, 'reply'])
+        ->name('reviews.reply');
 });
 
 // Admin routes
