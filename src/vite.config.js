@@ -30,6 +30,7 @@ export default defineConfig({
                 manualChunks: {
                     vendor: ['vue', 'pinia', 'axios'],
                     fullcalendar: ['@fullcalendar/core', '@fullcalendar/daygrid'],
+                    lodash: ['lodash/debounce', 'lodash/throttle', 'lodash/get', 'lodash/isEmpty', 'lodash/cloneDeep'],
                 },
             },
         },
