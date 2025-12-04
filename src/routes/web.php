@@ -6,14 +6,41 @@ use App\Http\Controllers\Auth\LogoutController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\Auth\SocialLoginController;
+use App\Http\Controllers\HomeController;
+use App\Http\Controllers\Traveler\MyController;
+use App\Http\Controllers\Traveler\ProductController as TravelerProductController;
+use App\Http\Controllers\Traveler\WishlistController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('welcome');
+// Home page
+Route::get('/', [HomeController::class, 'index'])->name('home');
+
+// Locale-prefixed routes
+Route::prefix('{locale}')->where(['locale' => 'ko|en|zh|ja'])->middleware('locale')->group(function () {
+    // Public product routes
+    Route::get('/products', [TravelerProductController::class, 'index'])->name('products.index');
+    Route::get('/products/{product:slug}', [TravelerProductController::class, 'show'])->name('products.show');
+
+    // Authenticated user routes
+    Route::middleware(['auth', 'user.active'])->group(function () {
+        // My page routes
+        Route::prefix('my')->name('my.')->group(function () {
+            Route::get('/profile', [MyController::class, 'profile'])->name('profile');
+            Route::put('/profile', [MyController::class, 'updateProfile'])->name('profile.update');
+            Route::get('/bookings', [MyController::class, 'bookings'])->name('bookings');
+            Route::get('/bookings/{booking}', [MyController::class, 'bookingDetail'])->name('booking.detail');
+            Route::get('/wishlist', [MyController::class, 'wishlist'])->name('wishlist');
+        });
+    });
 });
 
-// Public product routes
-Route::prefix('products')->name('products.')->group(function () {
+// Wishlist toggle (AJAX)
+Route::middleware(['auth', 'user.active'])->group(function () {
+    Route::post('/wishlist/{product}', [WishlistController::class, 'toggle'])->name('wishlist.toggle');
+});
+
+// Legacy product routes (without locale prefix, for backward compatibility)
+Route::prefix('products')->name('products.legacy.')->group(function () {
     Route::get('/', [\App\Http\Controllers\ProductController::class, 'index'])->name('index');
     Route::get('/{product}', [\App\Http\Controllers\ProductController::class, 'show'])->name('show');
 });
