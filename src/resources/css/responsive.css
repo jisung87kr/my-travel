@@ -1,0 +1,454 @@
+/**
+ * Responsive Utility Classes
+ *
+ * Tailwind breakpoints:
+ * sm: 640px   - Mobile to Tablet
+ * md: 768px   - Tablet
+ * lg: 1024px  - Desktop
+ * xl: 1280px  - Wide
+ * 2xl: 1536px - Ultra Wide
+ */
+
+/* ==========================================
+   Container Responsive Padding
+   ========================================== */
+
+.container-responsive {
+    padding-left: 1rem;  /* 16px */
+    padding-right: 1rem;
+}
+
+@media (min-width: 640px) {
+    .container-responsive {
+        padding-left: 1.5rem;  /* 24px */
+        padding-right: 1.5rem;
+    }
+}
+
+@media (min-width: 1024px) {
+    .container-responsive {
+        padding-left: 2rem;  /* 32px */
+        padding-right: 2rem;
+    }
+}
+
+@media (min-width: 1280px) {
+    .container-responsive {
+        padding-left: 2.5rem;  /* 40px */
+        padding-right: 2.5rem;
+    }
+}
+
+/* ==========================================
+   Touch Target Minimum Size (44px)
+   ========================================== */
+
+.touch-target {
+    min-height: 44px;
+    min-width: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.touch-target-sm {
+    min-height: 36px;
+    min-width: 36px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* ==========================================
+   Mobile Text Size Adjustments
+   ========================================== */
+
+.text-responsive-xs {
+    font-size: 0.75rem;  /* 12px */
+    line-height: 1rem;
+}
+
+@media (min-width: 768px) {
+    .text-responsive-xs {
+        font-size: 0.875rem;  /* 14px */
+        line-height: 1.25rem;
+    }
+}
+
+.text-responsive-sm {
+    font-size: 0.875rem;  /* 14px */
+    line-height: 1.25rem;
+}
+
+@media (min-width: 768px) {
+    .text-responsive-sm {
+        font-size: 1rem;  /* 16px */
+        line-height: 1.5rem;
+    }
+}
+
+.text-responsive-base {
+    font-size: 1rem;  /* 16px */
+    line-height: 1.5rem;
+}
+
+@media (min-width: 768px) {
+    .text-responsive-base {
+        font-size: 1.125rem;  /* 18px */
+        line-height: 1.75rem;
+    }
+}
+
+.text-responsive-lg {
+    font-size: 1.125rem;  /* 18px */
+    line-height: 1.75rem;
+}
+
+@media (min-width: 768px) {
+    .text-responsive-lg {
+        font-size: 1.25rem;  /* 20px */
+        line-height: 1.75rem;
+    }
+}
+
+.text-responsive-xl {
+    font-size: 1.25rem;  /* 20px */
+    line-height: 1.75rem;
+}
+
+@media (min-width: 768px) {
+    .text-responsive-xl {
+        font-size: 1.5rem;  /* 24px */
+        line-height: 2rem;
+    }
+}
+
+.text-responsive-2xl {
+    font-size: 1.5rem;  /* 24px */
+    line-height: 2rem;
+}
+
+@media (min-width: 768px) {
+    .text-responsive-2xl {
+        font-size: 1.875rem;  /* 30px */
+        line-height: 2.25rem;
+    }
+}
+
+@media (min-width: 1024px) {
+    .text-responsive-2xl {
+        font-size: 2.25rem;  /* 36px */
+        line-height: 2.5rem;
+    }
+}
+
+/* ==========================================
+   Safe Area Inset (Notch Support)
+   ========================================== */
+
+.safe-area-top {
+    padding-top: env(safe-area-inset-top);
+}
+
+.safe-area-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+}
+
+.safe-area-left {
+    padding-left: env(safe-area-inset-left);
+}
+
+.safe-area-right {
+    padding-right: env(safe-area-inset-right);
+}
+
+.safe-area-inset {
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+}
+
+/* ==========================================
+   Horizontal Scroll Hide Utilities
+   ========================================== */
+
+.hide-scrollbar {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+    display: none;  /* Chrome, Safari, Opera */
+}
+
+.overflow-x-auto-hide-scrollbar {
+    overflow-x: auto;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+.overflow-x-auto-hide-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+
+/* ==========================================
+   Responsive Spacing Utilities
+   ========================================== */
+
+/* Responsive Gaps */
+.gap-responsive {
+    gap: 0.75rem;  /* 12px */
+}
+
+@media (min-width: 768px) {
+    .gap-responsive {
+        gap: 1rem;  /* 16px */
+    }
+}
+
+@media (min-width: 1024px) {
+    .gap-responsive {
+        gap: 1.5rem;  /* 24px */
+    }
+}
+
+.gap-responsive-lg {
+    gap: 1rem;  /* 16px */
+}
+
+@media (min-width: 768px) {
+    .gap-responsive-lg {
+        gap: 1.5rem;  /* 24px */
+    }
+}
+
+@media (min-width: 1024px) {
+    .gap-responsive-lg {
+        gap: 2rem;  /* 32px */
+    }
+}
+
+/* Responsive Padding */
+.p-responsive {
+    padding: 1rem;  /* 16px */
+}
+
+@media (min-width: 768px) {
+    .p-responsive {
+        padding: 1.5rem;  /* 24px */
+    }
+}
+
+@media (min-width: 1024px) {
+    .p-responsive {
+        padding: 2rem;  /* 32px */
+    }
+}
+
+/* Responsive Margins */
+.m-responsive {
+    margin: 1rem;  /* 16px */
+}
+
+@media (min-width: 768px) {
+    .m-responsive {
+        margin: 1.5rem;  /* 24px */
+    }
+}
+
+@media (min-width: 1024px) {
+    .m-responsive {
+        margin: 2rem;  /* 32px */
+    }
+}
+
+/* ==========================================
+   Mobile Navigation Utilities
+   ========================================== */
+
+.mobile-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 50;
+}
+
+@media (min-width: 768px) {
+    .mobile-nav {
+        position: static;
+    }
+}
+
+/* ==========================================
+   Aspect Ratio Utilities
+   ========================================== */
+
+.aspect-square {
+    aspect-ratio: 1 / 1;
+}
+
+.aspect-video {
+    aspect-ratio: 16 / 9;
+}
+
+.aspect-4-3 {
+    aspect-ratio: 4 / 3;
+}
+
+.aspect-3-2 {
+    aspect-ratio: 3 / 2;
+}
+
+/* ==========================================
+   Grid Responsive Layouts
+   ========================================== */
+
+.grid-responsive {
+    display: grid;
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+    gap: 1rem;
+}
+
+@media (min-width: 640px) {
+    .grid-responsive {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 1.5rem;
+    }
+}
+
+@media (min-width: 1024px) {
+    .grid-responsive {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 2rem;
+    }
+}
+
+@media (min-width: 1280px) {
+    .grid-responsive {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+}
+
+.grid-responsive-2col {
+    display: grid;
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+    gap: 1rem;
+}
+
+@media (min-width: 768px) {
+    .grid-responsive-2col {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 1.5rem;
+    }
+}
+
+/* ==========================================
+   Card Responsive Styles
+   ========================================== */
+
+.card-responsive {
+    border-radius: 8px;
+    padding: 1rem;
+}
+
+@media (min-width: 768px) {
+    .card-responsive {
+        border-radius: 12px;
+        padding: 1.5rem;
+    }
+}
+
+@media (min-width: 1024px) {
+    .card-responsive {
+        border-radius: 16px;
+        padding: 2rem;
+    }
+}
+
+/* ==========================================
+   Typography Responsive Line Clamp
+   ========================================== */
+
+.line-clamp-responsive-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+@media (min-width: 768px) {
+    .line-clamp-responsive-2 {
+        -webkit-line-clamp: 3;
+    }
+}
+
+/* ==========================================
+   Image Optimization
+   ========================================== */
+
+.img-responsive {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+.img-cover {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.img-contain {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+/* ==========================================
+   Flexible Columns
+   ========================================== */
+
+.flex-col-responsive {
+    display: flex;
+    flex-direction: column;
+}
+
+@media (min-width: 768px) {
+    .flex-col-responsive {
+        flex-direction: row;
+    }
+}
+
+/* ==========================================
+   Max Width Responsive
+   ========================================== */
+
+.max-w-responsive {
+    max-width: 100%;
+}
+
+@media (min-width: 640px) {
+    .max-w-responsive {
+        max-width: 640px;
+    }
+}
+
+@media (min-width: 768px) {
+    .max-w-responsive {
+        max-width: 768px;
+    }
+}
+
+@media (min-width: 1024px) {
+    .max-w-responsive {
+        max-width: 1024px;
+    }
+}
+
+@media (min-width: 1280px) {
+    .max-w-responsive {
+        max-width: 1280px;
+    }
+}
