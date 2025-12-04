@@ -90,10 +90,19 @@ Route::middleware(['auth', 'user.active'])->group(function () {
     });
 });
 
-// Vendor routes
+// Vendor routes (API + Web UI)
 Route::middleware(['auth', 'user.active', 'role:vendor,admin'])->prefix('vendor')->name('vendor.')->group(function () {
-    // Product management
+    // Dashboard
+    Route::get('/', [\App\Http\Controllers\Vendor\DashboardController::class, 'index'])->name('dashboard');
+
+    // Product management - API routes (JSON responses)
     Route::apiResource('products', \App\Http\Controllers\Vendor\ProductController::class);
+
+    // Product management - Web routes
+    Route::get('products/create', [\App\Http\Controllers\Vendor\ProductController::class, 'createView'])->name('products.create');
+    Route::get('products/{product}/edit', [\App\Http\Controllers\Vendor\ProductController::class, 'editView'])->name('products.edit');
+
+    // Product API endpoints
     Route::post('products/{product}/images', [\App\Http\Controllers\Vendor\ProductController::class, 'uploadImages'])
         ->name('products.images.upload');
     Route::put('products/{product}/images/reorder', [\App\Http\Controllers\Vendor\ProductController::class, 'reorderImages'])
@@ -107,7 +116,8 @@ Route::middleware(['auth', 'user.active', 'role:vendor,admin'])->prefix('vendor'
     Route::post('products/{product}/deactivate', [\App\Http\Controllers\Vendor\ProductController::class, 'deactivate'])
         ->name('products.deactivate');
 
-    // Schedule management
+    // Schedule management (Web UI + API)
+    Route::get('schedules', [\App\Http\Controllers\Vendor\ScheduleController::class, 'indexView'])->name('schedules.index');
     Route::get('products/{product}/schedules', [\App\Http\Controllers\Vendor\ScheduleController::class, 'index'])
         ->name('products.schedules.index');
     Route::post('products/{product}/schedules', [\App\Http\Controllers\Vendor\ScheduleController::class, 'store'])
@@ -121,7 +131,7 @@ Route::middleware(['auth', 'user.active', 'role:vendor,admin'])->prefix('vendor'
     Route::post('products/{product}/schedules/open', [\App\Http\Controllers\Vendor\ScheduleController::class, 'open'])
         ->name('products.schedules.open');
 
-    // Booking management
+    // Booking management (API + Web UI)
     Route::get('bookings', [\App\Http\Controllers\Vendor\BookingController::class, 'index'])
         ->name('bookings.index');
     Route::get('bookings/{booking}', [\App\Http\Controllers\Vendor\BookingController::class, 'show'])

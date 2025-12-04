@@ -8,8 +8,10 @@ use App\Http\Responses\ApiResponse;
 use App\Models\Booking;
 use App\Services\BookingService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\View\View;
 
 class BookingController extends Controller
 {
@@ -17,7 +19,7 @@ class BookingController extends Controller
         private readonly BookingService $bookingService
     ) {}
 
-    public function index(Request $request): JsonResponse
+    public function index(Request $request): JsonResponse|View
     {
         $filters = $request->only([
             'status',

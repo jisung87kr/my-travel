@@ -5,12 +5,14 @@ namespace App\Http\Controllers\Vendor;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Vendor\UpdateScheduleRequest;
 use App\Http\Responses\ApiResponse;
+use App\Models\Booking;
 use App\Models\Product;
 use App\Models\ProductSchedule;
 use App\Services\InventoryService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\View\View;
 
 class ScheduleController extends Controller
 {
@@ -18,12 +20,29 @@ class ScheduleController extends Controller
         private readonly InventoryService $inventoryService
     ) {}
 
+    // Web View Method
+    public function indexView(Request $request): View
+    {
+        $user = $request->user();
+        $vendor = $user->vendor;
+
+        $products = $vendor ? $vendor->products()
+            ->with('translations')
+            ->get()
+            ->map(fn ($p) => [
+                'id' => $p->id,
+                'title' => $p->getTranslation('ko')?->title ?? '상품',
+            ]) : collect();
+
+        return view('vendor.schedules.index', compact('products'));
+    }
+
     public function index(Request $request, Product $product): JsonResponse
     {
         Gate::authorize('view', $product);
 
         $startDate = $request->get('start_date', today()->toDateString());
-        $endDate = $request->get('end_date', today()->addMonth()->toDateString());
+        $endDate = $request->get('end_date', today()->addMonths(3)->toDateString());
 
         $schedules = $this->inventoryService->getSchedulesForProduct(
             $product->id,
@@ -31,7 +50,16 @@ class ScheduleController extends Controller
             $endDate
         );
 
-        return ApiResponse::success($schedules);
+        // Get bookings for calendar display
+        $bookings = Booking::with(['user', 'schedule'])
+            ->where('product_id', $product->id)
+            ->whereHas('schedule', fn ($q) => $q->whereBetween('date', [$startDate, $endDate]))
+            ->get();
+
+        return ApiResponse::success([
+            'schedules' => $schedules,
+            'bookings' => $bookings,
+        ]);
     }
 
     public function store(Request $request, Product $product): JsonResponse
