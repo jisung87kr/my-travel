@@ -15,6 +15,15 @@ use Illuminate\Support\Facades\Route;
 // Home page
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
+// Locale switch route
+Route::get('/locale/{locale}', function (string $locale) {
+    if (in_array($locale, ['ko', 'en', 'zh', 'ja'])) {
+        session(['locale' => $locale]);
+        app()->setLocale($locale);
+    }
+    return redirect()->back();
+})->name('locale.switch');
+
 // Locale-prefixed routes
 Route::prefix('{locale}')->where(['locale' => 'ko|en|zh|ja'])->middleware('locale')->group(function () {
     // Public product routes
