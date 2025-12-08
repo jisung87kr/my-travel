@@ -88,8 +88,13 @@ class ProductController extends Controller
         return view('traveler.products.index', compact('products', 'regions', 'types'));
     }
 
-    public function show(string $locale, Product $product): View
+    public function show(string $locale, string $product): View
     {
+        // Find product by slug or ID
+        $product = Product::where('slug', $product)
+            ->orWhere('id', $product)
+            ->firstOrFail();
+
         if (!$product->isActive()) {
             abort(404);
         }

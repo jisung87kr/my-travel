@@ -28,7 +28,7 @@ Route::get('/locale/{locale}', function (string $locale) {
 Route::prefix('{locale}')->where(['locale' => 'ko|en|zh|ja'])->middleware('locale')->group(function () {
     // Public product routes
     Route::get('/products', [TravelerProductController::class, 'index'])->name('products.index');
-    Route::get('/products/{product:slug}', [TravelerProductController::class, 'show'])->name('products.show');
+    Route::get('/products/{product}', [TravelerProductController::class, 'show'])->name('products.show');
 
     // Authenticated user routes
     Route::middleware(['auth', 'user.active'])->group(function () {

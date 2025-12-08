@@ -476,8 +476,48 @@
     @push('scripts')
     <script>
         // Wishlist Toggle
-        function toggleWishlist(productId) {
-            console.log('Toggle wishlist:', productId);
+        function toggleWishlist(productId, button) {
+            const icon = button.querySelector('.wishlist-icon');
+            const isWishlisted = button.dataset.wishlisted === 'true';
+
+            // Optimistic UI update
+            button.classList.add('pointer-events-none');
+
+            fetch(`/wishlist/${productId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '{{ csrf_token() }}',
+                    'Accept': 'application/json',
+                },
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const nowWishlisted = data.added;
+                    button.dataset.wishlisted = nowWishlisted ? 'true' : 'false';
+
+                    if (nowWishlisted) {
+                        button.classList.remove('text-gray-500');
+                        button.classList.add('text-pink-500');
+                        icon.setAttribute('fill', 'currentColor');
+                    } else {
+                        button.classList.remove('text-pink-500');
+                        button.classList.add('text-gray-500');
+                        icon.setAttribute('fill', 'none');
+                    }
+
+                    // Add heart animation
+                    icon.classList.add('scale-125');
+                    setTimeout(() => icon.classList.remove('scale-125'), 200);
+                }
+            })
+            .catch(error => {
+                console.error('Wishlist error:', error);
+            })
+            .finally(() => {
+                button.classList.remove('pointer-events-none');
+            });
         }
 
         // Carousel Navigation

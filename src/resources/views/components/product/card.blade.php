@@ -66,12 +66,14 @@ $p = is_array($product) ? (object) $product : $product;
     <!-- Wishlist Button -->
     @if($showWishlist)
         @auth
+            @php $isWishlisted = $p->isWishlisted ?? false; @endphp
             <button type="button"
-                    class="absolute top-3 right-3 w-9 h-9 rounded-full bg-white/90 hover:bg-white shadow-lg flex items-center justify-center text-gray-500 hover:text-pink-500 transition-all duration-200 cursor-pointer wishlist-btn z-10"
+                    class="absolute top-3 right-3 w-9 h-9 rounded-full bg-white/90 hover:bg-white shadow-lg flex items-center justify-center transition-all duration-200 cursor-pointer wishlist-btn z-10 {{ $isWishlisted ? 'text-pink-500' : 'text-gray-500 hover:text-pink-500' }}"
                     data-product-id="{{ $p->id }}"
+                    data-wishlisted="{{ $isWishlisted ? 'true' : 'false' }}"
                     onclick="event.preventDefault(); event.stopPropagation(); toggleWishlist({{ $p->id }}, this)">
                 <svg class="w-5 h-5 wishlist-icon transition-transform hover:scale-110"
-                     fill="none"
+                     fill="{{ $isWishlisted ? 'currentColor' : 'none' }}"
                      stroke="currentColor"
                      viewBox="0 0 24 24"
                      stroke-width="1.5">

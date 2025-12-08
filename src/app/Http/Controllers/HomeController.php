@@ -73,6 +73,13 @@ class HomeController extends Controller
         $lowestPrice = $product->prices->where('is_active', true)->min('price');
         $primaryImage = $product->images->firstWhere('is_primary', true) ?? $product->images->first();
 
+        $isWishlisted = false;
+        if (auth()->check()) {
+            $isWishlisted = $product->wishlists()
+                ->where('user_id', auth()->id())
+                ->exists();
+        }
+
         return [
             'id' => $product->id,
             'slug' => $product->slug,
@@ -86,6 +93,7 @@ class HomeController extends Controller
             'rating' => (float) $product->average_rating,
             'review_count' => $product->review_count,
             'reviewCount' => $product->review_count,
+            'isWishlisted' => $isWishlisted,
         ];
     }
 }
