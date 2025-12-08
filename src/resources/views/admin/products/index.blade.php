@@ -1,6 +1,20 @@
 <x-layouts.admin>
     <x-slot name="header">상품 관리</x-slot>
 
+    <!-- Header Actions -->
+    <div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div class="text-sm text-gray-500">
+            총 {{ $products->total() }}개의 상품
+        </div>
+        <a href="{{ route('admin.products.create') }}"
+           class="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+            </svg>
+            상품 등록
+        </a>
+    </div>
+
     <!-- Filters -->
     <div class="mb-6 bg-white rounded-lg shadow p-4">
         <form method="GET" action="{{ route('admin.products.index') }}" class="flex flex-wrap gap-4">
@@ -92,33 +106,41 @@
                             @endif
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm">
-                            <a href="{{ route('admin.products.show', $product) }}" class="text-indigo-600 hover:text-indigo-900 mr-3">
-                                상세
-                            </a>
-                            @if($product->status === 'pending_review')
-                                <form method="POST" action="{{ route('admin.products.approve', $product) }}" class="inline">
-                                    @csrf
-                                    @method('PATCH')
-                                    <button type="submit" class="text-green-600 hover:text-green-900 mr-2">
-                                        승인
-                                    </button>
-                                </form>
-                                <form method="POST" action="{{ route('admin.products.reject', $product) }}" class="inline">
-                                    @csrf
-                                    @method('PATCH')
-                                    <button type="submit" class="text-red-600 hover:text-red-900">
-                                        반려
-                                    </button>
-                                </form>
-                            @else
-                                <form method="POST" action="{{ route('admin.products.toggle', $product) }}" class="inline">
-                                    @csrf
-                                    @method('PATCH')
-                                    <button type="submit" class="{{ $product->status === 'active' ? 'text-yellow-600 hover:text-yellow-900' : 'text-green-600 hover:text-green-900' }}">
-                                        {{ $product->status === 'active' ? '비활성화' : '활성화' }}
-                                    </button>
-                                </form>
-                            @endif
+                            <div class="flex items-center justify-end gap-2">
+                                <a href="{{ route('admin.products.show', $product) }}" class="text-indigo-600 hover:text-indigo-900">
+                                    상세
+                                </a>
+                                <a href="{{ route('admin.products.edit', $product) }}" class="text-gray-600 hover:text-gray-900">
+                                    수정
+                                </a>
+                                @php
+                                    $statusValue = $product->status->value ?? $product->status;
+                                @endphp
+                                @if($statusValue === 'pending_review' || $statusValue === 'pending')
+                                    <form method="POST" action="{{ route('admin.products.approve', $product) }}" class="inline">
+                                        @csrf
+                                        @method('PATCH')
+                                        <button type="submit" class="text-green-600 hover:text-green-900">
+                                            승인
+                                        </button>
+                                    </form>
+                                    <form method="POST" action="{{ route('admin.products.reject', $product) }}" class="inline">
+                                        @csrf
+                                        @method('PATCH')
+                                        <button type="submit" class="text-red-600 hover:text-red-900">
+                                            반려
+                                        </button>
+                                    </form>
+                                @else
+                                    <form method="POST" action="{{ route('admin.products.toggle', $product) }}" class="inline">
+                                        @csrf
+                                        @method('PATCH')
+                                        <button type="submit" class="{{ $statusValue === 'active' ? 'text-yellow-600 hover:text-yellow-900' : 'text-green-600 hover:text-green-900' }}">
+                                            {{ $statusValue === 'active' ? '비활성화' : '활성화' }}
+                                        </button>
+                                    </form>
+                                @endif
+                            </div>
                         </td>
                     </tr>
                 @empty

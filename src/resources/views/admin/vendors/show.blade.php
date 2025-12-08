@@ -14,13 +14,18 @@
                 </div>
 
                 <div class="space-y-4">
+                    @php
+                        $statusValue = $vendor->status->value ?? $vendor->status;
+                    @endphp
                     <div class="flex justify-between">
                         <span class="text-gray-500">상태</span>
                         <span>
-                            @if($vendor->status === 'approved')
+                            @if($statusValue === 'approved')
                                 <span class="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800">승인됨</span>
-                            @elseif($vendor->status === 'pending')
+                            @elseif($statusValue === 'pending')
                                 <span class="px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-800">대기중</span>
+                            @elseif($statusValue === 'suspended')
+                                <span class="px-2 py-1 text-xs rounded-full bg-orange-100 text-orange-800">정지됨</span>
                             @else
                                 <span class="px-2 py-1 text-xs rounded-full bg-red-100 text-red-800">거절됨</span>
                             @endif
@@ -59,7 +64,12 @@
                 @endif
 
                 <div class="mt-6 pt-6 border-t border-gray-200 space-y-3">
-                    @if($vendor->status === 'pending')
+                    <a href="{{ route('admin.vendors.edit', $vendor) }}"
+                       class="block w-full px-4 py-2 bg-indigo-600 text-white text-center rounded-lg hover:bg-indigo-700">
+                        수정
+                    </a>
+
+                    @if($statusValue === 'pending')
                         <form method="POST" action="{{ route('admin.vendors.approve', $vendor) }}">
                             @csrf
                             @method('PATCH')
@@ -70,7 +80,7 @@
                         <button type="button" onclick="openRejectModal()" class="w-full px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">
                             거절하기
                         </button>
-                    @elseif($vendor->status === 'rejected')
+                    @elseif($statusValue === 'rejected')
                         <form method="POST" action="{{ route('admin.vendors.approve', $vendor) }}">
                             @csrf
                             @method('PATCH')
@@ -78,6 +88,28 @@
                                 승인으로 변경
                             </button>
                         </form>
+                    @elseif($statusValue === 'approved')
+                        <form method="POST" action="{{ route('admin.vendors.suspend', $vendor) }}">
+                            @csrf
+                            @method('PATCH')
+                            <button type="submit" class="w-full px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700">
+                                정지하기
+                            </button>
+                        </form>
+                    @elseif($statusValue === 'suspended')
+                        <form method="POST" action="{{ route('admin.vendors.approve', $vendor) }}">
+                            @csrf
+                            @method('PATCH')
+                            <button type="submit" class="w-full px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
+                                정지 해제
+                            </button>
+                        </form>
+                    @endif
+
+                    @if($vendor->products()->count() === 0)
+                        <button type="button" onclick="openDeleteModal()" class="w-full px-4 py-2 border border-red-300 text-red-600 rounded-lg hover:bg-red-50">
+                            제공자 삭제
+                        </button>
                     @endif
                 </div>
             </div>
@@ -169,6 +201,26 @@
         </div>
     </div>
 
+    <!-- Delete Confirmation Modal -->
+    <div id="deleteModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-lg p-6 w-full max-w-md">
+            <h3 class="text-lg font-semibold mb-4">제공자 삭제</h3>
+            <p class="text-gray-600 mb-6">정말 이 제공자를 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.</p>
+            <form method="POST" action="{{ route('admin.vendors.destroy', $vendor) }}">
+                @csrf
+                @method('DELETE')
+                <div class="flex justify-end gap-3">
+                    <button type="button" onclick="closeDeleteModal()" class="px-4 py-2 text-gray-600 hover:text-gray-900">
+                        취소
+                    </button>
+                    <button type="submit" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">
+                        삭제
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script>
         function openRejectModal() {
             document.getElementById('rejectModal').classList.remove('hidden');
@@ -178,6 +230,16 @@
         function closeRejectModal() {
             document.getElementById('rejectModal').classList.add('hidden');
             document.getElementById('rejectModal').classList.remove('flex');
+        }
+
+        function openDeleteModal() {
+            document.getElementById('deleteModal').classList.remove('hidden');
+            document.getElementById('deleteModal').classList.add('flex');
+        }
+
+        function closeDeleteModal() {
+            document.getElementById('deleteModal').classList.add('hidden');
+            document.getElementById('deleteModal').classList.remove('flex');
         }
     </script>
 </x-layouts.admin>

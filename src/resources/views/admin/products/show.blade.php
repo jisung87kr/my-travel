@@ -48,7 +48,15 @@
                     </div>
 
                     <div class="mt-6 pt-6 border-t border-gray-200 space-y-3">
-                        @if($product->status === 'pending_review')
+                        <a href="{{ route('admin.products.edit', $product) }}"
+                           class="block w-full px-4 py-2 bg-indigo-600 text-white text-center rounded-lg hover:bg-indigo-700">
+                            수정
+                        </a>
+
+                        @php
+                            $statusValue = $product->status->value ?? $product->status;
+                        @endphp
+                        @if($statusValue === 'pending_review' || $statusValue === 'pending')
                             <form method="POST" action="{{ route('admin.products.approve', $product) }}">
                                 @csrf
                                 @method('PATCH')
@@ -67,10 +75,19 @@
                             <form method="POST" action="{{ route('admin.products.toggle', $product) }}">
                                 @csrf
                                 @method('PATCH')
-                                <button type="submit" class="w-full px-4 py-2 {{ $product->status === 'active' ? 'bg-yellow-600 hover:bg-yellow-700' : 'bg-green-600 hover:bg-green-700' }} text-white rounded-lg">
-                                    {{ $product->status === 'active' ? '비활성화' : '활성화' }}
+                                <button type="submit" class="w-full px-4 py-2 {{ $statusValue === 'active' ? 'bg-yellow-600 hover:bg-yellow-700' : 'bg-green-600 hover:bg-green-700' }} text-white rounded-lg">
+                                    {{ $statusValue === 'active' ? '비활성화' : '활성화' }}
                                 </button>
                             </form>
+                        @endif
+
+                        @php
+                            $hasActiveBookings = $product->bookings()->whereNotIn('status', ['cancelled', 'completed', 'no_show'])->count() > 0;
+                        @endphp
+                        @if(!$hasActiveBookings)
+                            <button type="button" onclick="openDeleteModal()" class="w-full px-4 py-2 border border-red-300 text-red-600 rounded-lg hover:bg-red-50">
+                                상품 삭제
+                            </button>
                         @endif
                     </div>
                 </div>
@@ -85,8 +102,8 @@
                 @foreach($product->translations as $translation)
                     <div class="mb-6 last:mb-0">
                         <div class="flex items-center gap-2 mb-2">
-                            <span class="px-2 py-1 text-xs rounded bg-gray-100">{{ strtoupper($translation->locale) }}</span>
-                            <span class="font-medium">{{ $translation->title }}</span>
+                            <span class="px-2 py-1 text-xs rounded bg-gray-100">{{ strtoupper($translation->locale->value ?? $translation->locale) }}</span>
+                            <span class="font-medium">{{ $translation->title ?? $translation->name }}</span>
                         </div>
                         <p class="text-gray-600 text-sm">{{ $translation->description }}</p>
                     </div>
@@ -140,4 +157,36 @@
     <div class="mt-6">
         <a href="{{ route('admin.products.index') }}" class="text-indigo-600 hover:underline">&larr; 목록으로</a>
     </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div id="deleteModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-lg p-6 w-full max-w-md">
+            <h3 class="text-lg font-semibold mb-4">상품 삭제</h3>
+            <p class="text-gray-600 mb-6">정말 이 상품을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.</p>
+            <form method="POST" action="{{ route('admin.products.destroy', $product) }}">
+                @csrf
+                @method('DELETE')
+                <div class="flex justify-end gap-3">
+                    <button type="button" onclick="closeDeleteModal()" class="px-4 py-2 text-gray-600 hover:text-gray-900">
+                        취소
+                    </button>
+                    <button type="submit" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">
+                        삭제
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function openDeleteModal() {
+            document.getElementById('deleteModal').classList.remove('hidden');
+            document.getElementById('deleteModal').classList.add('flex');
+        }
+
+        function closeDeleteModal() {
+            document.getElementById('deleteModal').classList.add('hidden');
+            document.getElementById('deleteModal').classList.remove('flex');
+        }
+    </script>
 </x-layouts.admin>

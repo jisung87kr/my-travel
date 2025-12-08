@@ -180,20 +180,37 @@ Route::middleware(['auth', 'user.active', 'role:admin'])->prefix('admin')->name(
 
     // User management
     Route::get('users', [\App\Http\Controllers\Admin\UserController::class, 'index'])->name('users.index');
+    Route::get('users/create', [\App\Http\Controllers\Admin\UserController::class, 'create'])->name('users.create');
+    Route::post('users', [\App\Http\Controllers\Admin\UserController::class, 'store'])->name('users.store');
     Route::get('users/{user}', [\App\Http\Controllers\Admin\UserController::class, 'show'])->name('users.show');
+    Route::get('users/{user}/edit', [\App\Http\Controllers\Admin\UserController::class, 'edit'])->name('users.edit');
+    Route::put('users/{user}', [\App\Http\Controllers\Admin\UserController::class, 'update'])->name('users.update');
+    Route::delete('users/{user}', [\App\Http\Controllers\Admin\UserController::class, 'destroy'])->name('users.destroy');
     Route::patch('users/{user}/toggle', [\App\Http\Controllers\Admin\UserController::class, 'toggle'])->name('users.toggle');
     Route::patch('users/{user}/block', [\App\Http\Controllers\Admin\UserController::class, 'block'])->name('users.block');
     Route::patch('users/{user}/unblock', [\App\Http\Controllers\Admin\UserController::class, 'unblock'])->name('users.unblock');
+    Route::patch('users/{id}/restore', [\App\Http\Controllers\Admin\UserController::class, 'restore'])->name('users.restore');
 
     // Vendor management
     Route::get('vendors', [\App\Http\Controllers\Admin\VendorController::class, 'index'])->name('vendors.index');
+    Route::get('vendors/create', [\App\Http\Controllers\Admin\VendorController::class, 'create'])->name('vendors.create');
+    Route::post('vendors', [\App\Http\Controllers\Admin\VendorController::class, 'store'])->name('vendors.store');
     Route::get('vendors/{vendor}', [\App\Http\Controllers\Admin\VendorController::class, 'show'])->name('vendors.show');
+    Route::get('vendors/{vendor}/edit', [\App\Http\Controllers\Admin\VendorController::class, 'edit'])->name('vendors.edit');
+    Route::put('vendors/{vendor}', [\App\Http\Controllers\Admin\VendorController::class, 'update'])->name('vendors.update');
+    Route::delete('vendors/{vendor}', [\App\Http\Controllers\Admin\VendorController::class, 'destroy'])->name('vendors.destroy');
     Route::patch('vendors/{vendor}/approve', [\App\Http\Controllers\Admin\VendorController::class, 'approve'])->name('vendors.approve');
     Route::patch('vendors/{vendor}/reject', [\App\Http\Controllers\Admin\VendorController::class, 'reject'])->name('vendors.reject');
+    Route::patch('vendors/{vendor}/suspend', [\App\Http\Controllers\Admin\VendorController::class, 'suspend'])->name('vendors.suspend');
 
     // Product management
     Route::get('products', [\App\Http\Controllers\Admin\ProductController::class, 'index'])->name('products.index');
+    Route::get('products/create', [\App\Http\Controllers\Admin\ProductController::class, 'create'])->name('products.create');
+    Route::post('products', [\App\Http\Controllers\Admin\ProductController::class, 'store'])->name('products.store');
     Route::get('products/{product}', [\App\Http\Controllers\Admin\ProductController::class, 'show'])->name('products.show');
+    Route::get('products/{product}/edit', [\App\Http\Controllers\Admin\ProductController::class, 'edit'])->name('products.edit');
+    Route::put('products/{product}', [\App\Http\Controllers\Admin\ProductController::class, 'update'])->name('products.update');
+    Route::delete('products/{product}', [\App\Http\Controllers\Admin\ProductController::class, 'destroy'])->name('products.destroy');
     Route::patch('products/{product}/approve', [\App\Http\Controllers\Admin\ProductController::class, 'approve'])->name('products.approve');
     Route::patch('products/{product}/reject', [\App\Http\Controllers\Admin\ProductController::class, 'reject'])->name('products.reject');
     Route::patch('products/{product}/toggle', [\App\Http\Controllers\Admin\ProductController::class, 'toggle'])->name('products.toggle');

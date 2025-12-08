@@ -11,6 +11,9 @@
                     </div>
                     <h2 class="mt-4 text-xl font-semibold">{{ $user->name }}</h2>
                     <p class="text-gray-500">{{ $user->email }}</p>
+                    @if($user->phone)
+                        <p class="text-gray-500 text-sm mt-1">{{ $user->phone }}</p>
+                    @endif
                 </div>
 
                 <div class="space-y-4">
@@ -18,7 +21,23 @@
                         <span class="text-gray-500">역할</span>
                         <div class="flex gap-1">
                             @foreach($user->roles as $role)
-                                <span class="px-2 py-1 text-xs rounded-full bg-gray-100">{{ $role->name }}</span>
+                                @php
+                                    $roleColors = [
+                                        'admin' => 'bg-purple-100 text-purple-800',
+                                        'vendor' => 'bg-blue-100 text-blue-800',
+                                        'guide' => 'bg-cyan-100 text-cyan-800',
+                                        'traveler' => 'bg-gray-100 text-gray-800',
+                                    ];
+                                    $roleNames = [
+                                        'admin' => '관리자',
+                                        'vendor' => '제공자',
+                                        'guide' => '가이드',
+                                        'traveler' => '여행자',
+                                    ];
+                                @endphp
+                                <span class="px-2 py-1 text-xs rounded-full {{ $roleColors[$role->name] ?? 'bg-gray-100 text-gray-800' }}">
+                                    {{ $roleNames[$role->name] ?? $role->name }}
+                                </span>
                             @endforeach
                         </div>
                     </div>
@@ -36,7 +55,7 @@
                     </div>
                     <div class="flex justify-between">
                         <span class="text-gray-500">가입일</span>
-                        <span>{{ $user->created_at->format('Y-m-d') }}</span>
+                        <span>{{ $user->created_at->format('Y-m-d H:i') }}</span>
                     </div>
                     <div class="flex justify-between">
                         <span class="text-gray-500">노쇼 횟수</span>
@@ -44,9 +63,20 @@
                             {{ $user->no_show_count }}회
                         </span>
                     </div>
+                    @if($user->provider)
+                        <div class="flex justify-between">
+                            <span class="text-gray-500">소셜 로그인</span>
+                            <span>{{ ucfirst($user->provider) }}</span>
+                        </div>
+                    @endif
                 </div>
 
                 <div class="mt-6 pt-6 border-t border-gray-200 space-y-3">
+                    <a href="{{ route('admin.users.edit', $user) }}"
+                       class="block w-full px-4 py-2 bg-indigo-600 text-white text-center rounded-lg hover:bg-indigo-700">
+                        수정
+                    </a>
+
                     @if($user->is_blocked)
                         <form method="POST" action="{{ route('admin.users.unblock', $user) }}">
                             @csrf
@@ -63,13 +93,15 @@
                                 {{ $user->is_active ? '비활성화' : '활성화' }}
                             </button>
                         </form>
-                        <form method="POST" action="{{ route('admin.users.block', $user) }}">
-                            @csrf
-                            @method('PATCH')
-                            <button type="submit" class="w-full px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">
-                                차단하기
-                            </button>
-                        </form>
+                        @if(!$user->hasRole('admin'))
+                            <form method="POST" action="{{ route('admin.users.block', $user) }}">
+                                @csrf
+                                @method('PATCH')
+                                <button type="submit" class="w-full px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">
+                                    차단하기
+                                </button>
+                            </form>
+                        @endif
                     @endif
                 </div>
             </div>
@@ -94,7 +126,7 @@
                                 @endif
                             </p>
                         </div>
-                        <a href="{{ route('admin.vendors.show', $user->vendor) }}" class="text-indigo-600 hover:underline text-sm">
+                        <a href="{{ route('admin.vendors.show', $user->vendor) }}" class="inline-block text-indigo-600 hover:underline text-sm">
                             제공자 상세 &rarr;
                         </a>
                     </div>
@@ -123,19 +155,29 @@
                                 <tr class="hover:bg-gray-50">
                                     <td class="px-6 py-4">
                                         <div class="text-sm font-medium text-gray-900">
-                                            {{ $booking->product->getTranslation('ko')?->title ?? '상품' }}
+                                            {{ $booking->product->translations->where('locale', 'ko')->first()?->title ?? $booking->product->slug }}
                                         </div>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        {{ $booking->booking_date->format('Y-m-d') }}
+                                        {{ $booking->schedule?->date?->format('Y-m-d') ?? $booking->created_at->format('Y-m-d') }}
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
-                                        <span class="px-2 py-1 text-xs rounded-full {{ $booking->status->color() }}">
+                                        @php
+                                            $statusColors = [
+                                                'pending' => 'bg-yellow-100 text-yellow-800',
+                                                'confirmed' => 'bg-blue-100 text-blue-800',
+                                                'in_progress' => 'bg-indigo-100 text-indigo-800',
+                                                'completed' => 'bg-green-100 text-green-800',
+                                                'cancelled' => 'bg-gray-100 text-gray-800',
+                                                'no_show' => 'bg-red-100 text-red-800',
+                                            ];
+                                        @endphp
+                                        <span class="px-2 py-1 text-xs rounded-full {{ $statusColors[$booking->status->value] ?? 'bg-gray-100 text-gray-800' }}">
                                             {{ $booking->status->label() }}
                                         </span>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        {{ number_format($booking->total_amount) }}원
+                                        {{ number_format($booking->total_price) }}원
                                     </td>
                                 </tr>
                             @empty

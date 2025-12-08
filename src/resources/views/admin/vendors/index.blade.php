@@ -1,6 +1,20 @@
 <x-layouts.admin>
     <x-slot name="header">제공자 관리</x-slot>
 
+    <!-- Header Actions -->
+    <div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div class="text-sm text-gray-500">
+            총 {{ $vendors->total() }}개의 제공자
+        </div>
+        <a href="{{ route('admin.vendors.create') }}"
+           class="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+            </svg>
+            제공자 등록
+        </a>
+    </div>
+
     <!-- Stats -->
     <div class="grid grid-cols-3 gap-4 mb-6">
         <div class="bg-yellow-50 rounded-lg p-4 text-center">
@@ -68,30 +82,40 @@
                             {{ $vendor->created_at->format('Y-m-d') }}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
-                            @if($vendor->status === 'approved')
+                            @php
+                                $statusValue = $vendor->status->value ?? $vendor->status;
+                            @endphp
+                            @if($statusValue === 'approved')
                                 <span class="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800">승인됨</span>
-                            @elseif($vendor->status === 'pending')
+                            @elseif($statusValue === 'pending')
                                 <span class="px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-800">대기중</span>
+                            @elseif($statusValue === 'suspended')
+                                <span class="px-2 py-1 text-xs rounded-full bg-orange-100 text-orange-800">정지됨</span>
                             @else
                                 <span class="px-2 py-1 text-xs rounded-full bg-red-100 text-red-800">거절됨</span>
                             @endif
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm">
-                            <a href="{{ route('admin.vendors.show', $vendor) }}" class="text-indigo-600 hover:text-indigo-900 mr-3">
-                                상세
-                            </a>
-                            @if($vendor->status === 'pending')
-                                <form method="POST" action="{{ route('admin.vendors.approve', $vendor) }}" class="inline">
-                                    @csrf
-                                    @method('PATCH')
-                                    <button type="submit" class="text-green-600 hover:text-green-900 mr-2">
-                                        승인
+                            <div class="flex items-center justify-end gap-2">
+                                <a href="{{ route('admin.vendors.show', $vendor) }}" class="text-indigo-600 hover:text-indigo-900">
+                                    상세
+                                </a>
+                                <a href="{{ route('admin.vendors.edit', $vendor) }}" class="text-gray-600 hover:text-gray-900">
+                                    수정
+                                </a>
+                                @if($vendor->status->value === 'pending' || $vendor->status === 'pending')
+                                    <form method="POST" action="{{ route('admin.vendors.approve', $vendor) }}" class="inline">
+                                        @csrf
+                                        @method('PATCH')
+                                        <button type="submit" class="text-green-600 hover:text-green-900">
+                                            승인
+                                        </button>
+                                    </form>
+                                    <button type="button" onclick="openRejectModal({{ $vendor->id }})" class="text-red-600 hover:text-red-900">
+                                        거절
                                     </button>
-                                </form>
-                                <button type="button" onclick="openRejectModal({{ $vendor->id }})" class="text-red-600 hover:text-red-900">
-                                    거절
-                                </button>
-                            @endif
+                                @endif
+                            </div>
                         </td>
                     </tr>
                 @empty
