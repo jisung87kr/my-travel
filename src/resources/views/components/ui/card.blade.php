@@ -18,10 +18,10 @@
 ])
 
 @php
-$baseClasses = 'bg-white rounded-xl shadow-card transition duration-200 ease-in-out';
+$baseClasses = 'bg-white rounded-2xl shadow-sm transition-all duration-300 ease-in-out';
 
 if ($hoverable) {
-    $baseClasses .= ' hover:shadow-card-hover';
+    $baseClasses .= ' hover:shadow-lg';
 }
 
 $paddingClasses = [
