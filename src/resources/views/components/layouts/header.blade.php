@@ -1,198 +1,207 @@
 <header x-data="{ scrolled: false, mobileMenuOpen: false }"
-        @scroll.window="scrolled = window.scrollY > 50"
-        :class="{ 'bg-white shadow-md': scrolled, 'bg-transparent': !scrolled }"
+        x-init="window.addEventListener('scroll', () => { scrolled = window.scrollY > 20 })"
+        :class="scrolled ? 'bg-white/80 backdrop-blur-md shadow-sm border-b border-gray-100' : 'bg-white/80 backdrop-blur-md'"
         class="fixed top-0 left-0 right-0 z-50 transition-all duration-300">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between items-center h-16 lg:h-20">
+        <div class="flex justify-between items-center h-16 lg:h-18">
             <!-- Logo -->
             <div class="flex-shrink-0">
-                <a href="{{ route('home') }}" class="flex items-center space-x-2" aria-label="Home">
-                    <svg class="w-8 h-8 lg:w-10 lg:h-10 text-primary-600" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                        <path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5zm0 18c-3.86-.95-6.77-4.67-6.99-9h13.98c-.22 4.33-3.13 8.05-6.99 9zm7-11H5V7.3l7-3.5 7 3.5V9z"/>
-                    </svg>
-                    <span class="text-xl lg:text-2xl font-bold text-primary-600">My Travel</span>
+                <a href="{{ route('home') }}" class="flex items-center gap-2 group" aria-label="Home">
+                    <!-- Modern Logo Icon -->
+                    <div class="relative">
+                        <div class="w-9 h-9 lg:w-10 lg:h-10 rounded-xl bg-gradient-to-br from-pink-500 to-rose-600 flex items-center justify-center shadow-lg shadow-pink-500/25 group-hover:shadow-pink-500/40 transition-shadow">
+                            <svg class="w-5 h-5 lg:w-6 lg:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
+                            </svg>
+                        </div>
+                    </div>
+                    <span class="text-lg lg:text-xl font-bold text-gray-900">
+                        My Travel
+                    </span>
                 </a>
             </div>
 
-            <!-- Desktop Search Bar (Hidden on Mobile/Tablet) -->
-            <div class="hidden lg:flex flex-1 max-w-2xl mx-8">
-                <div class="w-full bg-white rounded-lg shadow-card hover:shadow-card-hover transition-shadow border border-gray-200">
-                    <div class="flex items-center divide-x divide-gray-200">
-                        <!-- Location Button -->
-                        <button type="button"
-                                class="flex-1 px-4 py-3 text-left hover:bg-gray-50 rounded-l-lg transition-colors"
-                                aria-label="Select location">
-                            <div class="text-xs font-semibold text-gray-900">{{ __('search.location') }}</div>
-                            <div class="text-sm text-gray-500">{{ __('search.where_to') }}</div>
-                        </button>
-
-                        <!-- Date Button -->
-                        <button type="button"
-                                class="flex-1 px-4 py-3 text-left hover:bg-gray-50 transition-colors"
-                                aria-label="Select dates">
-                            <div class="text-xs font-semibold text-gray-900">{{ __('search.dates') }}</div>
-                            <div class="text-sm text-gray-500">{{ __('search.add_dates') }}</div>
-                        </button>
-
-                        <!-- Guests Button -->
-                        <button type="button"
-                                class="flex-1 px-4 py-3 text-left hover:bg-gray-50 transition-colors"
-                                aria-label="Select number of guests">
-                            <div class="text-xs font-semibold text-gray-900">{{ __('search.guests') }}</div>
-                            <div class="text-sm text-gray-500">{{ __('search.add_guests') }}</div>
-                        </button>
-
+            <!-- Desktop Search Bar -->
+            <div class="hidden lg:flex flex-1 max-w-xl mx-8">
+                <div class="w-full relative transition-all duration-300"
+                     x-show="scrolled"
+                     x-transition:enter="transition ease-out duration-200"
+                     x-transition:enter-start="opacity-0 transform -translate-y-2"
+                     x-transition:enter-end="opacity-100 transform translate-y-0"
+                     x-transition:leave="transition ease-in duration-150"
+                     x-transition:leave-start="opacity-100"
+                     x-transition:leave-end="opacity-0"
+                     style="display: none;">
+                    <form action="{{ route('products.index', ['locale' => app()->getLocale()]) }}" method="GET"
+                          class="flex items-center bg-gray-100 hover:bg-gray-50 border border-gray-200 hover:border-gray-300 rounded-full transition-all duration-200 hover:shadow-md">
+                        <div class="flex-1 flex items-center">
+                            <!-- Location -->
+                            <button type="button" class="flex items-center gap-2 px-4 py-2.5 text-left rounded-l-full hover:bg-white transition-colors">
+                                <span class="text-sm font-medium text-gray-900">{{ __('search.where_to') }}</span>
+                            </button>
+                            <div class="w-px h-6 bg-gray-300"></div>
+                            <!-- Date -->
+                            <button type="button" class="flex items-center gap-2 px-4 py-2.5 text-left hover:bg-white transition-colors">
+                                <span class="text-sm font-medium text-gray-500">{{ __('search.add_dates') }}</span>
+                            </button>
+                            <div class="w-px h-6 bg-gray-300"></div>
+                            <!-- Guests -->
+                            <button type="button" class="flex items-center gap-2 px-4 py-2.5 text-left hover:bg-white transition-colors">
+                                <span class="text-sm font-medium text-gray-500">{{ __('search.add_guests') }}</span>
+                            </button>
+                        </div>
                         <!-- Search Button -->
-                        <button type="button"
-                                class="px-4 py-3 bg-primary-600 hover:bg-primary-700 rounded-r-lg transition-colors"
+                        <button type="submit"
+                                class="m-1.5 p-2.5 bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 rounded-full text-white shadow-md hover:shadow-lg transition-all duration-200"
                                 aria-label="Search">
-                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                             </svg>
                         </button>
-                    </div>
+                    </form>
                 </div>
             </div>
 
             <!-- Right Side Navigation -->
-            <div class="flex items-center space-x-3 lg:space-x-4">
+            <div class="flex items-center gap-1 sm:gap-2">
                 <!-- Language Selector -->
                 <div x-data="{ open: false }" class="relative hidden md:block">
                     <button @click="open = !open"
                             type="button"
-                            class="flex items-center space-x-1 px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors"
+                            class="flex items-center gap-1.5 px-3 py-2 rounded-full transition-colors text-gray-700 hover:bg-gray-100"
                             :aria-expanded="open"
                             aria-label="Select language">
-                        <svg class="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" />
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 017.843 4.582M12 3a8.997 8.997 0 00-7.843 4.582m15.686 0A11.953 11.953 0 0112 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0121 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0112 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 013 12c0-1.605.42-3.113 1.157-4.418" />
                         </svg>
-                        <span class="text-sm font-medium text-gray-700">{{ strtoupper(app()->getLocale()) }}</span>
-                        <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                        </svg>
+                        <span class="text-sm font-medium">{{ strtoupper(app()->getLocale()) }}</span>
                     </button>
 
                     <!-- Language Dropdown -->
                     <div x-show="open"
                          @click.away="open = false"
                          x-transition:enter="transition ease-out duration-200"
-                         x-transition:enter-start="opacity-0 scale-95"
-                         x-transition:enter-end="opacity-100 scale-100"
+                         x-transition:enter-start="opacity-0 translate-y-1"
+                         x-transition:enter-end="opacity-100 translate-y-0"
                          x-transition:leave="transition ease-in duration-150"
-                         x-transition:leave-start="opacity-100 scale-100"
-                         x-transition:leave-end="opacity-0 scale-95"
-                         class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-dropdown border border-gray-200 py-1"
+                         x-transition:leave-start="opacity-100 translate-y-0"
+                         x-transition:leave-end="opacity-0 translate-y-1"
+                         class="absolute right-0 mt-2 w-40 bg-white rounded-xl shadow-xl border border-gray-100 py-1 overflow-hidden"
                          role="menu"
-                         aria-orientation="vertical"
                          style="display: none;">
-                        <a href="{{ route('locale.switch', ['locale' => 'en']) }}"
-                           class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                        @php
+                            $languages = [
+                                'en' => 'English',
+                                'ko' => '한국어',
+                                'ja' => '日本語',
+                                'zh' => '中文'
+                            ];
+                        @endphp
+                        @foreach($languages as $code => $name)
+                        <a href="{{ route('locale.switch', ['locale' => $code]) }}"
+                           class="flex items-center gap-3 px-4 py-2.5 text-sm transition-colors {{ app()->getLocale() === $code ? 'bg-pink-50 text-pink-600 font-medium' : 'text-gray-700 hover:bg-gray-50' }}"
                            role="menuitem">
-                            English
+                            @if(app()->getLocale() === $code)
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                            </svg>
+                            @else
+                            <span class="w-4"></span>
+                            @endif
+                            {{ $name }}
                         </a>
-                        <a href="{{ route('locale.switch', ['locale' => 'ko']) }}"
-                           class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-                           role="menuitem">
-                            한국어
-                        </a>
-                        <a href="{{ route('locale.switch', ['locale' => 'ja']) }}"
-                           class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-                           role="menuitem">
-                            日本語
-                        </a>
-                        <a href="{{ route('locale.switch', ['locale' => 'zh']) }}"
-                           class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-                           role="menuitem">
-                            中文
-                        </a>
+                        @endforeach
                     </div>
                 </div>
 
-                <!-- Auth Buttons / User Menu -->
                 @auth
                     <!-- User Dropdown -->
                     <div x-data="{ open: false }" class="relative">
                         <button @click="open = !open"
                                 type="button"
-                                class="flex items-center space-x-2 px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors"
+                                class="flex items-center gap-2 p-1.5 pr-3 rounded-full border border-gray-200 hover:border-gray-300 hover:shadow-md bg-white transition-all"
                                 :aria-expanded="open"
                                 aria-label="User menu">
-                            <div class="w-8 h-8 bg-primary-600 rounded-full flex items-center justify-center">
-                                <span class="text-sm font-medium text-white">{{ substr(auth()->user()->name, 0, 1) }}</span>
+                            <!-- Menu Icon -->
+                            <div class="p-1">
+                                <svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+                                </svg>
                             </div>
-                            <span class="hidden lg:block text-sm font-medium text-gray-700">{{ auth()->user()->name }}</span>
-                            <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                            </svg>
+                            <!-- Avatar -->
+                            <div class="w-8 h-8 rounded-full bg-gradient-to-br from-pink-500 to-rose-600 flex items-center justify-center ring-2 ring-white">
+                                <span class="text-sm font-semibold text-white">{{ mb_substr(auth()->user()->name, 0, 1) }}</span>
+                            </div>
                         </button>
 
                         <!-- User Dropdown Menu -->
                         <div x-show="open"
                              @click.away="open = false"
                              x-transition:enter="transition ease-out duration-200"
-                             x-transition:enter-start="opacity-0 scale-95"
-                             x-transition:enter-end="opacity-100 scale-100"
+                             x-transition:enter-start="opacity-0 translate-y-1"
+                             x-transition:enter-end="opacity-100 translate-y-0"
                              x-transition:leave="transition ease-in duration-150"
-                             x-transition:leave-start="opacity-100 scale-100"
-                             x-transition:leave-end="opacity-0 scale-95"
-                             class="absolute right-0 mt-2 w-56 bg-white rounded-md shadow-dropdown border border-gray-200 py-1"
+                             x-transition:leave-start="opacity-100 translate-y-0"
+                             x-transition:leave-end="opacity-0 translate-y-1"
+                             class="absolute right-0 mt-2 w-60 bg-white rounded-xl shadow-xl border border-gray-100 py-2 overflow-hidden"
                              role="menu"
-                             aria-orientation="vertical"
                              style="display: none;">
-                            <a href="{{ route('my.profile', ['locale' => app()->getLocale()]) }}"
-                               class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-                               role="menuitem">
-                                <div class="flex items-center space-x-2">
-                                    <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                            <!-- User Info -->
+                            <div class="px-4 py-3 border-b border-gray-100">
+                                <p class="text-sm font-semibold text-gray-900">{{ auth()->user()->name }}</p>
+                                <p class="text-xs text-gray-500 mt-0.5">{{ auth()->user()->email }}</p>
+                            </div>
+
+                            <div class="py-1">
+                                <a href="{{ route('my.profile', ['locale' => app()->getLocale()]) }}"
+                                   class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                                   role="menuitem">
+                                    <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
                                     </svg>
-                                    <span>{{ __('nav.profile') }}</span>
-                                </div>
-                            </a>
-                            <a href="{{ route('my.bookings', ['locale' => app()->getLocale()]) }}"
-                               class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-                               role="menuitem">
-                                <div class="flex items-center space-x-2">
-                                    <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                                    {{ __('nav.profile') }}
+                                </a>
+                                <a href="{{ route('my.bookings', ['locale' => app()->getLocale()]) }}"
+                                   class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                                   role="menuitem">
+                                    <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
                                     </svg>
-                                    <span>{{ __('nav.my_bookings') }}</span>
-                                </div>
-                            </a>
-                            <a href="{{ route('my.wishlist', ['locale' => app()->getLocale()]) }}"
-                               class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-                               role="menuitem">
-                                <div class="flex items-center space-x-2">
-                                    <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                                    {{ __('nav.my_bookings') }}
+                                </a>
+                                <a href="{{ route('my.wishlist', ['locale' => app()->getLocale()]) }}"
+                                   class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                                   role="menuitem">
+                                    <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
                                     </svg>
-                                    <span>{{ __('nav.wishlist') }}</span>
-                                </div>
-                            </a>
-                            <hr class="my-1 border-gray-200">
-                            <form method="POST" action="{{ route('logout') }}">
-                                @csrf
-                                <button type="submit"
-                                        class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-                                        role="menuitem">
-                                    <div class="flex items-center space-x-2">
-                                        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                                    {{ __('nav.wishlist') }}
+                                </a>
+                            </div>
+
+                            <div class="border-t border-gray-100 py-1">
+                                <form method="POST" action="{{ route('logout') }}">
+                                    @csrf
+                                    <button type="submit"
+                                            class="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                                            role="menuitem">
+                                        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" />
                                         </svg>
-                                        <span>{{ __('nav.logout') }}</span>
-                                    </div>
-                                </button>
-                            </form>
+                                        {{ __('nav.logout') }}
+                                    </button>
+                                </form>
+                            </div>
                         </div>
                     </div>
                 @else
                     <!-- Login/Register Buttons -->
                     <a href="{{ route('login') }}"
-                       class="hidden md:inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 hover:text-primary-600 transition-colors">
+                       class="hidden md:inline-flex items-center px-4 py-2 text-sm font-medium rounded-full transition-colors text-gray-700 hover:bg-gray-100">
                         {{ __('nav.login') }}
                     </a>
                     <a href="{{ route('register') }}"
-                       class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-primary-600 hover:bg-primary-700 transition-colors shadow-sm">
+                       class="inline-flex items-center px-4 py-2 text-sm font-semibold rounded-full transition-all bg-gray-900 hover:bg-gray-800 text-white shadow-lg hover:shadow-xl">
                         {{ __('nav.register') }}
                     </a>
                 @endauth
@@ -200,14 +209,14 @@
                 <!-- Mobile Menu Button -->
                 <button @click="mobileMenuOpen = !mobileMenuOpen"
                         type="button"
-                        class="lg:hidden inline-flex items-center justify-center p-2 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors"
+                        class="lg:hidden inline-flex items-center justify-center p-2 rounded-full transition-colors text-gray-700 hover:bg-gray-100"
                         :aria-expanded="mobileMenuOpen"
                         aria-label="Toggle mobile menu">
-                    <svg x-show="!mobileMenuOpen" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                    <svg x-show="!mobileMenuOpen" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
                     </svg>
-                    <svg x-show="mobileMenuOpen" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true" style="display: none;">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    <svg x-show="mobileMenuOpen" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5" style="display: none;">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
                     </svg>
                 </button>
             </div>
@@ -223,56 +232,54 @@
          x-transition:leave-start="opacity-100 translate-y-0"
          x-transition:leave-end="opacity-0 -translate-y-2"
          @click.away="mobileMenuOpen = false"
-         class="lg:hidden bg-white border-t border-gray-200 shadow-lg"
+         class="lg:hidden bg-white border-t border-gray-100 shadow-xl"
          style="display: none;">
-        <div class="px-4 py-4 space-y-2">
-            <!-- Mobile Search Button -->
-            <button type="button"
-                    class="w-full flex items-center justify-between px-4 py-3 text-left bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors">
-                <span class="text-sm font-medium text-gray-900">{{ __('search.search_accommodations') }}</span>
-                <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+        <div class="max-w-7xl mx-auto px-4 py-4 space-y-3">
+            <!-- Mobile Search -->
+            <a href="{{ route('products.index', ['locale' => app()->getLocale()]) }}"
+               class="flex items-center gap-3 px-4 py-3.5 bg-gray-50 hover:bg-gray-100 rounded-xl transition-colors">
+                <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
                 </svg>
-            </button>
+                <span class="text-sm font-medium text-gray-900">{{ __('search.search_accommodations') }}</span>
+            </a>
 
             @guest
-                <div class="pt-2 space-y-2">
+                <div class="grid grid-cols-2 gap-3 pt-2">
                     <a href="{{ route('login') }}"
-                       class="block px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50 rounded-lg transition-colors">
+                       class="flex items-center justify-center px-4 py-3 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-xl transition-colors">
                         {{ __('nav.login') }}
                     </a>
                     <a href="{{ route('register') }}"
-                       class="block px-4 py-3 text-sm font-medium text-center text-white bg-primary-600 hover:bg-primary-700 rounded-lg transition-colors">
+                       class="flex items-center justify-center px-4 py-3 text-sm font-semibold text-white bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 rounded-xl transition-colors shadow-lg">
                         {{ __('nav.register') }}
                     </a>
                 </div>
             @endguest
 
             <!-- Language Selector (Mobile) -->
-            <div class="md:hidden pt-2 border-t border-gray-200">
-                <div class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">{{ __('nav.language') }}</div>
-                <div class="grid grid-cols-2 gap-2">
-                    <a href="{{ route('locale.switch', ['locale' => 'en']) }}"
-                       class="px-4 py-2 text-sm text-center text-gray-700 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors {{ app()->getLocale() === 'en' ? 'ring-2 ring-primary-600 bg-primary-50' : '' }}">
-                        English
+            <div class="pt-3 border-t border-gray-100">
+                <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 px-1">{{ __('nav.language') }}</p>
+                <div class="grid grid-cols-4 gap-2">
+                    @php
+                        $mobileLanguages = [
+                            'en' => 'EN',
+                            'ko' => '한',
+                            'ja' => '日',
+                            'zh' => '中'
+                        ];
+                    @endphp
+                    @foreach($mobileLanguages as $code => $label)
+                    <a href="{{ route('locale.switch', ['locale' => $code]) }}"
+                       class="flex items-center justify-center px-3 py-2.5 text-sm font-medium rounded-lg transition-colors {{ app()->getLocale() === $code ? 'bg-pink-500 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200' }}">
+                        {{ $label }}
                     </a>
-                    <a href="{{ route('locale.switch', ['locale' => 'ko']) }}"
-                       class="px-4 py-2 text-sm text-center text-gray-700 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors {{ app()->getLocale() === 'ko' ? 'ring-2 ring-primary-600 bg-primary-50' : '' }}">
-                        한국어
-                    </a>
-                    <a href="{{ route('locale.switch', ['locale' => 'ja']) }}"
-                       class="px-4 py-2 text-sm text-center text-gray-700 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors {{ app()->getLocale() === 'ja' ? 'ring-2 ring-primary-600 bg-primary-50' : '' }}">
-                        日本語
-                    </a>
-                    <a href="{{ route('locale.switch', ['locale' => 'zh']) }}"
-                       class="px-4 py-2 text-sm text-center text-gray-700 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors {{ app()->getLocale() === 'zh' ? 'ring-2 ring-primary-600 bg-primary-50' : '' }}">
-                        中文
-                    </a>
+                    @endforeach
                 </div>
             </div>
         </div>
     </div>
 </header>
 
-<!-- Spacer to prevent content from hiding under fixed header -->
-<div class="h-16 lg:h-20" aria-hidden="true"></div>
+<!-- Spacer for fixed header -->
+<div class="h-16 lg:h-18" aria-hidden="true"></div>
