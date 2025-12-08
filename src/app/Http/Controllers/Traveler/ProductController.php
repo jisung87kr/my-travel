@@ -139,6 +139,14 @@ class ProductController extends Controller
         $lowestPrice = $product->prices->where('is_active', true)->min('price');
         $primaryImage = $product->images->firstWhere('is_primary', true) ?? $product->images->first();
 
+        // Check if product is wishlisted by current user
+        $isWishlisted = false;
+        if (auth()->check()) {
+            $isWishlisted = auth()->user()->wishlists()
+                ->where('product_id', $product->id)
+                ->exists();
+        }
+
         return [
             'id' => $product->id,
             'slug' => $product->slug,
@@ -155,7 +163,7 @@ class ProductController extends Controller
             'review_count' => $product->review_count,
             'reviewCount' => $product->review_count,
             'url' => route('products.show', ['locale' => $locale, 'product' => $product->slug]),
-            'isWishlisted' => false,
+            'isWishlisted' => $isWishlisted,
         ];
     }
 }

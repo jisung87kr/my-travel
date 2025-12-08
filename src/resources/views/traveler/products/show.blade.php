@@ -277,14 +277,27 @@
                             <div class="mt-6 pt-6 border-t border-gray-100">
                                 <div class="flex gap-3">
                                     @auth
+                                        @php
+                                            $isWishlisted = auth()->user()->wishlists()->where('product_id', $product->id)->exists();
+                                        @endphp
                                         <button type="button"
-                                                onclick="toggleWishlist({{ $product->id }})"
-                                                class="flex-1 flex items-center justify-center gap-2 px-4 py-3 border border-gray-200 rounded-xl text-gray-700 font-medium hover:bg-gray-50 hover:border-gray-300 transition-all duration-200 cursor-pointer">
+                                                id="wishlist-btn"
+                                                onclick="toggleWishlist({{ $product->id }}, this)"
+                                                data-wishlisted="{{ $isWishlisted ? 'true' : 'false' }}"
+                                                class="flex-1 flex items-center justify-center gap-2 px-4 py-3 border rounded-xl font-medium transition-all duration-200 cursor-pointer {{ $isWishlisted ? 'border-pink-300 bg-pink-50 text-pink-600' : 'border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-gray-300' }}">
+                                            <svg id="wishlist-icon" class="w-5 h-5 transition-transform duration-200" fill="{{ $isWishlisted ? 'currentColor' : 'none' }}" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
+                                            </svg>
+                                            <span id="wishlist-text" class="hidden sm:inline">{{ $isWishlisted ? '위시리스트에 추가됨' : __('product.add_to_wishlist') }}</span>
+                                        </button>
+                                    @else
+                                        <a href="{{ route('login') }}"
+                                           class="flex-1 flex items-center justify-center gap-2 px-4 py-3 border border-gray-200 rounded-xl text-gray-700 font-medium hover:bg-gray-50 hover:border-gray-300 transition-all duration-200">
                                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
                                             </svg>
                                             <span class="hidden sm:inline">{{ __('product.add_to_wishlist') }}</span>
-                                        </button>
+                                        </a>
                                     @endauth
                                     <button type="button"
                                             onclick="shareProduct()"
@@ -366,17 +379,59 @@
         }
 
         // Wishlist
-        function toggleWishlist(productId) {
+        function toggleWishlist(productId, button) {
+            const icon = document.getElementById('wishlist-icon');
+            const text = document.getElementById('wishlist-text');
+
+            // Disable button during request
+            button.disabled = true;
+            button.classList.add('opacity-50');
+
             fetch(`/wishlist/${productId}`, {
                 method: 'POST',
                 headers: {
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                    'Accept': 'application/json'
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
                 }
             })
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
             .then(data => {
-                // Update UI based on response
+                console.log('Wishlist response:', data);
+                if (data.success) {
+                    const nowWishlisted = data.added;
+                    button.dataset.wishlisted = nowWishlisted ? 'true' : 'false';
+
+                    if (nowWishlisted) {
+                        // Added to wishlist
+                        button.className = 'flex-1 flex items-center justify-center gap-2 px-4 py-3 border rounded-xl font-medium transition-all duration-200 cursor-pointer border-pink-300 bg-pink-50 text-pink-600';
+                        if (icon) icon.setAttribute('fill', 'currentColor');
+                        if (text) text.textContent = '위시리스트에 추가됨';
+                    } else {
+                        // Removed from wishlist
+                        button.className = 'flex-1 flex items-center justify-center gap-2 px-4 py-3 border rounded-xl font-medium transition-all duration-200 cursor-pointer border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-gray-300';
+                        if (icon) icon.setAttribute('fill', 'none');
+                        if (text) text.textContent = '위시리스트 추가';
+                    }
+
+                    // Heart animation
+                    if (icon) {
+                        icon.style.transform = 'scale(1.25)';
+                        setTimeout(() => { icon.style.transform = 'scale(1)'; }, 200);
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Wishlist error:', error);
+            })
+            .finally(() => {
+                button.disabled = false;
+                button.classList.remove('opacity-50');
             });
         }
     </script>

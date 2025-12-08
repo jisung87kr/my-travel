@@ -75,8 +75,8 @@ class HomeController extends Controller
 
         $isWishlisted = false;
         if (auth()->check()) {
-            $isWishlisted = $product->wishlists()
-                ->where('user_id', auth()->id())
+            $isWishlisted = auth()->user()->wishlists()
+                ->where('product_id', $product->id)
                 ->exists();
         }
 
@@ -93,6 +93,7 @@ class HomeController extends Controller
             'rating' => (float) $product->average_rating,
             'review_count' => $product->review_count,
             'reviewCount' => $product->review_count,
+            'url' => route('products.show', ['locale' => $locale, 'product' => $product->slug]),
             'isWishlisted' => $isWishlisted,
         ];
     }

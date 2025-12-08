@@ -28,20 +28,21 @@
           <!-- Wishlist Button -->
           <button
             @click.prevent="toggleWishlist(product.id)"
-            class="absolute top-3 right-3 w-8 h-8 flex items-center justify-center bg-white rounded-full shadow-sm hover:bg-gray-50 transition"
+            class="absolute top-3 right-3 w-8 h-8 flex items-center justify-center bg-white rounded-full shadow-sm hover:bg-gray-50 transition-all duration-200 hover:scale-110"
+            :class="isWishlisted(product.id) ? 'ring-2 ring-pink-200' : ''"
           >
             <svg
-              class="w-5 h-5"
-              :class="product.isWishlisted ? 'text-red-500 fill-current' : 'text-gray-400'"
-              fill="none"
+              class="w-5 h-5 transition-all duration-200"
+              :class="isWishlisted(product.id) ? 'text-pink-500' : 'text-gray-400'"
+              :fill="isWishlisted(product.id) ? 'currentColor' : 'none'"
               stroke="currentColor"
               viewBox="0 0 24 24"
+              stroke-width="1.5"
             >
               <path
                 stroke-linecap="round"
                 stroke-linejoin="round"
-                stroke-width="2"
-                d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"
               />
             </svg>
           </button>
@@ -170,7 +171,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, reactive, onMounted, onUnmounted, watch } from 'vue'
 
 const props = defineProps({
   products: {
@@ -192,6 +193,23 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['load-more', 'toggle-wishlist'])
+
+// Local reactive state for wishlist status
+const wishlistState = reactive({})
+
+// Initialize wishlist state from props
+watch(() => props.products, (newProducts) => {
+  newProducts.forEach(product => {
+    if (!(product.id in wishlistState)) {
+      wishlistState[product.id] = product.isWishlisted || false
+    }
+  })
+}, { immediate: true, deep: true })
+
+// Check if product is wishlisted
+function isWishlisted(productId) {
+  return wishlistState[productId] || false
+}
 
 // Refs
 const observerTarget = ref(null)
@@ -216,7 +234,35 @@ function getBadgeClass(type) {
   return classes[type] || 'bg-gray-500 text-white'
 }
 
-function toggleWishlist(productId) {
+async function toggleWishlist(productId) {
+  try {
+    const response = await fetch(`/wishlist/${productId}`, {
+      method: 'POST',
+      headers: {
+        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '',
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      }
+    })
+
+    if (!response.ok) {
+      if (response.status === 401) {
+        window.location.href = '/login'
+        return
+      }
+      throw new Error('Network response was not ok')
+    }
+
+    const data = await response.json()
+
+    if (data.success) {
+      // Update local reactive state
+      wishlistState[productId] = data.added
+    }
+  } catch (error) {
+    console.error('Wishlist error:', error)
+  }
+
   emit('toggle-wishlist', productId)
 }
 
