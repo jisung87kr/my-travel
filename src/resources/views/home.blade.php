@@ -63,13 +63,23 @@
                 <!-- Glow Effect Behind Card -->
                 <div class="absolute -inset-4 bg-gradient-to-r from-pink-500/20 via-rose-500/20 to-orange-500/20 rounded-3xl blur-2xl opacity-60"></div>
 
-                <div class="relative bg-white/95 backdrop-blur-2xl rounded-2xl shadow-2xl shadow-black/20 p-2.5 ring-1 ring-white/30">
+                <div class="relative bg-white/95 backdrop-blur-2xl rounded-2xl shadow-2xl shadow-black/20 p-2.5 ring-1 ring-white/30"
+                     x-data="{
+                         destination: '',
+                         date: '',
+                         guests: 1,
+                         showDestination: false,
+                         showDate: false,
+                         showGuests: false
+                     }">
                     <form action="{{ route('products.index', ['locale' => app()->getLocale()]) }}" method="GET">
                         <div class="flex flex-col md:flex-row md:items-center gap-1">
 
                             <!-- Location Input -->
                             <div class="relative flex-1 group">
-                                <div class="flex items-center gap-3 h-16 px-5 rounded-xl hover:bg-rose-50/50 transition-all duration-200 cursor-text">
+                                <button type="button"
+                                        @click="showDestination = !showDestination; showDate = false; showGuests = false"
+                                        class="w-full flex items-center gap-3 h-16 px-5 rounded-xl hover:bg-rose-50/50 transition-all duration-200 cursor-pointer text-left">
                                     <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-pink-100 to-rose-100 flex items-center justify-center flex-shrink-0">
                                         <svg class="w-5 h-5 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -77,11 +87,53 @@
                                         </svg>
                                     </div>
                                     <div class="flex flex-col flex-1 min-w-0">
-                                        <span class="text-[10px] font-bold text-rose-400 uppercase tracking-wider">여행지</span>
+                                        <span class="text-[10px] font-bold text-rose-400 uppercase tracking-wider">{{ __('home.where_to') }}</span>
+                                        <span class="text-sm font-medium truncate" :class="destination ? 'text-gray-900' : 'text-gray-400'" x-text="destination || '{{ __('home.search_placeholder') }}'"></span>
+                                    </div>
+                                </button>
+                                <!-- Destination Dropdown -->
+                                <div x-show="showDestination"
+                                     @click.away="showDestination = false"
+                                     x-transition:enter="transition ease-out duration-200"
+                                     x-transition:enter-start="opacity-0 translate-y-2"
+                                     x-transition:enter-end="opacity-100 translate-y-0"
+                                     x-transition:leave="transition ease-in duration-150"
+                                     x-transition:leave-start="opacity-100 translate-y-0"
+                                     x-transition:leave-end="opacity-0 translate-y-2"
+                                     class="absolute top-full left-0 mt-2 w-full md:w-80 bg-white rounded-xl shadow-2xl border border-gray-100 py-3 z-50"
+                                     style="display: none;">
+                                    <div class="px-4 pb-3">
                                         <input type="text"
-                                               name="location"
-                                               placeholder="어디로 떠나시나요?"
-                                               class="w-full bg-transparent border-none p-0 text-gray-900 placeholder-gray-400 text-sm font-medium focus:ring-0 focus:outline-none truncate">
+                                               name="search"
+                                               x-model="destination"
+                                               placeholder="{{ __('home.search_placeholder') }}"
+                                               class="w-full px-4 py-3 text-sm bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent"
+                                               @keydown.enter="showDestination = false">
+                                    </div>
+                                    <div class="border-t border-gray-100 pt-2">
+                                        <p class="px-4 py-2 text-xs font-semibold text-gray-400 uppercase tracking-wider">인기 여행지</p>
+                                        @php
+                                            $searchRegions = [
+                                                ['name' => '서울', 'icon' => 'from-pink-100 to-rose-100', 'iconColor' => 'text-rose-500'],
+                                                ['name' => '부산', 'icon' => 'from-blue-100 to-cyan-100', 'iconColor' => 'text-cyan-500'],
+                                                ['name' => '제주', 'icon' => 'from-orange-100 to-amber-100', 'iconColor' => 'text-orange-500'],
+                                                ['name' => '경기', 'icon' => 'from-green-100 to-emerald-100', 'iconColor' => 'text-emerald-500'],
+                                                ['name' => '강원', 'icon' => 'from-purple-100 to-violet-100', 'iconColor' => 'text-violet-500'],
+                                            ];
+                                        @endphp
+                                        @foreach($searchRegions as $searchRegion)
+                                        <button type="button"
+                                                @click="destination = '{{ $searchRegion['name'] }}'; showDestination = false"
+                                                class="w-full flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+                                            <span class="w-10 h-10 rounded-lg bg-gradient-to-br {{ $searchRegion['icon'] }} flex items-center justify-center">
+                                                <svg class="w-5 h-5 {{ $searchRegion['iconColor'] }}" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
+                                                </svg>
+                                            </span>
+                                            <span class="font-medium">{{ $searchRegion['name'] }}</span>
+                                        </button>
+                                        @endforeach
                                     </div>
                                 </div>
                             </div>
@@ -92,18 +144,36 @@
 
                             <!-- Date Input -->
                             <div class="relative md:w-[28%] group">
-                                <div class="flex items-center gap-3 h-16 px-5 rounded-xl hover:bg-rose-50/50 transition-all duration-200 cursor-pointer">
+                                <button type="button"
+                                        @click="showDate = !showDate; showDestination = false; showGuests = false"
+                                        class="w-full flex items-center gap-3 h-16 px-5 rounded-xl hover:bg-rose-50/50 transition-all duration-200 cursor-pointer text-left">
                                     <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-cyan-100 to-teal-100 flex items-center justify-center flex-shrink-0">
                                         <svg class="w-5 h-5 text-cyan-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
                                         </svg>
                                     </div>
                                     <div class="flex flex-col flex-1 min-w-0">
-                                        <span class="text-[10px] font-bold text-cyan-500 uppercase tracking-wider">일정</span>
-                                        <input type="date"
-                                               name="date"
-                                               class="w-full bg-transparent border-none p-0 text-gray-900 text-sm font-medium focus:ring-0 focus:outline-none cursor-pointer">
+                                        <span class="text-[10px] font-bold text-cyan-500 uppercase tracking-wider">{{ __('home.add_dates') }}</span>
+                                        <span class="text-sm font-medium truncate" :class="date ? 'text-gray-900' : 'text-gray-400'" x-text="date || '날짜 선택'"></span>
                                     </div>
+                                </button>
+                                <!-- Date Dropdown -->
+                                <div x-show="showDate"
+                                     @click.away="showDate = false"
+                                     x-transition:enter="transition ease-out duration-200"
+                                     x-transition:enter-start="opacity-0 translate-y-2"
+                                     x-transition:enter-end="opacity-100 translate-y-0"
+                                     x-transition:leave="transition ease-in duration-150"
+                                     x-transition:leave-start="opacity-100 translate-y-0"
+                                     x-transition:leave-end="opacity-0 translate-y-2"
+                                     class="absolute top-full left-1/2 -translate-x-1/2 mt-2 bg-white rounded-xl shadow-2xl border border-gray-100 p-4 z-50"
+                                     style="display: none;">
+                                    <input type="date"
+                                           name="date"
+                                           x-model="date"
+                                           @change="showDate = false"
+                                           class="px-4 py-3 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent"
+                                           min="{{ date('Y-m-d') }}">
                                 </div>
                             </div>
 
@@ -113,23 +183,54 @@
 
                             <!-- Guests + Button -->
                             <div class="relative md:w-[32%] flex items-center gap-2 pr-1">
-                                <div class="flex items-center gap-3 h-16 px-5 rounded-xl hover:bg-rose-50/50 transition-all duration-200 cursor-pointer flex-1 min-w-0">
+                                <button type="button"
+                                        @click="showGuests = !showGuests; showDestination = false; showDate = false"
+                                        class="flex items-center gap-3 h-16 px-5 rounded-xl hover:bg-rose-50/50 transition-all duration-200 cursor-pointer flex-1 min-w-0 text-left">
                                     <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-orange-100 to-amber-100 flex items-center justify-center flex-shrink-0">
                                         <svg class="w-5 h-5 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
                                         </svg>
                                     </div>
                                     <div class="flex flex-col flex-1 min-w-0">
-                                        <span class="text-[10px] font-bold text-orange-400 uppercase tracking-wider">여행자</span>
-                                        <select name="guests"
-                                                class="w-full bg-transparent border-none p-0 text-gray-900 text-sm font-medium focus:ring-0 focus:outline-none cursor-pointer appearance-none">
-                                            <option value="">인원 선택</option>
-                                            <option value="1">1명</option>
-                                            <option value="2">2명</option>
-                                            <option value="3">3명</option>
-                                            <option value="4">4명</option>
-                                            <option value="5">5명 이상</option>
-                                        </select>
+                                        <span class="text-[10px] font-bold text-orange-400 uppercase tracking-wider">{{ __('home.travelers') }}</span>
+                                        <span class="text-sm font-medium" :class="guests > 1 ? 'text-gray-900' : 'text-gray-400'" x-text="guests > 1 ? guests + '{{ __('home.guests_count') }}' : '{{ __('home.add_guests') }}'"></span>
+                                    </div>
+                                </button>
+                                <!-- Guests Dropdown -->
+                                <div x-show="showGuests"
+                                     @click.away="showGuests = false"
+                                     x-transition:enter="transition ease-out duration-200"
+                                     x-transition:enter-start="opacity-0 translate-y-2"
+                                     x-transition:enter-end="opacity-100 translate-y-0"
+                                     x-transition:leave="transition ease-in duration-150"
+                                     x-transition:leave-start="opacity-100 translate-y-0"
+                                     x-transition:leave-end="opacity-0 translate-y-2"
+                                     class="absolute top-full right-0 mt-2 w-64 bg-white rounded-xl shadow-2xl border border-gray-100 p-5 z-50"
+                                     style="display: none;">
+                                    <input type="hidden" name="guests" :value="guests">
+                                    <div class="flex items-center justify-between">
+                                        <div>
+                                            <span class="text-sm font-medium text-gray-900">{{ __('home.travelers') }}</span>
+                                            <p class="text-xs text-gray-500 mt-0.5">만 13세 이상</p>
+                                        </div>
+                                        <div class="flex items-center gap-4">
+                                            <button type="button"
+                                                    @click="guests = Math.max(1, guests - 1)"
+                                                    class="w-9 h-9 rounded-full border-2 border-gray-200 flex items-center justify-center text-gray-500 hover:border-gray-400 hover:text-gray-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                                                    :disabled="guests <= 1">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 12h-15" />
+                                                </svg>
+                                            </button>
+                                            <span class="text-base font-semibold w-6 text-center" x-text="guests"></span>
+                                            <button type="button"
+                                                    @click="guests = Math.min(20, guests + 1)"
+                                                    class="w-9 h-9 rounded-full border-2 border-gray-200 flex items-center justify-center text-gray-500 hover:border-gray-400 hover:text-gray-700 transition-colors">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                                                </svg>
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
 
@@ -652,7 +753,7 @@
 
             <!-- View All Reviews Button -->
             <div class="text-center mt-12">
-                <a href="{{ route('products.index', ['locale' => app()->getLocale()]) }}"
+                <a href="{{ route('products.index', ['locale' => app()->getLocale(), 'sort' => 'rating']) }}"
                    class="inline-flex items-center gap-2 px-8 py-4 rounded-full bg-white text-gray-700 font-semibold shadow-lg shadow-gray-900/5 border border-gray-200 hover:border-pink-200 hover:text-pink-600 hover:shadow-xl hover:shadow-pink-500/10 transition-all duration-300 group">
                     더 많은 후기 보기
                     <svg class="w-4 h-4 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">

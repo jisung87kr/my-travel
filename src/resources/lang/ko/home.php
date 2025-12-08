@@ -5,6 +5,11 @@ return [
     'hero_subtitle' => '특별한 여행 경험을 제공하는 현지 전문가들과 함께하세요',
     'search_placeholder' => '어디로 떠나시나요?',
     'search_button' => '검색',
+    'where_to' => '여행지',
+    'add_dates' => '일정 추가',
+    'add_guests' => '여행자 추가',
+    'guests_count' => '명',
+    'travelers' => '여행자',
 
     'popular_title' => '인기 상품',
     'popular_subtitle' => '가장 많이 사랑받는 여행 상품',

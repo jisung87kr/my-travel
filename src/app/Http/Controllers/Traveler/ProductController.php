@@ -104,7 +104,7 @@ class ProductController extends Controller
             'images' => fn ($q) => $q->orderBy('sort_order'),
             'prices' => fn ($q) => $q->where('is_active', true),
             'vendor.user',
-            'reviews' => fn ($q) => $q->visible()->with('user')->latest()->take(10),
+            'reviews' => fn ($q) => $q->visible()->with(['user', 'images'])->latest()->take(10),
         ]);
 
         $translation = $product->getTranslation($locale);

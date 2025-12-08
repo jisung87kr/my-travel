@@ -235,6 +235,13 @@ async function submitBooking() {
       })
     })
 
+    // Handle 401 Unauthorized - redirect to login with return URL
+    if (response.status === 401) {
+      const returnUrl = encodeURIComponent(window.location.href)
+      window.location.href = `/login?redirect=${returnUrl}`
+      return
+    }
+
     const data = await response.json()
 
     if (!response.ok) {

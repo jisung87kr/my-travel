@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Services\AuthService;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class LoginController extends Controller
@@ -14,8 +15,13 @@ class LoginController extends Controller
         private readonly AuthService $authService
     ) {}
 
-    public function showForm(): View
+    public function showForm(Request $request): View
     {
+        // Store redirect URL in session for post-login redirect
+        if ($request->has('redirect')) {
+            $request->session()->put('url.intended', $request->get('redirect'));
+        }
+
         return view('auth.login');
     }
 

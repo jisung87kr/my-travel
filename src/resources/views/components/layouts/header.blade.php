@@ -22,7 +22,15 @@
             </div>
 
             <!-- Desktop Search Bar -->
-            <div class="hidden lg:flex flex-1 max-w-xl mx-8">
+            <div class="hidden lg:flex flex-1 max-w-2xl mx-8"
+                 x-data="{
+                     destination: '',
+                     date: '',
+                     guests: 1,
+                     showDestination: false,
+                     showDate: false,
+                     showGuests: false
+                 }">
                 <div class="w-full relative transition-all duration-300"
                      x-show="scrolled"
                      x-transition:enter="transition ease-out duration-200"
@@ -33,23 +41,123 @@
                      x-transition:leave-end="opacity-0"
                      style="display: none;">
                     <form action="{{ route('products.index', ['locale' => app()->getLocale()]) }}" method="GET"
-                          class="flex items-center bg-gray-100 hover:bg-gray-50 border border-gray-200 hover:border-gray-300 rounded-full transition-all duration-200 hover:shadow-md">
-                        <div class="flex-1 flex items-center">
-                            <!-- Location -->
-                            <button type="button" class="flex items-center gap-2 px-4 py-2.5 text-left rounded-l-full hover:bg-white transition-colors">
-                                <span class="text-sm font-medium text-gray-900">{{ __('search.where_to') }}</span>
+                          class="flex items-center bg-white border border-gray-200 hover:border-gray-300 rounded-full transition-all duration-200 shadow-sm hover:shadow-md">
+                        <!-- Destination -->
+                        <div class="relative flex-1 min-w-0">
+                            <button type="button"
+                                    @click="showDestination = !showDestination; showDate = false; showGuests = false"
+                                    class="w-full flex items-center gap-2 px-4 py-2 text-left rounded-l-full hover:bg-gray-50 transition-colors">
+                                <svg class="w-4 h-4 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
+                                </svg>
+                                <span class="text-sm truncate" :class="destination ? 'text-gray-900 font-medium' : 'text-gray-500'" x-text="destination || '{{ __('home.where_to') }}'"></span>
                             </button>
-                            <div class="w-px h-6 bg-gray-300"></div>
-                            <!-- Date -->
-                            <button type="button" class="flex items-center gap-2 px-4 py-2.5 text-left hover:bg-white transition-colors">
-                                <span class="text-sm font-medium text-gray-500">{{ __('search.add_dates') }}</span>
-                            </button>
-                            <div class="w-px h-6 bg-gray-300"></div>
-                            <!-- Guests -->
-                            <button type="button" class="flex items-center gap-2 px-4 py-2.5 text-left hover:bg-white transition-colors">
-                                <span class="text-sm font-medium text-gray-500">{{ __('search.add_guests') }}</span>
-                            </button>
+                            <!-- Destination Dropdown -->
+                            <div x-show="showDestination"
+                                 @click.away="showDestination = false"
+                                 x-transition
+                                 class="absolute top-full left-0 mt-2 w-64 bg-white rounded-xl shadow-xl border border-gray-100 py-2 z-50">
+                                <input type="text"
+                                       name="search"
+                                       x-model="destination"
+                                       placeholder="{{ __('home.search_placeholder') }}"
+                                       class="w-full px-4 py-2 text-sm border-b border-gray-100 focus:outline-none"
+                                       @keydown.enter="showDestination = false">
+                                <div class="py-1">
+                                    @php
+                                        $regions = [
+                                            'seoul' => '서울',
+                                            'busan' => '부산',
+                                            'jeju' => '제주',
+                                            'gyeonggi' => '경기',
+                                        ];
+                                    @endphp
+                                    @foreach($regions as $code => $name)
+                                    <button type="button"
+                                            @click="destination = '{{ $name }}'; showDestination = false"
+                                            class="w-full flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+                                        <span class="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center">
+                                            <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
+                                            </svg>
+                                        </span>
+                                        {{ $name }}
+                                    </button>
+                                    @endforeach
+                                </div>
+                            </div>
                         </div>
+
+                        <div class="w-px h-6 bg-gray-200"></div>
+
+                        <!-- Date -->
+                        <div class="relative flex-1 min-w-0">
+                            <button type="button"
+                                    @click="showDate = !showDate; showDestination = false; showGuests = false"
+                                    class="w-full flex items-center gap-2 px-4 py-2 text-left hover:bg-gray-50 transition-colors">
+                                <svg class="w-4 h-4 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
+                                </svg>
+                                <span class="text-sm truncate" :class="date ? 'text-gray-900 font-medium' : 'text-gray-500'" x-text="date || '{{ __('home.add_dates') }}'"></span>
+                            </button>
+                            <!-- Date Dropdown -->
+                            <div x-show="showDate"
+                                 @click.away="showDate = false"
+                                 x-transition
+                                 class="absolute top-full left-1/2 -translate-x-1/2 mt-2 bg-white rounded-xl shadow-xl border border-gray-100 p-4 z-50">
+                                <input type="date"
+                                       name="date"
+                                       x-model="date"
+                                       @change="showDate = false"
+                                       class="px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent"
+                                       min="{{ date('Y-m-d') }}">
+                            </div>
+                        </div>
+
+                        <div class="w-px h-6 bg-gray-200"></div>
+
+                        <!-- Guests -->
+                        <div class="relative flex-shrink-0">
+                            <button type="button"
+                                    @click="showGuests = !showGuests; showDestination = false; showDate = false"
+                                    class="flex items-center gap-2 px-4 py-2 text-left hover:bg-gray-50 transition-colors">
+                                <svg class="w-4 h-4 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+                                </svg>
+                                <span class="text-sm whitespace-nowrap" :class="guests > 1 ? 'text-gray-900 font-medium' : 'text-gray-500'" x-text="guests > 1 ? guests + '{{ __('home.guests_count') }}' : '{{ __('home.add_guests') }}'"></span>
+                            </button>
+                            <!-- Guests Dropdown -->
+                            <div x-show="showGuests"
+                                 @click.away="showGuests = false"
+                                 x-transition
+                                 class="absolute top-full right-0 mt-2 w-48 bg-white rounded-xl shadow-xl border border-gray-100 p-4 z-50">
+                                <input type="hidden" name="guests" :value="guests">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-700">{{ __('home.travelers') }}</span>
+                                    <div class="flex items-center gap-3">
+                                        <button type="button"
+                                                @click="guests = Math.max(1, guests - 1)"
+                                                class="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center text-gray-600 hover:border-gray-400 transition-colors disabled:opacity-50"
+                                                :disabled="guests <= 1">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 12h-15" />
+                                            </svg>
+                                        </button>
+                                        <span class="text-sm font-medium w-6 text-center" x-text="guests"></span>
+                                        <button type="button"
+                                                @click="guests = Math.min(20, guests + 1)"
+                                                class="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center text-gray-600 hover:border-gray-400 transition-colors">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                         <!-- Search Button -->
                         <button type="submit"
                                 class="m-1.5 p-2.5 bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 rounded-full text-white shadow-md hover:shadow-lg transition-all duration-200"

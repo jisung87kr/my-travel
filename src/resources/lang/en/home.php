@@ -5,6 +5,11 @@ return [
     'hero_subtitle' => 'Experience unique travel moments with local experts',
     'search_placeholder' => 'Where do you want to go?',
     'search_button' => 'Search',
+    'where_to' => 'Destination',
+    'add_dates' => 'Add dates',
+    'add_guests' => 'Add guests',
+    'guests_count' => ' guests',
+    'travelers' => 'Travelers',
 
     'popular_title' => 'Popular Products',
     'popular_subtitle' => 'Most loved travel experiences',

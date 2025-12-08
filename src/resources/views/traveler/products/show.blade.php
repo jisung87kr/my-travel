@@ -219,6 +219,27 @@
                                         </div>
                                         <p class="text-gray-600 leading-relaxed">{{ $review->content }}</p>
 
+                                        {{-- Review Images --}}
+                                        @if($review->images->count() > 0)
+                                            <div class="mt-4 flex flex-wrap gap-2">
+                                                @foreach($review->images as $image)
+                                                    <button type="button"
+                                                            onclick="openReviewImageModal('{{ $image->path }}')"
+                                                            class="relative group overflow-hidden rounded-xl w-20 h-20 sm:w-24 sm:h-24 cursor-pointer focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-offset-2">
+                                                        <img src="{{ $image->path }}"
+                                                             alt="리뷰 이미지"
+                                                             class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+                                                             loading="lazy">
+                                                        <div class="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300 flex items-center justify-center">
+                                                            <svg class="w-6 h-6 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607zM10.5 7.5v6m3-3h-6" />
+                                                            </svg>
+                                                        </div>
+                                                    </button>
+                                                @endforeach
+                                            </div>
+                                        @endif
+
                                         @if($review->reply)
                                             <div class="mt-4 ml-4 pl-4 border-l-2 border-pink-200 bg-pink-50/50 rounded-r-lg p-4">
                                                 <p class="text-sm font-medium text-pink-700 mb-1">판매자 답변</p>
@@ -255,22 +276,220 @@
                                 @endif
                             </div>
 
-                            <!-- Booking Form Component -->
-                            <div id="booking-form-container"
-                                 data-product-id="{{ $product->id }}"
-                                 data-booking-type="{{ $product->booking_type->value }}"
-                                 data-adult-price="{{ $adultPrice?->price ?? 0 }}"
-                                 data-child-price="{{ $childPrice?->price ?? 0 }}"
-                                 data-schedules='@json($schedules)'>
-                                <!-- Vue component will mount here -->
-                                <div class="animate-pulse space-y-4">
-                                    <div class="h-12 bg-gray-100 rounded-xl"></div>
-                                    <div class="h-12 bg-gray-100 rounded-xl"></div>
-                                    <div class="h-12 bg-gray-100 rounded-xl"></div>
+                            <!-- Booking Form -->
+                            <div x-data="{
+                                selectedDate: '',
+                                adults: 1,
+                                children: 0,
+                                showDatePicker: false,
+                                showGuestPicker: false,
+                                schedules: {{ Js::from($schedules) }},
+                                adultPrice: {{ $adultPrice?->price ?? 0 }},
+                                childPrice: {{ $childPrice?->price ?? 0 }},
+                                get selectedSchedule() {
+                                    return this.schedules.find(s => s.date === this.selectedDate);
+                                },
+                                get maxPersons() {
+                                    return this.selectedSchedule?.available_count ?? 99;
+                                },
+                                get totalPersons() {
+                                    return this.adults + this.children;
+                                },
+                                get totalPrice() {
+                                    return (this.adults * this.adultPrice) + (this.children * this.childPrice);
+                                },
+                                get canBook() {
+                                    return this.selectedDate && this.adults > 0 && this.totalPersons <= this.maxPersons;
+                                },
+                                formatDate(dateStr) {
+                                    const date = new Date(dateStr);
+                                    const days = ['일', '월', '화', '수', '목', '금', '토'];
+                                    return `${date.getMonth() + 1}월 ${date.getDate()}일 (${days[date.getDay()]})`;
+                                },
+                                formatPrice(price) {
+                                    return price.toLocaleString();
+                                }
+                            }" class="space-y-4">
+                                <!-- Date Selection -->
+                                <div class="relative">
+                                    <button type="button"
+                                            @click="showDatePicker = !showDatePicker; showGuestPicker = false"
+                                            class="w-full flex items-center gap-3 px-4 py-3.5 border border-gray-200 rounded-xl hover:border-gray-300 transition-colors text-left"
+                                            :class="showDatePicker ? 'border-pink-500 ring-2 ring-pink-500/20' : ''">
+                                        <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-cyan-100 to-teal-100 flex items-center justify-center flex-shrink-0">
+                                            <svg class="w-5 h-5 text-cyan-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
+                                            </svg>
+                                        </div>
+                                        <div class="flex-1 min-w-0">
+                                            <span class="block text-[10px] font-bold text-cyan-600 uppercase tracking-wider">일정</span>
+                                            <span class="block text-sm font-medium truncate" :class="selectedDate ? 'text-gray-900' : 'text-gray-400'" x-text="selectedDate ? formatDate(selectedDate) : '날짜를 선택하세요'"></span>
+                                        </div>
+                                        <svg class="w-5 h-5 text-gray-400 transition-transform" :class="showDatePicker ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                                        </svg>
+                                    </button>
+                                    <!-- Date Dropdown -->
+                                    <div x-show="showDatePicker"
+                                         @click.away="showDatePicker = false"
+                                         x-transition:enter="transition ease-out duration-200"
+                                         x-transition:enter-start="opacity-0 translate-y-2"
+                                         x-transition:enter-end="opacity-100 translate-y-0"
+                                         x-transition:leave="transition ease-in duration-150"
+                                         x-transition:leave-start="opacity-100 translate-y-0"
+                                         x-transition:leave-end="opacity-0 translate-y-2"
+                                         class="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-2xl border border-gray-100 py-2 z-50 max-h-64 overflow-y-auto"
+                                         style="display: none;">
+                                        <template x-if="schedules.filter(s => s.is_active && s.available_count > 0).length === 0">
+                                            <p class="px-4 py-3 text-sm text-gray-500 text-center">예약 가능한 날짜가 없습니다</p>
+                                        </template>
+                                        <template x-for="schedule in schedules.filter(s => s.is_active && s.available_count > 0)" :key="schedule.id">
+                                            <button type="button"
+                                                    @click="selectedDate = schedule.date; showDatePicker = false; if(totalPersons > schedule.available_count) { adults = 1; children = 0; }"
+                                                    class="w-full flex items-center justify-between px-4 py-3 text-sm hover:bg-gray-50 transition-colors"
+                                                    :class="selectedDate === schedule.date ? 'bg-pink-50 text-pink-600' : 'text-gray-700'">
+                                                <span class="font-medium" x-text="formatDate(schedule.date)"></span>
+                                                <span class="text-xs px-2 py-1 rounded-full" :class="schedule.available_count <= 5 ? 'bg-orange-100 text-orange-600' : 'bg-green-100 text-green-600'" x-text="schedule.available_count + '명 가능'"></span>
+                                            </button>
+                                        </template>
+                                    </div>
                                 </div>
-                                <noscript>
-                                    <p class="text-center text-gray-500 py-4">JavaScript를 활성화해주세요</p>
-                                </noscript>
+
+                                <!-- Guest Selection -->
+                                <div class="relative">
+                                    <button type="button"
+                                            @click="showGuestPicker = !showGuestPicker; showDatePicker = false"
+                                            class="w-full flex items-center gap-3 px-4 py-3.5 border border-gray-200 rounded-xl hover:border-gray-300 transition-colors text-left"
+                                            :class="showGuestPicker ? 'border-pink-500 ring-2 ring-pink-500/20' : ''">
+                                        <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-orange-100 to-amber-100 flex items-center justify-center flex-shrink-0">
+                                            <svg class="w-5 h-5 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
+                                            </svg>
+                                        </div>
+                                        <div class="flex-1 min-w-0">
+                                            <span class="block text-[10px] font-bold text-orange-500 uppercase tracking-wider">인원</span>
+                                            <span class="block text-sm font-medium text-gray-900" x-text="'성인 ' + adults + '명' + (children > 0 ? ', 아동 ' + children + '명' : '')"></span>
+                                        </div>
+                                        <svg class="w-5 h-5 text-gray-400 transition-transform" :class="showGuestPicker ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                                        </svg>
+                                    </button>
+                                    <!-- Guest Dropdown -->
+                                    <div x-show="showGuestPicker"
+                                         @click.away="showGuestPicker = false"
+                                         x-transition:enter="transition ease-out duration-200"
+                                         x-transition:enter-start="opacity-0 translate-y-2"
+                                         x-transition:enter-end="opacity-100 translate-y-0"
+                                         x-transition:leave="transition ease-in duration-150"
+                                         x-transition:leave-start="opacity-100 translate-y-0"
+                                         x-transition:leave-end="opacity-0 translate-y-2"
+                                         class="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-2xl border border-gray-100 p-5 z-50"
+                                         style="display: none;">
+                                        <!-- Adults -->
+                                        <div class="flex items-center justify-between pb-4 border-b border-gray-100">
+                                            <div>
+                                                <span class="block text-sm font-medium text-gray-900">성인</span>
+                                                <span class="block text-xs text-gray-500">만 13세 이상</span>
+                                            </div>
+                                            <div class="flex items-center gap-4">
+                                                <button type="button"
+                                                        @click="if(adults > 1) adults--"
+                                                        class="w-9 h-9 rounded-full border-2 border-gray-200 flex items-center justify-center text-gray-500 hover:border-gray-400 hover:text-gray-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                                                        :disabled="adults <= 1">
+                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 12h-15" />
+                                                    </svg>
+                                                </button>
+                                                <span class="text-base font-semibold w-6 text-center" x-text="adults"></span>
+                                                <button type="button"
+                                                        @click="if(totalPersons < maxPersons) adults++"
+                                                        class="w-9 h-9 rounded-full border-2 border-gray-200 flex items-center justify-center text-gray-500 hover:border-gray-400 hover:text-gray-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                                                        :disabled="totalPersons >= maxPersons">
+                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                                                    </svg>
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <!-- Children -->
+                                        <div class="flex items-center justify-between pt-4">
+                                            <div>
+                                                <span class="block text-sm font-medium text-gray-900">아동</span>
+                                                <span class="block text-xs text-gray-500">만 2~12세</span>
+                                            </div>
+                                            <div class="flex items-center gap-4">
+                                                <button type="button"
+                                                        @click="if(children > 0) children--"
+                                                        class="w-9 h-9 rounded-full border-2 border-gray-200 flex items-center justify-center text-gray-500 hover:border-gray-400 hover:text-gray-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                                                        :disabled="children <= 0">
+                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 12h-15" />
+                                                    </svg>
+                                                </button>
+                                                <span class="text-base font-semibold w-6 text-center" x-text="children"></span>
+                                                <button type="button"
+                                                        @click="if(totalPersons < maxPersons) children++"
+                                                        class="w-9 h-9 rounded-full border-2 border-gray-200 flex items-center justify-center text-gray-500 hover:border-gray-400 hover:text-gray-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                                                        :disabled="totalPersons >= maxPersons">
+                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                                                    </svg>
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <!-- Max persons warning -->
+                                        <template x-if="selectedDate && totalPersons >= maxPersons">
+                                            <p class="mt-4 text-xs text-orange-600 bg-orange-50 px-3 py-2 rounded-lg">
+                                                선택한 날짜의 최대 예약 인원에 도달했습니다.
+                                            </p>
+                                        </template>
+                                    </div>
+                                </div>
+
+                                <!-- Price Summary -->
+                                <div class="bg-gray-50 rounded-xl p-4 space-y-2">
+                                    <div class="flex justify-between text-sm">
+                                        <span class="text-gray-600">성인 <span x-text="adults"></span>명 × ₩<span x-text="formatPrice(adultPrice)"></span></span>
+                                        <span class="font-medium text-gray-900">₩<span x-text="formatPrice(adults * adultPrice)"></span></span>
+                                    </div>
+                                    <template x-if="children > 0">
+                                        <div class="flex justify-between text-sm">
+                                            <span class="text-gray-600">아동 <span x-text="children"></span>명 × ₩<span x-text="formatPrice(childPrice)"></span></span>
+                                            <span class="font-medium text-gray-900">₩<span x-text="formatPrice(children * childPrice)"></span></span>
+                                        </div>
+                                    </template>
+                                    <div class="flex justify-between pt-2 border-t border-gray-200">
+                                        <span class="font-semibold text-gray-900">총 금액</span>
+                                        <span class="text-lg font-bold text-pink-600">₩<span x-text="formatPrice(totalPrice)"></span></span>
+                                    </div>
+                                </div>
+
+                                <!-- Submit Button -->
+                                @auth
+                                <form action="{{ route('bookings.store') }}" method="POST">
+                                    @csrf
+                                    <input type="hidden" name="product_id" value="{{ $product->id }}">
+                                    <input type="hidden" name="date" :value="selectedDate">
+                                    <input type="hidden" name="adult_count" :value="adults">
+                                    <input type="hidden" name="child_count" :value="children">
+                                    <button type="submit"
+                                            :disabled="!canBook"
+                                            class="w-full py-4 bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white font-semibold rounded-xl shadow-lg shadow-pink-500/30 hover:shadow-xl hover:shadow-pink-500/40 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none">
+                                        <span x-text="selectedDate ? '예약하기' : '날짜를 선택하세요'"></span>
+                                    </button>
+                                </form>
+                                @else
+                                <a href="{{ route('login', ['redirect' => url()->current()]) }}"
+                                   class="block w-full py-4 bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white font-semibold rounded-xl shadow-lg shadow-pink-500/30 hover:shadow-xl hover:shadow-pink-500/40 transition-all duration-300 text-center">
+                                    로그인 후 예약하기
+                                </a>
+                                @endauth
+
+                                @if($product->booking_type->value === 'request')
+                                <p class="text-xs text-gray-500 text-center mt-2">
+                                    이 상품은 판매자 승인 후 예약이 확정됩니다.
+                                </p>
+                                @endif
                             </div>
 
                             <!-- Action Buttons -->
@@ -282,7 +501,7 @@
                                         @endphp
                                         <button type="button"
                                                 id="wishlist-btn"
-                                                onclick="toggleWishlist({{ $product->id }}, this)"
+                                                onclick="toggleMainWishlist({{ $product->id }}, this)"
                                                 data-wishlisted="{{ $isWishlisted ? 'true' : 'false' }}"
                                                 class="flex-1 flex items-center justify-center gap-2 px-4 py-3 border rounded-xl font-medium transition-all duration-200 cursor-pointer {{ $isWishlisted ? 'border-pink-300 bg-pink-50 text-pink-600' : 'border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-gray-300' }}">
                                             <svg id="wishlist-icon" class="w-5 h-5 transition-transform duration-200" fill="{{ $isWishlisted ? 'currentColor' : 'none' }}" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
@@ -363,8 +582,50 @@
         </div>
     </div>
 
+    {{-- Review Image Modal --}}
+    <div id="review-image-modal"
+         class="fixed inset-0 z-50 hidden items-center justify-center bg-black/90 backdrop-blur-sm"
+         onclick="closeReviewImageModal()">
+        <button type="button"
+                onclick="closeReviewImageModal()"
+                class="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors z-10">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+        </button>
+        <img id="review-image-modal-img"
+             src=""
+             alt="리뷰 이미지"
+             class="max-w-[90vw] max-h-[90vh] object-contain rounded-lg shadow-2xl"
+             onclick="event.stopPropagation()">
+    </div>
+
     @push('scripts')
     <script>
+        // Review Image Modal
+        function openReviewImageModal(imageSrc) {
+            const modal = document.getElementById('review-image-modal');
+            const img = document.getElementById('review-image-modal-img');
+            img.src = imageSrc;
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeReviewImageModal() {
+            const modal = document.getElementById('review-image-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            document.body.style.overflow = '';
+        }
+
+        // Close modal on Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeReviewImageModal();
+            }
+        });
+
         // Share
         function shareProduct() {
             if (navigator.share) {
@@ -378,12 +639,11 @@
             }
         }
 
-        // Wishlist
-        function toggleWishlist(productId, button) {
+        // Wishlist - Main product button
+        function toggleMainWishlist(productId, button) {
             const icon = document.getElementById('wishlist-icon');
             const text = document.getElementById('wishlist-text');
 
-            // Disable button during request
             button.disabled = true;
             button.classList.add('opacity-50');
 
@@ -396,43 +656,76 @@
                 }
             })
             .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
+                if (!response.ok) throw new Error('Network response was not ok');
                 return response.json();
             })
             .then(data => {
-                console.log('Wishlist response:', data);
                 if (data.success) {
                     const nowWishlisted = data.added;
                     button.dataset.wishlisted = nowWishlisted ? 'true' : 'false';
 
                     if (nowWishlisted) {
-                        // Added to wishlist
                         button.className = 'flex-1 flex items-center justify-center gap-2 px-4 py-3 border rounded-xl font-medium transition-all duration-200 cursor-pointer border-pink-300 bg-pink-50 text-pink-600';
                         if (icon) icon.setAttribute('fill', 'currentColor');
                         if (text) text.textContent = '위시리스트에 추가됨';
                     } else {
-                        // Removed from wishlist
                         button.className = 'flex-1 flex items-center justify-center gap-2 px-4 py-3 border rounded-xl font-medium transition-all duration-200 cursor-pointer border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-gray-300';
                         if (icon) icon.setAttribute('fill', 'none');
                         if (text) text.textContent = '위시리스트 추가';
                     }
 
-                    // Heart animation
                     if (icon) {
                         icon.style.transform = 'scale(1.25)';
                         setTimeout(() => { icon.style.transform = 'scale(1)'; }, 200);
                     }
                 }
             })
-            .catch(error => {
-                console.error('Wishlist error:', error);
-            })
+            .catch(error => console.error('Wishlist error:', error))
             .finally(() => {
                 button.disabled = false;
                 button.classList.remove('opacity-50');
             });
+        }
+
+        // Wishlist - Product card buttons (related products)
+        function toggleWishlist(productId, button) {
+            const icon = button.querySelector('.wishlist-icon');
+
+            fetch(`/wishlist/${productId}`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => {
+                if (!response.ok) throw new Error('Network response was not ok');
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    const nowWishlisted = data.added;
+                    button.dataset.wishlisted = nowWishlisted ? 'true' : 'false';
+
+                    if (nowWishlisted) {
+                        button.classList.remove('text-gray-500', 'hover:text-pink-500');
+                        button.classList.add('text-pink-500');
+                        if (icon) icon.setAttribute('fill', 'currentColor');
+                    } else {
+                        button.classList.remove('text-pink-500');
+                        button.classList.add('text-gray-500', 'hover:text-pink-500');
+                        if (icon) icon.setAttribute('fill', 'none');
+                    }
+
+                    // Heart animation
+                    if (icon) {
+                        icon.classList.add('scale-125');
+                        setTimeout(() => icon.classList.remove('scale-125'), 200);
+                    }
+                }
+            })
+            .catch(error => console.error('Wishlist error:', error));
         }
     </script>
     @endpush

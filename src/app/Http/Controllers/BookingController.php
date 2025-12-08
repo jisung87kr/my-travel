@@ -11,6 +11,7 @@ use App\Http\Responses\ApiResponse;
 use App\Models\Booking;
 use App\Services\BookingService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\View\View;
@@ -75,7 +76,7 @@ class BookingController extends Controller
         return ApiResponse::paginated($bookings);
     }
 
-    public function store(StoreBookingRequest $request): JsonResponse
+    public function store(StoreBookingRequest $request): JsonResponse|RedirectResponse
     {
         try {
             $booking = $this->bookingService->create(
@@ -83,13 +84,31 @@ class BookingController extends Controller
                 $request->user()
             );
 
-            return ApiResponse::created($booking, '예약이 완료되었습니다.');
+            // 웹 폼 제출 시 리다이렉트, API 요청 시 JSON 응답
+            if ($request->expectsJson()) {
+                return ApiResponse::created($booking, '예약이 완료되었습니다.');
+            }
+
+            return  redirect()->route('bookings.complete', ['booking' => $booking->id])
+                ->with('success', '예약이 완료되었습니다.');
+
+//            return redirect()->route('my.booking.detail', ['locale' => app()->getLocale(), 'booking' => $booking->id])
+//                ->with('success', '예약이 완료되었습니다.');
         } catch (BookingNotAllowedException $e) {
-            return ApiResponse::forbidden($e->getMessage());
+            if ($request->expectsJson()) {
+                return ApiResponse::forbidden($e->getMessage());
+            }
+            return back()->withErrors(['error' => $e->getMessage()]);
         } catch (BookingExpiredException $e) {
-            return ApiResponse::error($e->getMessage(), 400);
+            if ($request->expectsJson()) {
+                return ApiResponse::error($e->getMessage(), 400);
+            }
+            return back()->withErrors(['error' => $e->getMessage()]);
         } catch (InsufficientInventoryException $e) {
-            return ApiResponse::error($e->getMessage(), 400);
+            if ($request->expectsJson()) {
+                return ApiResponse::error($e->getMessage(), 400);
+            }
+            return back()->withErrors(['error' => $e->getMessage()]);
         }
     }
 

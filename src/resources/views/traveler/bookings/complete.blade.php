@@ -41,18 +41,18 @@
     <div class="bg-gray-50 min-h-[calc(100vh-200px)]">
         <div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
             @php
-                $booking = (object)[
-                    'id' => 1234,
-                    'booking_number' => 'BK-2024-001234',
-                    'product_name' => '전주 한옥마을 당일투어',
-                    'date' => '2024-12-25',
-                    'day_of_week' => '수',
-                    'adult_count' => 2,
-                    'child_count' => 1,
-                    'total_price' => 150000,
-                    'status' => 'confirmed',
-                    'status_label' => '확정',
-                ];
+                $bookingDate = $booking->schedule?->date ?? $booking->created_at;
+                if (is_string($bookingDate)) {
+                    $bookingDate = \Carbon\Carbon::parse($bookingDate);
+                }
+                $days = ['일', '월', '화', '수', '목', '금', '토'];
+                $dayOfWeek = $days[$bookingDate->dayOfWeek];
+
+                // 상품명 가져오기
+                $locale = app()->getLocale();
+                $productTitle = $booking->product->translations->where('locale', $locale)->first()?->title
+                    ?? $booking->product->translations->where('locale', 'ko')->first()?->title
+                    ?? $booking->product->slug;
             @endphp
 
             <!-- Success Animation -->
@@ -87,21 +87,21 @@
                     <div class="flex items-center justify-between">
                         <div class="text-white">
                             <p class="text-sm opacity-90">예약번호</p>
-                            <p class="text-xl font-bold">{{ $booking->booking_number }}</p>
+                            <p class="text-xl font-bold">{{ $booking->booking_code }}</p>
                         </div>
-                        @if($booking->status === 'confirmed')
+                        @if($booking->status->value === 'confirmed')
                             <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-semibold bg-white/20 text-white backdrop-blur-sm">
                                 <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                                     <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
                                 </svg>
-                                {{ $booking->status_label }}
+                                {{ $booking->status->label() }}
                             </span>
                         @else
                             <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-semibold bg-amber-100 text-amber-800">
                                 <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                                     <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd" />
                                 </svg>
-                                {{ $booking->status_label }}
+                                {{ $booking->status->label() }}
                             </span>
                         @endif
                     </div>
@@ -118,7 +118,7 @@
                         </div>
                         <div class="flex-1">
                             <p class="text-sm text-gray-500 mb-1">상품</p>
-                            <p class="font-semibold text-gray-900">{{ $booking->product_name }}</p>
+                            <p class="font-semibold text-gray-900">{{ $productTitle }}</p>
                         </div>
                     </div>
 
@@ -132,7 +132,7 @@
                         <div class="flex-1">
                             <p class="text-sm text-gray-500 mb-1">날짜</p>
                             <p class="font-semibold text-gray-900">
-                                {{ date('Y년 m월 d일', strtotime($booking->date)) }} ({{ $booking->day_of_week }})
+                                {{ $bookingDate->format('Y년 m월 d일') }} ({{ $dayOfWeek }})
                             </p>
                         </div>
                     </div>
@@ -165,7 +165,7 @@
             </div>
 
             <!-- Pending Status Warning -->
-            @if($booking->status === 'pending')
+            @if($booking->status->value === 'pending')
                 <div class="bg-amber-50 border border-amber-200 rounded-2xl p-4 mb-6">
                     <div class="flex gap-3">
                         <div class="flex-shrink-0 w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center">
@@ -185,7 +185,7 @@
 
             <!-- Action Buttons -->
             <div class="flex flex-col sm:flex-row gap-3 mb-8">
-                <a href="{{ route('my.bookings.show', ['locale' => app()->getLocale(), 'booking' => $booking->id]) }}"
+                <a href="{{ route('my.booking.detail', ['locale' => app()->getLocale(), 'booking' => $booking->id]) }}"
                    class="flex-1 inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white font-semibold rounded-xl shadow-lg shadow-pink-500/25 hover:shadow-xl hover:shadow-pink-500/30 transition-all duration-300 cursor-pointer">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25zM6.75 12h.008v.008H6.75V12zm0 3h.008v.008H6.75V15zm0 3h.008v.008H6.75V18z" />

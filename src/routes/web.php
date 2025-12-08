@@ -38,6 +38,7 @@ Route::prefix('{locale}')->where(['locale' => 'ko|en|zh|ja'])->middleware('local
             Route::put('/profile', [MyController::class, 'updateProfile'])->name('profile.update');
             Route::get('/bookings', [MyController::class, 'bookings'])->name('bookings');
             Route::get('/bookings/{booking}', [MyController::class, 'bookingDetail'])->name('booking.detail');
+            Route::post('/bookings/{booking}/cancel', [MyController::class, 'cancelBooking'])->name('booking.cancel');
             Route::get('/wishlist', [MyController::class, 'wishlist'])->name('wishlist');
             Route::get('/reviews', [MyController::class, 'reviews'])->name('reviews');
         });
@@ -70,26 +71,24 @@ Route::middleware('guest')->group(function () {
         ->name('social.redirect');
     Route::get('/auth/{provider}/callback', [SocialLoginController::class, 'callback'])
         ->name('social.callback');
-
-    // Password Reset
-    Route::get('/forgot-password', [ForgotPasswordController::class, 'showForm'])
-        ->name('password.request');
-    Route::post('/forgot-password', [ForgotPasswordController::class, 'sendLink'])
-        ->name('password.email');
-    Route::get('/reset-password/{token}', [ResetPasswordController::class, 'showForm'])
-        ->name('password.reset');
-    Route::post('/reset-password', [ResetPasswordController::class, 'reset'])
-        ->name('password.update');
 });
+
+// Password Reset (accessible by both guests and authenticated users)
+Route::get('/forgot-password', [ForgotPasswordController::class, 'showForm'])
+    ->name('password.request');
+Route::post('/forgot-password', [ForgotPasswordController::class, 'sendLink'])
+    ->name('password.email');
+Route::get('/reset-password/{token}', [ResetPasswordController::class, 'showForm'])
+    ->name('password.reset');
+Route::post('/reset-password', [ResetPasswordController::class, 'reset'])
+    ->name('password.update');
 
 // Authenticated routes
 Route::middleware(['auth', 'user.active'])->group(function () {
     Route::post('/logout', [LogoutController::class, 'logout'])->name('logout');
 
-    // Dashboard placeholder (will be implemented in later tasks)
-    Route::get('/dashboard', function () {
-        return view('dashboard');
-    })->name('dashboard');
+    // Dashboard
+    Route::get('/dashboard', [\App\Http\Controllers\Traveler\DashboardController::class, 'index'])->name('dashboard');
 
     // Booking routes (traveler)
     Route::prefix('bookings')->name('bookings.')->group(function () {

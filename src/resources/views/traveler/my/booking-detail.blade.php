@@ -292,7 +292,7 @@
                 <div class="space-y-3">
                     @if($booking->canBeCancelled())
                         <button type="button"
-                                onclick="confirmCancel()"
+                                onclick="openCancelModal()"
                                 class="w-full px-4 py-3 bg-white border border-red-200 text-red-600 rounded-xl font-semibold hover:bg-red-50 transition-colors flex items-center justify-center gap-2">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -323,12 +323,107 @@
         </div>
     </div>
 
+    {{-- Cancel Booking Modal --}}
+    @if($booking->canBeCancelled())
+        <div id="cancel-modal"
+             class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 backdrop-blur-sm p-4"
+             onclick="if(event.target === this) closeCancelModal()">
+            <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden" onclick="event.stopPropagation()">
+                {{-- Header --}}
+                <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+                    <h3 class="text-lg font-bold text-gray-900">예약 취소</h3>
+                    <button type="button" onclick="closeCancelModal()" class="w-8 h-8 rounded-full hover:bg-gray-100 flex items-center justify-center transition-colors">
+                        <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+
+                {{-- Body --}}
+                <form action="{{ route('my.booking.cancel', ['locale' => app()->getLocale(), 'booking' => $booking->id]) }}" method="POST">
+                    @csrf
+                    <div class="p-6">
+                        <div class="flex items-center gap-3 p-4 bg-red-50 rounded-xl mb-6">
+                            <div class="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0">
+                                <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+                                </svg>
+                            </div>
+                            <div>
+                                <p class="font-semibold text-red-900">정말 취소하시겠습니까?</p>
+                                <p class="text-sm text-red-700">취소 후에는 되돌릴 수 없습니다.</p>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="cancel-reason" class="block text-sm font-medium text-gray-700 mb-2">
+                                취소 사유 <span class="text-gray-400">(선택)</span>
+                            </label>
+                            <textarea id="cancel-reason"
+                                      name="reason"
+                                      rows="3"
+                                      placeholder="취소 사유를 입력해 주세요..."
+                                      class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-pink-500/20 focus:border-pink-500 transition-colors resize-none"></textarea>
+                        </div>
+
+                        {{-- Booking Summary --}}
+                        <div class="bg-gray-50 rounded-xl p-4 text-sm">
+                            <div class="flex justify-between mb-2">
+                                <span class="text-gray-500">예약번호</span>
+                                <span class="font-medium text-gray-900">{{ $booking->booking_code }}</span>
+                            </div>
+                            <div class="flex justify-between mb-2">
+                                <span class="text-gray-500">예약일</span>
+                                <span class="font-medium text-gray-900">{{ $booking->schedule->date->format('Y.m.d') }}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-500">결제금액</span>
+                                <span class="font-medium text-gray-900">{{ number_format($booking->total_price) }}원</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- Footer --}}
+                    <div class="px-6 py-4 border-t border-gray-100 flex gap-3">
+                        <button type="button"
+                                onclick="closeCancelModal()"
+                                class="flex-1 px-4 py-3 bg-gray-100 text-gray-700 rounded-xl font-semibold hover:bg-gray-200 transition-colors">
+                            닫기
+                        </button>
+                        <button type="submit"
+                                class="flex-1 px-4 py-3 bg-red-600 text-white rounded-xl font-semibold hover:bg-red-700 transition-colors">
+                            예약 취소
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    @endif
+
     <script>
-        function confirmCancel() {
-            if (confirm('정말로 예약을 취소하시겠습니까?\n취소 후에는 복구할 수 없습니다.')) {
-                // TODO: Implement cancel booking logic
-                alert('예약 취소 기능은 준비 중입니다.');
+        function openCancelModal() {
+            const modal = document.getElementById('cancel-modal');
+            if (modal) {
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+                document.body.style.overflow = 'hidden';
             }
         }
+
+        function closeCancelModal() {
+            const modal = document.getElementById('cancel-modal');
+            if (modal) {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+                document.body.style.overflow = '';
+            }
+        }
+
+        // Close modal on Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeCancelModal();
+            }
+        });
     </script>
 </x-traveler.my.layout>

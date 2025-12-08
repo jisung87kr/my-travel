@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Traveler;
 
 use App\Http\Controllers\Controller;
 use App\Services\BookingService;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
@@ -82,6 +83,30 @@ class MyController extends Controller
         $translation = $booking->product->getTranslation($locale);
 
         return view('traveler.my.booking-detail', compact('booking', 'translation'));
+    }
+
+    public function cancelBooking(Request $request, string $locale, int $bookingId): RedirectResponse
+    {
+        $user = auth()->user();
+        $booking = $user->bookings()->findOrFail($bookingId);
+
+        if (!$booking->canBeCancelled()) {
+            return back()->with('error', '이 예약은 취소할 수 없습니다.');
+        }
+
+        $validated = $request->validate([
+            'reason' => 'nullable|string|max:500',
+        ]);
+
+        try {
+            $this->bookingService->cancel($booking, $user, $validated['reason'] ?? '고객 요청에 의한 취소');
+
+            return redirect()
+                ->route('my.booking.detail', ['locale' => $locale, 'booking' => $bookingId])
+                ->with('success', '예약이 취소되었습니다.');
+        } catch (\Exception $e) {
+            return back()->with('error', '예약 취소 중 오류가 발생했습니다: ' . $e->getMessage());
+        }
     }
 
     public function wishlist(): View
