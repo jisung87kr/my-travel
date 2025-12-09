@@ -12,7 +12,7 @@ class BookingController extends Controller
 {
     public function index(Request $request): View
     {
-        $query = Booking::with(['user', 'product.translations', 'product.vendor']);
+        $query = Booking::with(['user', 'product.translations', 'product.vendor', 'schedule']);
 
         if ($request->filled('status')) {
             $query->where('status', $request->status);
@@ -28,11 +28,15 @@ class BookingController extends Controller
         }
 
         if ($request->filled('date_from')) {
-            $query->whereDate('booking_date', '>=', $request->date_from);
+            $query->whereHas('schedule', function ($q) use ($request) {
+                $q->whereDate('date', '>=', $request->date_from);
+            });
         }
 
         if ($request->filled('date_to')) {
-            $query->whereDate('booking_date', '<=', $request->date_to);
+            $query->whereHas('schedule', function ($q) use ($request) {
+                $q->whereDate('date', '<=', $request->date_to);
+            });
         }
 
         $bookings = $query->latest()->paginate(20);
@@ -42,7 +46,7 @@ class BookingController extends Controller
 
     public function show(Booking $booking): View
     {
-        $booking->load(['user', 'product.translations', 'product.vendor', 'payment']);
+        $booking->load(['user', 'product.translations', 'product.vendor', 'payment', 'schedule']);
 
         return view('admin.bookings.show', compact('booking'));
     }

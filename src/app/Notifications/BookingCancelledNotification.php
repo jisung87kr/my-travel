@@ -24,7 +24,7 @@ class BookingCancelledNotification extends Notification implements ShouldQueue
     public function toMail(object $notifiable): MailMessage
     {
         $productName = $this->booking->product->getTranslation('ko')?->title ?? '상품';
-        $date = $this->booking->booking_date->format('Y년 m월 d일');
+        $date = $this->booking->schedule?->date?->format('Y년 m월 d일') ?? '미정';
 
         return (new MailMessage)
             ->subject('[예약 취소] 예약이 취소되었습니다')

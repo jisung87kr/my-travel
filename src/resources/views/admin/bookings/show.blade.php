@@ -58,7 +58,7 @@
                             </div>
                             <div class="flex justify-between items-center py-2 border-b border-slate-100">
                                 <span class="text-slate-500">예약일</span>
-                                <span class="font-medium text-slate-900">{{ $booking->booking_date->format('Y-m-d') }}</span>
+                                <span class="font-medium text-slate-900">{{ $booking->schedule?->date?->format('Y-m-d') }}</span>
                             </div>
                             <div class="flex justify-between items-center py-2 border-b border-slate-100">
                                 <span class="text-slate-500">인원</span>

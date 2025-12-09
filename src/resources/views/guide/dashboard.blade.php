@@ -116,8 +116,8 @@
                                 <p class="text-sm text-gray-500">{{ $booking->user->name }} · {{ $booking->quantity }}명</p>
                             </div>
                             <div class="text-right">
-                                <p class="text-sm font-medium text-teal-600">{{ $booking->booking_date->format('m/d') }}</p>
-                                <p class="text-xs text-gray-500">{{ $booking->booking_date->diffForHumans() }}</p>
+                                <p class="text-sm font-medium text-teal-600">{{ $booking->schedule?->date?->format('m/d') }}</p>
+                                <p class="text-xs text-gray-500">{{ $booking->schedule?->date?->diffForHumans() }}</p>
                             </div>
                         </div>
                     </div>

@@ -22,10 +22,16 @@ class ScheduleController extends Controller
         $start = $request->input('start');
         $end = $request->input('end');
 
-        $bookings = Booking::with(['user', 'product.translations'])
+        $bookings = Booking::with(['user', 'product.translations', 'schedule'])
             ->where('guide_id', $user->id)
-            ->when($start, fn ($q) => $q->whereDate('booking_date', '>=', $start))
-            ->when($end, fn ($q) => $q->whereDate('booking_date', '<=', $end))
+            ->whereHas('schedule', function ($query) use ($start, $end) {
+                if ($start) {
+                    $query->whereDate('date', '>=', $start);
+                }
+                if ($end) {
+                    $query->whereDate('date', '<=', $end);
+                }
+            })
             ->whereIn('status', ['confirmed', 'in_progress', 'completed'])
             ->get();
 
@@ -35,7 +41,7 @@ class ScheduleController extends Controller
             return [
                 'id' => $booking->id,
                 'title' => "{$title} ({$booking->user->name})",
-                'start' => $booking->booking_date->format('Y-m-d'),
+                'start' => $booking->schedule?->date?->format('Y-m-d'),
                 'backgroundColor' => $this->getStatusColor($booking->status->value),
                 'borderColor' => $this->getStatusColor($booking->status->value),
                 'extendedProps' => [
@@ -53,7 +59,7 @@ class ScheduleController extends Controller
     {
         $this->authorize('view', $booking);
 
-        $booking->load(['user', 'product.translations', 'product.vendor', 'product.images']);
+        $booking->load(['user', 'product.translations', 'product.vendor', 'product.images', 'schedule']);
 
         return view('guide.schedules.show', compact('booking'));
     }

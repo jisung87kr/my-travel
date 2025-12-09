@@ -104,8 +104,8 @@
                                         <div class="text-sm font-medium text-slate-900">{{ $booking->product->getTranslation('ko')?->name ?? '상품' }}</div>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
-                                        <div class="text-sm text-slate-900">{{ $booking->booking_date->format('Y-m-d') }}</div>
-                                        <div class="text-xs text-slate-500">{{ $booking->booking_date->diffForHumans() }}</div>
+                                        <div class="text-sm text-slate-900">{{ $booking->schedule?->date?->format('Y-m-d') }}</div>
+                                        <div class="text-xs text-slate-500">{{ $booking->schedule?->date?->diffForHumans() }}</div>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-right">
                                         <a href="{{ route('admin.users.show', $booking->user) }}"

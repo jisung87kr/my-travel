@@ -22,10 +22,12 @@ class CheckinController extends Controller
             'code' => 'required|string',
         ]);
 
-        $booking = Booking::with(['user', 'product.translations'])
+        $booking = Booking::with(['user', 'product.translations', 'schedule'])
             ->where('booking_code', $request->code)
             ->where('guide_id', $request->user()->id)
-            ->whereDate('booking_date', today())
+            ->whereHas('schedule', function ($query) {
+                $query->whereDate('date', today());
+            })
             ->first();
 
         if (! $booking) {
@@ -60,7 +62,7 @@ class CheckinController extends Controller
                 'adult_count' => $booking->adult_count,
                 'child_count' => $booking->child_count,
                 'status' => $booking->status->value,
-                'booking_date' => $booking->booking_date->format('Y-m-d'),
+                'booking_date' => $booking->schedule?->date?->format('Y-m-d'),
             ],
         ]);
     }

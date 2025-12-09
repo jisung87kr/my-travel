@@ -150,8 +150,8 @@
                                     <div class="text-xs text-slate-500">{{ $booking->product->vendor->company_name ?? $booking->product->vendor->business_name }}</div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm text-slate-900">{{ $booking->booking_date->format('Y-m-d') }}</div>
-                                    <div class="text-xs text-slate-500">{{ $booking->booking_date->diffForHumans() }}</div>
+                                    <div class="text-sm text-slate-900">{{ $booking->schedule?->date?->format('Y-m-d') }}</div>
+                                    <div class="text-xs text-slate-500">{{ $booking->schedule?->date?->diffForHumans() }}</div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <span class="text-sm font-semibold text-slate-900">{{ number_format($booking->total_amount) }}원</span>

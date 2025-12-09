@@ -24,7 +24,7 @@ class NewBookingRequestNotification extends Notification implements ShouldQueue
     public function toMail(object $notifiable): MailMessage
     {
         $productName = $this->booking->product->getTranslation('ko')?->title ?? '상품';
-        $date = $this->booking->booking_date->format('Y년 m월 d일');
+        $date = $this->booking->schedule?->date?->format('Y년 m월 d일') ?? '미정';
 
         return (new MailMessage)
             ->subject('[새 예약 요청] 승인이 필요한 예약이 있습니다')
