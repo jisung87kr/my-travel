@@ -7,109 +7,161 @@
 
     <title>{{ $title ?? '제공자 대시보드' }} - {{ config('app.name', 'My Travel') }}</title>
 
-    <!-- Pretendard 웹폰트 -->
-    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+    <!-- Noto Sans KR 웹폰트 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
     <!-- Alpine.js -->
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+    <style>
+        body { font-family: 'Noto Sans KR', sans-serif; }
+    </style>
 </head>
-<body class="font-sans antialiased bg-gray-100">
+<body class="antialiased bg-slate-50" x-data="{ sidebarOpen: false }">
     <div class="min-h-screen flex">
+        <!-- Mobile Sidebar Overlay -->
+        <div x-show="sidebarOpen"
+             x-transition:enter="transition-opacity ease-out duration-300"
+             x-transition:enter-start="opacity-0"
+             x-transition:enter-end="opacity-100"
+             x-transition:leave="transition-opacity ease-in duration-200"
+             x-transition:leave-start="opacity-100"
+             x-transition:leave-end="opacity-0"
+             @click="sidebarOpen = false"
+             class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-40 lg:hidden"
+             style="display: none;"></div>
+
         <!-- Sidebar -->
-        <aside class="w-64 bg-gray-800 text-white flex-shrink-0 hidden lg:block">
-            <div class="p-4 border-b border-gray-700">
-                <a href="{{ route('vendor.dashboard') }}" class="text-xl font-bold">
-                    {{ config('app.name', 'My Travel') }}
+        <aside :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'"
+               class="fixed inset-y-0 left-0 w-72 bg-white border-r border-slate-200 z-50 transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:z-auto flex flex-col">
+
+            <!-- Logo -->
+            <div class="h-16 flex items-center justify-between px-6 border-b border-slate-100">
+                <a href="{{ route('vendor.dashboard') }}" class="flex items-center gap-3">
+                    <div class="w-9 h-9 bg-gradient-to-br from-violet-600 to-violet-700 rounded-xl flex items-center justify-center shadow-lg shadow-violet-600/20">
+                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.5 21v-7.5a.75.75 0 01.75-.75h3a.75.75 0 01.75.75V21m-4.5 0H2.36m11.14 0H18m0 0h3.64m-1.39 0V9.349m-16.5 11.65V9.35m0 0a3.001 3.001 0 003.75-.615A2.993 2.993 0 009.75 9.75c.896 0 1.7-.393 2.25-1.016a2.993 2.993 0 002.25 1.016c.896 0 1.7-.393 2.25-1.016a3.001 3.001 0 003.75.614m-16.5 0a3.004 3.004 0 01-.621-4.72L4.318 3.44A1.5 1.5 0 015.378 3h13.243a1.5 1.5 0 011.06.44l1.19 1.189a3 3 0 01-.621 4.72m-13.5 8.65h3.75a.75.75 0 00.75-.75V13.5a.75.75 0 00-.75-.75H6.75a.75.75 0 00-.75.75v3.75c0 .415.336.75.75.75z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <span class="text-lg font-bold text-slate-900">My Travel</span>
+                        <span class="block text-[10px] text-slate-400 font-medium tracking-wider uppercase">Vendor</span>
+                    </div>
                 </a>
-                <p class="text-sm text-gray-400 mt-1">제공자 대시보드</p>
+                <button @click="sidebarOpen = false" class="lg:hidden p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
             </div>
 
-            <nav class="p-4">
-                <ul class="space-y-2">
-                    <li>
-                        <a href="{{ route('vendor.dashboard') }}"
-                           class="flex items-center px-4 py-2 rounded-lg {{ request()->routeIs('vendor.dashboard') ? 'bg-gray-700' : 'hover:bg-gray-700' }}">
-                            <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+            <!-- Navigation -->
+            <nav class="flex-1 px-4 py-6 overflow-y-auto">
+                <div class="space-y-1">
+                    <p class="px-3 mb-2 text-[11px] font-semibold text-slate-400 uppercase tracking-wider">메인</p>
+
+                    <a href="{{ route('vendor.dashboard') }}"
+                       class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 {{ request()->routeIs('vendor.dashboard') ? 'bg-violet-50 text-violet-700' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900' }}">
+                        <span class="flex items-center justify-center w-9 h-9 rounded-lg {{ request()->routeIs('vendor.dashboard') ? 'bg-violet-100' : 'bg-slate-100' }} transition-colors">
+                            <svg class="w-5 h-5 {{ request()->routeIs('vendor.dashboard') ? 'text-violet-600' : 'text-slate-500' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 5a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM14 5a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1V5zM4 15a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1v-4zM14 15a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z"/>
                             </svg>
-                            대시보드
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{{ route('vendor.products.index') }}"
-                           class="flex items-center px-4 py-2 rounded-lg {{ request()->routeIs('vendor.products.*') ? 'bg-gray-700' : 'hover:bg-gray-700' }}">
-                            <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+                        </span>
+                        대시보드
+                    </a>
+                </div>
+
+                <div class="mt-8 space-y-1">
+                    <p class="px-3 mb-2 text-[11px] font-semibold text-slate-400 uppercase tracking-wider">관리</p>
+
+                    <a href="{{ route('vendor.products.index') }}"
+                       class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 {{ request()->routeIs('vendor.products.*') ? 'bg-violet-50 text-violet-700' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900' }}">
+                        <span class="flex items-center justify-center w-9 h-9 rounded-lg {{ request()->routeIs('vendor.products.*') ? 'bg-violet-100' : 'bg-slate-100' }} transition-colors">
+                            <svg class="w-5 h-5 {{ request()->routeIs('vendor.products.*') ? 'text-violet-600' : 'text-slate-500' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 7.5l-9-5.25L3 7.5m18 0l-9 5.25m9-5.25v9l-9 5.25M3 7.5l9 5.25M3 7.5v9l9 5.25m0-9v9"/>
                             </svg>
-                            상품 관리
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{{ route('vendor.bookings.index') }}"
-                           class="flex items-center px-4 py-2 rounded-lg {{ request()->routeIs('vendor.bookings.*') ? 'bg-gray-700' : 'hover:bg-gray-700' }}">
-                            <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
+                        </span>
+                        상품 관리
+                    </a>
+
+                    <a href="{{ route('vendor.bookings.index') }}"
+                       class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 {{ request()->routeIs('vendor.bookings.*') ? 'bg-violet-50 text-violet-700' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900' }}">
+                        <span class="flex items-center justify-center w-9 h-9 rounded-lg {{ request()->routeIs('vendor.bookings.*') ? 'bg-violet-100' : 'bg-slate-100' }} transition-colors">
+                            <svg class="w-5 h-5 {{ request()->routeIs('vendor.bookings.*') ? 'text-violet-600' : 'text-slate-500' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
                             </svg>
-                            예약 관리
-                            @if(isset($pendingBookingsCount) && $pendingBookingsCount > 0)
-                                <span class="ml-auto bg-red-500 text-white text-xs px-2 py-1 rounded-full">{{ $pendingBookingsCount }}</span>
-                            @endif
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{{ route('vendor.schedules.index') }}"
-                           class="flex items-center px-4 py-2 rounded-lg {{ request()->routeIs('vendor.schedules.*') ? 'bg-gray-700' : 'hover:bg-gray-700' }}">
-                            <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                        </span>
+                        예약 관리
+                        @if(isset($pendingBookingsCount) && $pendingBookingsCount > 0)
+                            <span class="ml-auto px-2 py-0.5 text-xs font-semibold bg-amber-100 text-amber-700 rounded-full">{{ $pendingBookingsCount }}</span>
+                        @endif
+                    </a>
+
+                    <a href="{{ route('vendor.schedules.index') }}"
+                       class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 {{ request()->routeIs('vendor.schedules.*') ? 'bg-violet-50 text-violet-700' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900' }}">
+                        <span class="flex items-center justify-center w-9 h-9 rounded-lg {{ request()->routeIs('vendor.schedules.*') ? 'bg-violet-100' : 'bg-slate-100' }} transition-colors">
+                            <svg class="w-5 h-5 {{ request()->routeIs('vendor.schedules.*') ? 'text-violet-600' : 'text-slate-500' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5"/>
                             </svg>
-                            일정 관리
-                        </a>
-                    </li>
-                </ul>
+                        </span>
+                        일정 관리
+                    </a>
+                </div>
             </nav>
 
-            <div class="absolute bottom-0 w-64 p-4 border-t border-gray-700">
-                <div class="flex items-center">
-                    <div class="flex-shrink-0">
-                        <div class="w-10 h-10 rounded-full bg-gray-600 flex items-center justify-center">
-                            {{ mb_substr(auth()->user()->name, 0, 1) }}
-                        </div>
+            <!-- User Profile -->
+            <div class="p-4 border-t border-slate-100">
+                <div class="flex items-center gap-3 p-3 rounded-xl bg-slate-50">
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-br from-violet-500 to-violet-600 flex items-center justify-center text-white font-semibold shadow-lg shadow-violet-500/20">
+                        {{ mb_substr(auth()->user()->name, 0, 1) }}
                     </div>
-                    <div class="ml-3">
-                        <p class="text-sm font-medium">{{ auth()->user()->name }}</p>
-                        <p class="text-xs text-gray-400">{{ auth()->user()->vendor?->business_name ?? '제공자' }}</p>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-sm font-semibold text-slate-900 truncate">{{ auth()->user()->name }}</p>
+                        <p class="text-xs text-slate-500 truncate">{{ auth()->user()->vendor?->business_name ?? '제공자' }}</p>
                     </div>
+                    <form method="POST" action="{{ route('logout') }}">
+                        @csrf
+                        <button type="submit" class="p-2 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-200 transition-colors" title="로그아웃">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9"/>
+                            </svg>
+                        </button>
+                    </form>
                 </div>
-                <form method="POST" action="{{ route('logout') }}" class="mt-3">
-                    @csrf
-                    <button type="submit" class="w-full text-left text-sm text-gray-400 hover:text-white">
-                        로그아웃
-                    </button>
-                </form>
             </div>
         </aside>
 
-        <!-- Mobile sidebar toggle -->
-        <div class="lg:hidden fixed bottom-4 right-4 z-50">
-            <button id="mobile-menu-toggle" class="bg-gray-800 text-white p-3 rounded-full shadow-lg">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
-                </svg>
-            </button>
-        </div>
-
         <!-- Main Content -->
-        <div class="flex-1 flex flex-col">
-            <!-- Top Navigation -->
-            <header class="bg-white shadow-sm">
-                <div class="px-4 py-4 sm:px-6 lg:px-8 flex justify-between items-center">
-                    <h1 class="text-xl font-semibold text-gray-900">
-                        {{ $header ?? '대시보드' }}
-                    </h1>
-                    <div class="flex items-center space-x-4">
-                        <a href="{{ route('home') }}" class="text-sm text-gray-600 hover:text-gray-900">
+        <div class="flex-1 flex flex-col min-w-0 lg:ml-0">
+            <!-- Top Header -->
+            <header class="sticky top-0 z-30 h-16 bg-white/80 backdrop-blur-xl border-b border-slate-200/80">
+                <div class="h-full px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-4">
+                    <div class="flex items-center gap-4">
+                        <!-- Mobile Menu Button -->
+                        <button @click="sidebarOpen = true"
+                                class="lg:hidden p-2 -ml-2 rounded-xl text-slate-500 hover:text-slate-700 hover:bg-slate-100 transition-colors">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"/>
+                            </svg>
+                        </button>
+
+                        <!-- Page Title -->
+                        <div>
+                            <h1 class="text-lg font-bold text-slate-900">{{ $header ?? '대시보드' }}</h1>
+                        </div>
+                    </div>
+
+                    <!-- Header Actions -->
+                    <div class="flex items-center gap-2">
+                        <a href="{{ route('home') }}"
+                           class="hidden sm:flex items-center gap-2 px-4 py-2 text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-xl transition-colors">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                            </svg>
                             사이트 보기
                         </a>
                     </div>
@@ -120,20 +172,46 @@
             <main class="flex-1 p-4 sm:p-6 lg:p-8">
                 <!-- Flash Messages -->
                 @if(session('success'))
-                    <div class="mb-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded">
-                        {{ session('success') }}
+                    <div class="mb-6 p-4 bg-emerald-50 border border-emerald-200 text-emerald-700 rounded-xl flex items-start gap-3"
+                         x-data="{ show: true }"
+                         x-show="show"
+                         x-transition:leave="transition ease-in duration-200"
+                         x-transition:leave-start="opacity-100"
+                         x-transition:leave-end="opacity-0">
+                        <svg class="w-5 h-5 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        <span class="flex-1 text-sm font-medium">{{ session('success') }}</span>
+                        <button @click="show = false" class="text-emerald-500 hover:text-emerald-700">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                            </svg>
+                        </button>
                     </div>
                 @endif
 
                 @if(session('error'))
-                    <div class="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded">
-                        {{ session('error') }}
+                    <div class="mb-6 p-4 bg-red-50 border border-red-200 text-red-700 rounded-xl flex items-start gap-3"
+                         x-data="{ show: true }"
+                         x-show="show"
+                         x-transition:leave="transition ease-in duration-200"
+                         x-transition:leave-start="opacity-100"
+                         x-transition:leave-end="opacity-0">
+                        <svg class="w-5 h-5 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        <span class="flex-1 text-sm font-medium">{{ session('error') }}</span>
+                        <button @click="show = false" class="text-red-500 hover:text-red-700">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                            </svg>
+                        </button>
                     </div>
                 @endif
 
                 @if($errors->any())
-                    <div class="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded">
-                        <ul class="list-disc list-inside">
+                    <div class="mb-6 p-4 bg-red-50 border border-red-200 text-red-700 rounded-xl">
+                        <ul class="list-disc list-inside text-sm space-y-1">
                             @foreach($errors->all() as $error)
                                 <li>{{ $error }}</li>
                             @endforeach
@@ -145,17 +223,6 @@
             </main>
         </div>
     </div>
-
-    <script>
-        // Mobile menu toggle
-        document.getElementById('mobile-menu-toggle')?.addEventListener('click', function() {
-            const sidebar = document.querySelector('aside');
-            sidebar.classList.toggle('hidden');
-            sidebar.classList.toggle('fixed');
-            sidebar.classList.toggle('inset-0');
-            sidebar.classList.toggle('z-40');
-        });
-    </script>
 
     @stack('scripts')
 </body>
