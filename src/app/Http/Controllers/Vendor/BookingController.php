@@ -4,10 +4,8 @@ namespace App\Http\Controllers\Vendor;
 
 use App\Exceptions\InvalidBookingStatusException;
 use App\Http\Controllers\Controller;
-use App\Http\Responses\ApiResponse;
 use App\Models\Booking;
 use App\Services\BookingService;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -19,23 +17,7 @@ class BookingController extends Controller
         private readonly BookingService $bookingService
     ) {}
 
-    public function index(Request $request): JsonResponse
-    {
-        $filters = $request->only([
-            'status',
-            'product_id',
-            'date',
-            'date_from',
-            'date_to',
-            'per_page',
-        ]);
-
-        $bookings = $this->bookingService->getVendorBookings($request->user(), $filters);
-
-        return ApiResponse::paginated($bookings);
-    }
-
-    public function indexView(Request $request): View
+    public function index(Request $request): View
     {
         $user = $request->user();
         $vendor = $user->vendor;
@@ -75,16 +57,7 @@ class BookingController extends Controller
         return view('vendor.bookings.index', compact('bookings', 'products', 'stats'));
     }
 
-    public function show(Booking $booking): JsonResponse
-    {
-        Gate::authorize('viewAsVendor', $booking);
-
-        $booking->load(['product.translations', 'schedule', 'user', 'review']);
-
-        return ApiResponse::success($booking);
-    }
-
-    public function showView(Booking $booking): View
+    public function show(Booking $booking): View
     {
         Gate::authorize('viewAsVendor', $booking);
 
@@ -93,20 +66,22 @@ class BookingController extends Controller
         return view('vendor.bookings.show', compact('booking'));
     }
 
-    public function approve(Booking $booking): JsonResponse
+    public function approve(Booking $booking): RedirectResponse
     {
         Gate::authorize('manage', $booking);
 
         try {
-            $booking = $this->bookingService->approve($booking);
+            $this->bookingService->approve($booking);
 
-            return ApiResponse::success($booking, '예약이 승인되었습니다.');
+            return redirect()->route('vendor.bookings.index')
+                ->with('success', '예약이 승인되었습니다.');
         } catch (InvalidBookingStatusException $e) {
-            return ApiResponse::error($e->getMessage(), 400);
+            return redirect()->route('vendor.bookings.index')
+                ->with('error', $e->getMessage());
         }
     }
 
-    public function reject(Request $request, Booking $booking): JsonResponse
+    public function reject(Request $request, Booking $booking): RedirectResponse
     {
         Gate::authorize('manage', $booking);
 
@@ -115,37 +90,43 @@ class BookingController extends Controller
                 'reason' => 'nullable|string|max:500',
             ]);
 
-            $booking = $this->bookingService->reject($booking, $request->reason);
+            $this->bookingService->reject($booking, $request->reason);
 
-            return ApiResponse::success($booking, '예약이 거절되었습니다.');
+            return redirect()->route('vendor.bookings.index')
+                ->with('success', '예약이 거절되었습니다.');
         } catch (InvalidBookingStatusException $e) {
-            return ApiResponse::error($e->getMessage(), 400);
+            return redirect()->route('vendor.bookings.index')
+                ->with('error', $e->getMessage());
         }
     }
 
-    public function complete(Booking $booking): JsonResponse
+    public function complete(Booking $booking): RedirectResponse
     {
         Gate::authorize('manage', $booking);
 
         try {
-            $booking = $this->bookingService->complete($booking);
+            $this->bookingService->complete($booking);
 
-            return ApiResponse::success($booking, '예약이 완료 처리되었습니다.');
+            return redirect()->route('vendor.bookings.index')
+                ->with('success', '예약이 완료 처리되었습니다.');
         } catch (InvalidBookingStatusException $e) {
-            return ApiResponse::error($e->getMessage(), 400);
+            return redirect()->route('vendor.bookings.index')
+                ->with('error', $e->getMessage());
         }
     }
 
-    public function markNoShow(Booking $booking): JsonResponse
+    public function markNoShow(Booking $booking): RedirectResponse
     {
         Gate::authorize('manage', $booking);
 
         try {
-            $booking = $this->bookingService->markNoShow($booking);
+            $this->bookingService->markNoShow($booking);
 
-            return ApiResponse::success($booking, '노쇼 처리되었습니다.');
+            return redirect()->route('vendor.bookings.index')
+                ->with('success', '노쇼 처리되었습니다.');
         } catch (InvalidBookingStatusException $e) {
-            return ApiResponse::error($e->getMessage(), 400);
+            return redirect()->route('vendor.bookings.index')
+                ->with('error', $e->getMessage());
         }
     }
 }

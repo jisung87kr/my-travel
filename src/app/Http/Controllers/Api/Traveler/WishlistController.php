@@ -1,11 +1,12 @@
 <?php
 
-namespace App\Http\Controllers\Traveler;
+namespace App\Http\Controllers\Api\Traveler;
 
 use App\Http\Controllers\Controller;
 use App\Models\Product;
 use App\Models\Wishlist;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Response;
 
 class WishlistController extends Controller
 {
@@ -22,11 +23,7 @@ class WishlistController extends Controller
                 ->where('product_id', $product->id)
                 ->delete();
 
-            return response()->json([
-                'success' => true,
-                'added' => false,
-                'message' => 'Removed from wishlist',
-            ]);
+            return Response::success(['added' => false], '위시리스트에서 삭제되었습니다.');
         }
 
         Wishlist::create([
@@ -34,10 +31,6 @@ class WishlistController extends Controller
             'product_id' => $product->id,
         ]);
 
-        return response()->json([
-            'success' => true,
-            'added' => true,
-            'message' => 'Added to wishlist',
-        ]);
+        return Response::success(['added' => true], '위시리스트에 추가되었습니다.');
     }
 }

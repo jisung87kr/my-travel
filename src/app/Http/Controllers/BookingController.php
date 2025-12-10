@@ -7,15 +7,13 @@ use App\Exceptions\BookingNotAllowedException;
 use App\Exceptions\InsufficientInventoryException;
 use App\Exceptions\InvalidBookingStatusException;
 use App\Http\Requests\StoreBookingRequest;
-use App\Http\Responses\ApiResponse;
 use App\Models\Booking;
+use App\Models\Product;
 use App\Services\BookingService;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\View\View;
-use App\Models\Product;
 
 class BookingController extends Controller
 {
@@ -23,9 +21,14 @@ class BookingController extends Controller
         private readonly BookingService $bookingService
     ) {}
 
-    /**
-     * 예약 생성 페이지 표시
-     */
+    public function index(Request $request): View
+    {
+        $filters = $request->only(['status', 'per_page']);
+        $bookings = $this->bookingService->getUserBookings($request->user(), $filters);
+
+        return view('traveler.bookings.index', compact('bookings'));
+    }
+
     public function create(Product $product): View
     {
         $product->load(['translations', 'images', 'prices', 'schedules' => function ($query) {
@@ -53,9 +56,33 @@ class BookingController extends Controller
         ));
     }
 
-    /**
-     * 예약 완료 페이지 표시
-     */
+    public function store(StoreBookingRequest $request): RedirectResponse
+    {
+        try {
+            $booking = $this->bookingService->create(
+                $request->validated(),
+                $request->user()
+            );
+
+            return redirect()->route('bookings.complete', ['booking' => $booking->id])
+                ->with('success', '예약이 완료되었습니다.');
+        } catch (BookingNotAllowedException|BookingExpiredException|InsufficientInventoryException $e) {
+            return back()->withErrors(['error' => $e->getMessage()]);
+        }
+    }
+
+    public function show(Booking $booking): View
+    {
+        Gate::authorize('view', $booking);
+
+        $booking->load(['product.translations', 'product.images', 'schedule', 'user']);
+
+        $locale = app()->getLocale();
+        $translation = $booking->product->getTranslation($locale) ?? $booking->product->getTranslation('ko');
+
+        return view('traveler.bookings.show', compact('booking', 'translation'));
+    }
+
     public function complete(Booking $booking): View
     {
         Gate::authorize('view', $booking);
@@ -68,60 +95,7 @@ class BookingController extends Controller
         return view('traveler.bookings.complete', compact('booking', 'translation'));
     }
 
-    public function index(Request $request): JsonResponse
-    {
-        $filters = $request->only(['status', 'per_page']);
-        $bookings = $this->bookingService->getUserBookings($request->user(), $filters);
-
-        return ApiResponse::paginated($bookings);
-    }
-
-    public function store(StoreBookingRequest $request): JsonResponse|RedirectResponse
-    {
-        try {
-            $booking = $this->bookingService->create(
-                $request->validated(),
-                $request->user()
-            );
-
-            // 웹 폼 제출 시 리다이렉트, API 요청 시 JSON 응답
-            if ($request->expectsJson()) {
-                return ApiResponse::created($booking, '예약이 완료되었습니다.');
-            }
-
-            return  redirect()->route('bookings.complete', ['booking' => $booking->id])
-                ->with('success', '예약이 완료되었습니다.');
-
-//            return redirect()->route('my.booking.detail', ['locale' => app()->getLocale(), 'booking' => $booking->id])
-//                ->with('success', '예약이 완료되었습니다.');
-        } catch (BookingNotAllowedException $e) {
-            if ($request->expectsJson()) {
-                return ApiResponse::forbidden($e->getMessage());
-            }
-            return back()->withErrors(['error' => $e->getMessage()]);
-        } catch (BookingExpiredException $e) {
-            if ($request->expectsJson()) {
-                return ApiResponse::error($e->getMessage(), 400);
-            }
-            return back()->withErrors(['error' => $e->getMessage()]);
-        } catch (InsufficientInventoryException $e) {
-            if ($request->expectsJson()) {
-                return ApiResponse::error($e->getMessage(), 400);
-            }
-            return back()->withErrors(['error' => $e->getMessage()]);
-        }
-    }
-
-    public function show(Booking $booking): JsonResponse
-    {
-        Gate::authorize('view', $booking);
-
-        $booking->load(['product.translations', 'product.images', 'schedule', 'user']);
-
-        return ApiResponse::success($booking);
-    }
-
-    public function cancel(Request $request, Booking $booking): JsonResponse
+    public function cancel(Request $request, Booking $booking): RedirectResponse
     {
         Gate::authorize('cancel', $booking);
 
@@ -130,15 +104,16 @@ class BookingController extends Controller
                 'reason' => 'nullable|string|max:500',
             ]);
 
-            $booking = $this->bookingService->cancel(
+            $this->bookingService->cancel(
                 $booking,
                 $request->user(),
                 $request->reason
             );
 
-            return ApiResponse::success($booking, '예약이 취소되었습니다.');
+            return redirect()->route('bookings.index')
+                ->with('success', '예약이 취소되었습니다.');
         } catch (InvalidBookingStatusException $e) {
-            return ApiResponse::error($e->getMessage(), 400);
+            return back()->with('error', $e->getMessage());
         }
     }
 }

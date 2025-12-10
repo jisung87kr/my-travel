@@ -1,12 +1,13 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api;
 
-use App\Http\Responses\ApiResponse;
+use App\Http\Controllers\Controller;
 use App\Models\Product;
 use App\Services\ProductService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Response;
 
 class ProductController extends Controller
 {
@@ -30,13 +31,13 @@ class ProductController extends Controller
 
         $products = $this->productService->search($filters);
 
-        return ApiResponse::paginated($products);
+        return Response::paginated($products);
     }
 
     public function show(Product $product): JsonResponse
     {
         if (!$product->isActive()) {
-            return ApiResponse::notFound('상품을 찾을 수 없습니다.');
+            return Response::notFound('상품을 찾을 수 없습니다.');
         }
 
         $product->load([
@@ -46,6 +47,6 @@ class ProductController extends Controller
             'vendor.user',
         ]);
 
-        return ApiResponse::success($product);
+        return Response::success($product);
     }
 }

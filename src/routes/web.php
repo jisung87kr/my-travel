@@ -9,7 +9,6 @@ use App\Http\Controllers\Auth\SocialLoginController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\Traveler\MyController;
 use App\Http\Controllers\Traveler\ProductController as TravelerProductController;
-use App\Http\Controllers\Traveler\WishlistController;
 use Illuminate\Support\Facades\Route;
 
 // Home page
@@ -45,16 +44,6 @@ Route::prefix('{locale}')->where(['locale' => 'ko|en|zh|ja'])->middleware('local
     });
 });
 
-// Wishlist toggle (AJAX)
-Route::middleware(['auth', 'user.active'])->group(function () {
-    Route::post('/wishlist/{product}', [WishlistController::class, 'toggle'])->name('wishlist.toggle');
-});
-
-// Legacy product routes (without locale prefix, for backward compatibility)
-Route::prefix('products')->name('products.legacy.')->group(function () {
-    Route::get('/', [\App\Http\Controllers\ProductController::class, 'index'])->name('index');
-    Route::get('/{product}', [\App\Http\Controllers\ProductController::class, 'show'])->name('show');
-});
 
 // Guest routes (unauthenticated users only)
 Route::middleware('guest')->group(function () {
@@ -113,70 +102,30 @@ Route::middleware(['auth', 'user.active'])->group(function () {
     Route::patch('/messages/{message}/read', [\App\Http\Controllers\MessageController::class, 'markAsRead'])->name('messages.read');
 });
 
-// Vendor routes (API + Web UI)
+// Vendor routes (Web UI only)
 Route::middleware(['auth', 'user.active', 'role:vendor,admin'])->prefix('vendor')->name('vendor.')->group(function () {
     // Dashboard
     Route::get('/', [\App\Http\Controllers\Vendor\DashboardController::class, 'index'])->name('dashboard');
 
-    // Product management - Web routes (must be defined before apiResource)
-    Route::get('products', [\App\Http\Controllers\Vendor\ProductController::class, 'indexView'])->name('products.index');
-    Route::get('products/create', [\App\Http\Controllers\Vendor\ProductController::class, 'createView'])->name('products.create');
-    Route::post('products', [\App\Http\Controllers\Vendor\ProductController::class, 'storeWeb'])->name('products.store');
-    Route::get('products/{product}/edit', [\App\Http\Controllers\Vendor\ProductController::class, 'editView'])->name('products.edit');
-    Route::put('products/{product}', [\App\Http\Controllers\Vendor\ProductController::class, 'updateWeb'])->name('products.update');
+    // Product management
+    Route::resource('products', \App\Http\Controllers\Vendor\ProductController::class);
 
-    // Product management - API routes (JSON responses)
-    Route::apiResource('products', \App\Http\Controllers\Vendor\ProductController::class)->except(['index', 'store', 'update']);
+    // Schedule management
+    Route::get('schedules', [\App\Http\Controllers\Vendor\ScheduleController::class, 'index'])->name('schedules.index');
 
-    // Product API endpoints
-    Route::post('products/{product}/images', [\App\Http\Controllers\Vendor\ProductController::class, 'uploadImages'])
-        ->name('products.images.upload');
-    Route::put('products/{product}/images/reorder', [\App\Http\Controllers\Vendor\ProductController::class, 'reorderImages'])
-        ->name('products.images.reorder');
-    Route::delete('products/{product}/images/{image}', [\App\Http\Controllers\Vendor\ProductController::class, 'deleteImage'])
-        ->name('products.images.destroy');
-    Route::post('products/{product}/submit', [\App\Http\Controllers\Vendor\ProductController::class, 'submitForReview'])
-        ->name('products.submit');
-    Route::post('products/{product}/activate', [\App\Http\Controllers\Vendor\ProductController::class, 'activate'])
-        ->name('products.activate');
-    Route::post('products/{product}/deactivate', [\App\Http\Controllers\Vendor\ProductController::class, 'deactivate'])
-        ->name('products.deactivate');
-
-    // Schedule management (Web UI + API)
-    Route::get('schedules', [\App\Http\Controllers\Vendor\ScheduleController::class, 'indexView'])->name('schedules.index');
-    Route::get('products/{product}/schedules', [\App\Http\Controllers\Vendor\ScheduleController::class, 'index'])
-        ->name('products.schedules.index');
-    Route::post('products/{product}/schedules', [\App\Http\Controllers\Vendor\ScheduleController::class, 'store'])
-        ->name('products.schedules.store');
-    Route::put('products/{product}/schedules', [\App\Http\Controllers\Vendor\ScheduleController::class, 'update'])
-        ->name('products.schedules.update');
-    Route::post('products/{product}/schedules/bulk', [\App\Http\Controllers\Vendor\ScheduleController::class, 'bulkCreate'])
-        ->name('products.schedules.bulk');
-    Route::post('products/{product}/schedules/close', [\App\Http\Controllers\Vendor\ScheduleController::class, 'close'])
-        ->name('products.schedules.close');
-    Route::post('products/{product}/schedules/open', [\App\Http\Controllers\Vendor\ScheduleController::class, 'open'])
-        ->name('products.schedules.open');
-
-    // Booking management - Web routes
-    Route::get('bookings', [\App\Http\Controllers\Vendor\BookingController::class, 'indexView'])
-        ->name('bookings.index');
-    Route::get('bookings/{booking}', [\App\Http\Controllers\Vendor\BookingController::class, 'showView'])
-        ->name('bookings.show');
-    Route::patch('bookings/{booking}/approve', [\App\Http\Controllers\Vendor\BookingController::class, 'approve'])
-        ->name('bookings.approve');
-    Route::patch('bookings/{booking}/reject', [\App\Http\Controllers\Vendor\BookingController::class, 'reject'])
-        ->name('bookings.reject');
-    Route::patch('bookings/{booking}/complete', [\App\Http\Controllers\Vendor\BookingController::class, 'complete'])
-        ->name('bookings.complete');
-    Route::patch('bookings/{booking}/no-show', [\App\Http\Controllers\Vendor\BookingController::class, 'markNoShow'])
-        ->name('bookings.no-show');
+    // Booking management
+    Route::get('bookings', [\App\Http\Controllers\Vendor\BookingController::class, 'index'])->name('bookings.index');
+    Route::get('bookings/{booking}', [\App\Http\Controllers\Vendor\BookingController::class, 'show'])->name('bookings.show');
+    Route::patch('bookings/{booking}/approve', [\App\Http\Controllers\Vendor\BookingController::class, 'approve'])->name('bookings.approve');
+    Route::patch('bookings/{booking}/reject', [\App\Http\Controllers\Vendor\BookingController::class, 'reject'])->name('bookings.reject');
+    Route::patch('bookings/{booking}/complete', [\App\Http\Controllers\Vendor\BookingController::class, 'complete'])->name('bookings.complete');
+    Route::patch('bookings/{booking}/no-show', [\App\Http\Controllers\Vendor\BookingController::class, 'markNoShow'])->name('bookings.no-show');
 
     // Review reply
-    Route::post('reviews/{review}/reply', [\App\Http\Controllers\ReviewController::class, 'reply'])
-        ->name('reviews.reply');
+    Route::post('reviews/{review}/reply', [\App\Http\Controllers\ReviewController::class, 'reply'])->name('reviews.reply');
 });
 
-// Admin routes
+// Admin routes (Web UI only)
 Route::middleware(['auth', 'user.active', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
     // Dashboard
     Route::get('/', [\App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('dashboard');
@@ -229,22 +178,20 @@ Route::middleware(['auth', 'user.active', 'role:admin'])->prefix('admin')->name(
     Route::patch('no-shows/{user}/reset', [\App\Http\Controllers\Admin\NoShowController::class, 'resetNoShowCount'])->name('no-shows.reset');
 });
 
-// Guide routes
+// Guide routes (Web UI only)
 Route::middleware(['auth', 'user.active', 'role:guide,admin'])->prefix('guide')->name('guide.')->group(function () {
     // Dashboard
     Route::get('/', [\App\Http\Controllers\Guide\DashboardController::class, 'index'])->name('dashboard');
 
-    // Schedules
+    // Schedules (API routes: /api/guide/schedules/events)
     Route::get('schedules', [\App\Http\Controllers\Guide\ScheduleController::class, 'index'])->name('schedules.index');
-    Route::get('schedules/events', [\App\Http\Controllers\Guide\ScheduleController::class, 'events'])->name('schedules.events');
     Route::get('schedules/{booking}', [\App\Http\Controllers\Guide\ScheduleController::class, 'show'])->name('schedules.show');
 
-    // Check-in
+    // Check-in (API routes: /api/guide/checkin/lookup, /api/guide/checkin/{booking})
     Route::get('checkin', [\App\Http\Controllers\Guide\CheckinController::class, 'index'])->name('checkin.index');
-    Route::get('checkin/lookup', [\App\Http\Controllers\Guide\CheckinController::class, 'lookup'])->name('checkin.lookup');
     Route::post('checkin/{booking}', [\App\Http\Controllers\Guide\CheckinController::class, 'checkin'])->name('checkin.store');
 
-    // Booking actions
+    // Booking actions (API routes: /api/guide/bookings/{booking}/*)
     Route::patch('bookings/{booking}/start', [\App\Http\Controllers\Guide\BookingController::class, 'start'])->name('bookings.start');
     Route::patch('bookings/{booking}/complete', [\App\Http\Controllers\Guide\BookingController::class, 'complete'])->name('bookings.complete');
     Route::patch('bookings/{booking}/no-show', [\App\Http\Controllers\Guide\BookingController::class, 'noShow'])->name('bookings.no-show');
