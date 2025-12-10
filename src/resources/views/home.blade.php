@@ -502,44 +502,46 @@
                 </div>
             </div>
 
-            <!-- Horizontal Scroll Container -->
-            <div id="popular-carousel" class="flex gap-6 overflow-x-auto overflow-y-visible scrollbar-hide pb-6 pt-4 -mx-4 px-4 sm:mx-0 sm:px-0 snap-x snap-mandatory scroll-smooth">
-                @forelse($popularProducts as $index => $product)
-                    <div class="flex-shrink-0 w-[280px] sm:w-[320px] snap-start relative ml-{{ $index === 0 ? '2' : '0' }}">
-                        @if($index < 3)
-                        <!-- Ranking Badge -->
-                        <div class="absolute -top-3 -left-1 z-20 w-9 h-9 rounded-full bg-gradient-to-br {{ $index === 0 ? 'from-amber-400 to-orange-500' : ($index === 1 ? 'from-gray-300 to-gray-400' : 'from-orange-300 to-amber-400') }} flex items-center justify-center shadow-lg ring-2 ring-white">
-                            <span class="text-white font-bold text-sm">{{ $index + 1 }}</span>
+            <!-- Swiper Carousel -->
+            <div class="swiper popular-swiper pt-6 pb-8 -mx-4 px-4 sm:mx-0 sm:px-0">
+                <div class="swiper-wrapper">
+                    @forelse($popularProducts as $index => $product)
+                        <div class="swiper-slide !w-[280px] sm:!w-[320px]">
+                            <div class="relative">
+                                @if($index < 3)
+                                <!-- Ranking Badge -->
+                                <div class="absolute -top-3 -left-1 z-20 w-9 h-9 rounded-full bg-gradient-to-br {{ $index === 0 ? 'from-amber-400 to-orange-500' : ($index === 1 ? 'from-gray-300 to-gray-400' : 'from-orange-300 to-amber-400') }} flex items-center justify-center shadow-lg ring-2 ring-white">
+                                    <span class="text-white font-bold text-sm">{{ $index + 1 }}</span>
+                                </div>
+                                @endif
+                                <x-product.card :product="(object) $product" :showWishlist="true" />
+                            </div>
                         </div>
-                        @endif
-                        <x-product.card :product="(object) $product" :showWishlist="true" />
-                    </div>
-                @empty
-                    <div class="w-full flex flex-col items-center justify-center py-20 text-gray-400 bg-white rounded-3xl border border-gray-100 shadow-sm">
-                        <div class="w-20 h-20 rounded-2xl bg-gradient-to-br from-orange-50 to-amber-50 flex items-center justify-center mb-5">
-                            <svg class="w-10 h-10 text-orange-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M15.362 5.214A8.252 8.252 0 0112 21 8.25 8.25 0 016.038 7.048 8.287 8.287 0 009 9.6a8.983 8.983 0 013.361-6.867 8.21 8.21 0 003 2.48z" />
-                            </svg>
+                    @empty
+                        <div class="swiper-slide !w-full">
+                            <div class="w-full flex flex-col items-center justify-center py-20 text-gray-400 bg-white rounded-3xl border border-gray-100 shadow-sm">
+                                <div class="w-20 h-20 rounded-2xl bg-gradient-to-br from-orange-50 to-amber-50 flex items-center justify-center mb-5">
+                                    <svg class="w-10 h-10 text-orange-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.362 5.214A8.252 8.252 0 0112 21 8.25 8.25 0 016.038 7.048 8.287 8.287 0 009 9.6a8.983 8.983 0 013.361-6.867 8.21 8.21 0 003 2.48z" />
+                                    </svg>
+                                </div>
+                                <p class="text-gray-600 font-semibold text-lg">인기 상품이 없습니다</p>
+                                <p class="text-gray-400 text-sm mt-1">곧 새로운 인기 체험이 추가됩니다</p>
+                            </div>
                         </div>
-                        <p class="text-gray-600 font-semibold text-lg">인기 상품이 없습니다</p>
-                        <p class="text-gray-400 text-sm mt-1">곧 새로운 인기 체험이 추가됩니다</p>
-                    </div>
-                @endforelse
+                    @endforelse
+                </div>
             </div>
 
             <!-- Progress Bar -->
             <div class="hidden sm:block mt-8">
                 <div class="h-1 bg-gray-100 rounded-full overflow-hidden max-w-md mx-auto">
-                    <div id="carousel-progress" class="h-full bg-gradient-to-r from-orange-400 to-amber-400 rounded-full transition-all duration-300" style="width: 20%"></div>
+                    <div id="popular-progress" class="h-full bg-gradient-to-r from-orange-400 to-amber-400 rounded-full transition-all duration-300" style="width: 20%"></div>
                 </div>
             </div>
 
-            <!-- Mobile Scroll Indicator -->
-            <div class="flex justify-center gap-2 mt-8 sm:hidden">
-                @for($i = 0; $i < min(count($popularProducts ?? []), 5); $i++)
-                <div class="w-2 h-2 rounded-full transition-all duration-300 {{ $i === 0 ? 'bg-orange-500 w-6' : 'bg-gray-300' }}"></div>
-                @endfor
-            </div>
+            <!-- Swiper Pagination (Mobile) -->
+            <div class="popular-pagination flex justify-center gap-2 mt-8 sm:hidden"></div>
         </div>
     </section>
 
@@ -952,104 +954,93 @@
             }
         }
     </style>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+    <style>
+        /* Swiper custom styles - override default overflow:hidden */
+        .popular-swiper,
+        .popular-swiper .swiper-wrapper,
+        .popular-swiper .swiper-slide {
+            overflow: visible !important;
+        }
+        .popular-swiper .swiper-slide {
+            height: auto;
+        }
+    </style>
     @endpush
 
     @push('scripts')
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
     <script>
         // Wishlist Toggle
         function toggleWishlist(productId, button) {
             const icon = button.querySelector('.wishlist-icon');
-            const isWishlisted = button.dataset.wishlisted === 'true';
-
             // Optimistic UI update
             button.classList.add('pointer-events-none');
 
-            fetch(`/api/wishlist/${productId}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '{{ csrf_token() }}',
-                    'Accept': 'application/json',
-                },
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    const nowWishlisted = data.data?.added;
-                    button.dataset.wishlisted = nowWishlisted ? 'true' : 'false';
+            axios.post(`/api/wishlist/${productId}`)
+                .then(response => {
+                    const data = response.data;
+                    if (data.success) {
+                        const nowWishlisted = data.data?.added;
+                        button.dataset.wishlisted = nowWishlisted ? 'true' : 'false';
 
-                    if (nowWishlisted) {
-                        button.classList.remove('text-gray-500');
-                        button.classList.add('text-pink-500');
-                        icon.setAttribute('fill', 'currentColor');
-                    } else {
-                        button.classList.remove('text-pink-500');
-                        button.classList.add('text-gray-500');
-                        icon.setAttribute('fill', 'none');
+                        if (nowWishlisted) {
+                            button.classList.remove('text-gray-500');
+                            button.classList.add('text-pink-500');
+                            icon.setAttribute('fill', 'currentColor');
+                        } else {
+                            button.classList.remove('text-pink-500');
+                            button.classList.add('text-gray-500');
+                            icon.setAttribute('fill', 'none');
+                        }
+
+                        // Add heart animation
+                        icon.classList.add('scale-125');
+                        setTimeout(() => icon.classList.remove('scale-125'), 200);
                     }
-
-                    // Add heart animation
-                    icon.classList.add('scale-125');
-                    setTimeout(() => icon.classList.remove('scale-125'), 200);
-                }
-            })
-            .catch(error => {
-                console.error('Wishlist error:', error);
-            })
-            .finally(() => {
-                button.classList.remove('pointer-events-none');
-            });
+                })
+                .catch(error => {
+                    console.error('Wishlist error:', error);
+                })
+                .finally(() => {
+                    button.classList.remove('pointer-events-none');
+                });
         }
 
-        // Carousel Navigation
+        // Popular Products Swiper
         document.addEventListener('DOMContentLoaded', function() {
-            const carousel = document.getElementById('popular-carousel');
-            const prevBtn = document.getElementById('popular-prev');
-            const nextBtn = document.getElementById('popular-next');
-            const progressBar = document.getElementById('carousel-progress');
+            const progressBar = document.getElementById('popular-progress');
 
-            // Progress bar update function
-            function updateProgressBar() {
-                if (progressBar && carousel) {
-                    const maxScroll = carousel.scrollWidth - carousel.clientWidth;
-                    if (maxScroll > 0) {
-                        const scrollPercentage = (carousel.scrollLeft / maxScroll) * 80 + 20;
-                        progressBar.style.width = Math.min(100, scrollPercentage) + '%';
-                    }
-                }
-            }
-
-            // Button states update function
-            function updateButtonStates() {
-                if (prevBtn) prevBtn.disabled = carousel.scrollLeft <= 0;
-                if (nextBtn) nextBtn.disabled = carousel.scrollLeft >= carousel.scrollWidth - carousel.clientWidth - 10;
-            }
-
-            if (carousel) {
-                const scrollAmount = 340;
-
-                if (prevBtn) {
-                    prevBtn.addEventListener('click', () => {
-                        carousel.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
-                    });
-                }
-
-                if (nextBtn) {
-                    nextBtn.addEventListener('click', () => {
-                        carousel.scrollBy({ left: scrollAmount, behavior: 'smooth' });
-                    });
-                }
-
-                // Update on scroll
-                carousel.addEventListener('scroll', () => {
-                    updateButtonStates();
-                    updateProgressBar();
-                });
-
-                // Initial update
-                updateButtonStates();
-                updateProgressBar();
-            }
+            const popularSwiper = new Swiper('.popular-swiper', {
+                slidesPerView: 'auto',
+                spaceBetween: 24,
+                freeMode: true,
+                grabCursor: true,
+                navigation: {
+                    nextEl: '#popular-next',
+                    prevEl: '#popular-prev',
+                },
+                pagination: {
+                    el: '.popular-pagination',
+                    clickable: true,
+                    bulletClass: 'w-2 h-2 rounded-full bg-gray-300 cursor-pointer transition-all duration-300',
+                    bulletActiveClass: '!bg-orange-500 !w-6',
+                },
+                on: {
+                    progress: function(swiper, progress) {
+                        if (progressBar) {
+                            const percentage = Math.max(20, Math.min(100, progress * 80 + 20));
+                            progressBar.style.width = percentage + '%';
+                        }
+                    },
+                    slideChange: function(swiper) {
+                        const prevBtn = document.getElementById('popular-prev');
+                        const nextBtn = document.getElementById('popular-next');
+                        if (prevBtn) prevBtn.disabled = swiper.isBeginning;
+                        if (nextBtn) nextBtn.disabled = swiper.isEnd;
+                    },
+                },
+            });
 
             // Category nav scroll shadow
             const categoryNav = document.getElementById('category-nav');
