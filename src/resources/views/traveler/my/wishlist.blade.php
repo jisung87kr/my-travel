@@ -83,19 +83,4 @@
         </div>
     @endif
 
-    @push('scripts')
-    <script>
-        function removeFromWishlist(productId, button) {
-            api.wishlist.toggle(productId)
-                .then(() => {
-                    // Add fade-out animation before removing
-                    const card = button.closest('article');
-                    card.style.transition = 'opacity 0.3s, transform 0.3s';
-                    card.style.opacity = '0';
-                    card.style.transform = 'scale(0.95)';
-                    setTimeout(() => card.remove(), 300);
-                });
-        }
-    </script>
-    @endpush
 </x-traveler.my.layout>

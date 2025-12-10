@@ -474,36 +474,6 @@
             }
         }
 
-        // Wishlist toggle function
-        async function toggleWishlist(productId, button) {
-            try {
-                const data = await api.wishlist.toggle(productId);
-
-                if (data.success) {
-                    const isNowWishlisted = data.data?.added;
-                    const icon = button.querySelector('.wishlist-icon');
-
-                    // Update button state
-                    button.dataset.wishlisted = isNowWishlisted ? 'true' : 'false';
-
-                    if (isNowWishlisted) {
-                        button.classList.remove('text-gray-500', 'hover:text-pink-500');
-                        button.classList.add('text-pink-500');
-                        icon.setAttribute('fill', 'currentColor');
-                    } else {
-                        button.classList.remove('text-pink-500');
-                        button.classList.add('text-gray-500', 'hover:text-pink-500');
-                        icon.setAttribute('fill', 'none');
-                    }
-
-                    // Add animation
-                    icon.classList.add('scale-125');
-                    setTimeout(() => icon.classList.remove('scale-125'), 200);
-                }
-            } catch (error) {
-                console.error('Wishlist error:', error);
-            }
-        }
     </script>
     @endpush
 </x-layouts.app>

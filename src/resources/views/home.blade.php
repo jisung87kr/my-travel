@@ -971,41 +971,6 @@
     @push('scripts')
     <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
     <script>
-        // Wishlist Toggle
-        function toggleWishlist(productId, button) {
-            const icon = button.querySelector('.wishlist-icon');
-            // Optimistic UI update
-            button.classList.add('pointer-events-none');
-
-            api.wishlist.toggle(productId)
-                .then(data => {
-                    if (data.success) {
-                        const nowWishlisted = data.data?.added;
-                        button.dataset.wishlisted = nowWishlisted ? 'true' : 'false';
-
-                        if (nowWishlisted) {
-                            button.classList.remove('text-gray-500');
-                            button.classList.add('text-pink-500');
-                            icon.setAttribute('fill', 'currentColor');
-                        } else {
-                            button.classList.remove('text-pink-500');
-                            button.classList.add('text-gray-500');
-                            icon.setAttribute('fill', 'none');
-                        }
-
-                        // Add heart animation
-                        icon.classList.add('scale-125');
-                        setTimeout(() => icon.classList.remove('scale-125'), 200);
-                    }
-                })
-                .catch(error => {
-                    console.error('Wishlist error:', error);
-                })
-                .finally(() => {
-                    button.classList.remove('pointer-events-none');
-                });
-        }
-
         // Popular Products Swiper
         document.addEventListener('DOMContentLoaded', function() {
             const progressBar = document.getElementById('popular-progress');
