@@ -477,24 +477,7 @@
         // Wishlist toggle function
         async function toggleWishlist(productId, button) {
             try {
-                const response = await fetch(`/api/wishlist/${productId}`, {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '',
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json'
-                    }
-                });
-
-                if (!response.ok) {
-                    if (response.status === 401) {
-                        window.location.href = '/login';
-                        return;
-                    }
-                    throw new Error('Network response was not ok');
-                }
-
-                const data = await response.json();
+                const data = await api.wishlist.toggle(productId);
 
                 if (data.success) {
                     const isNowWishlisted = data.data?.added;

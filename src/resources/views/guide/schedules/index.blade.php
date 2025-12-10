@@ -142,7 +142,14 @@
                         week: '주',
                         list: '목록'
                     },
-                    events: '/api/guide/schedules/events',
+                    events: function(info, successCallback, failureCallback) {
+                        api.guide.schedules.events({
+                            start: info.startStr,
+                            end: info.endStr
+                        })
+                        .then(data => successCallback(data))
+                        .catch(error => failureCallback(error));
+                    },
                     eventClick: function(info) {
                         showEventModal(info.event);
                     },

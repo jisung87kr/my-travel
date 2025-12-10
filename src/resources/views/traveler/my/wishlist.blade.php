@@ -86,22 +86,15 @@
     @push('scripts')
     <script>
         function removeFromWishlist(productId, button) {
-            fetch(`/api/wishlist/${productId}`, {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                    'Accept': 'application/json'
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                // Add fade-out animation before removing
-                const card = button.closest('article');
-                card.style.transition = 'opacity 0.3s, transform 0.3s';
-                card.style.opacity = '0';
-                card.style.transform = 'scale(0.95)';
-                setTimeout(() => card.remove(), 300);
-            });
+            api.wishlist.toggle(productId)
+                .then(() => {
+                    // Add fade-out animation before removing
+                    const card = button.closest('article');
+                    card.style.transition = 'opacity 0.3s, transform 0.3s';
+                    card.style.opacity = '0';
+                    card.style.transform = 'scale(0.95)';
+                    setTimeout(() => card.remove(), 300);
+                });
         }
     </script>
     @endpush

@@ -116,17 +116,7 @@
             hideMessages();
 
             try {
-                const response = await fetch('/api/guide/checkin/lookup', {
-                    method: 'POST',
-                    headers: {
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                    },
-                    body: JSON.stringify({ code: code })
-                });
-
-                const data = await response.json();
+                const data = await api.guide.checkin.lookup({ code });
 
                 if (data.success) {
                     showBookingInfo(data.booking);
@@ -187,16 +177,7 @@
             if (!currentBookingId) return;
 
             try {
-                const response = await fetch(`/api/guide/checkin/${currentBookingId}`, {
-                    method: 'POST',
-                    headers: {
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                    }
-                });
-
-                const data = await response.json();
+                const data = await api.guide.checkin.store(currentBookingId);
 
                 if (data.success) {
                     showSuccess(data.message);

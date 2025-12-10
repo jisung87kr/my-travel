@@ -977,9 +977,8 @@
             // Optimistic UI update
             button.classList.add('pointer-events-none');
 
-            axios.post(`/api/wishlist/${productId}`)
-                .then(response => {
-                    const data = response.data;
+            api.wishlist.toggle(productId)
+                .then(data => {
                     if (data.success) {
                         const nowWishlisted = data.data?.added;
                         button.dataset.wishlisted = nowWishlisted ? 'true' : 'false';

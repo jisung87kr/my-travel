@@ -40,17 +40,9 @@
     <script>
         function deleteImage(imageId) {
             if (confirm('이미지를 삭제하시겠습니까?')) {
-                fetch(`/api/vendor/products/{{ $product->id }}/images/${imageId}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                        'Accept': 'application/json',
-                    },
-                }).then(response => {
-                    if (response.ok) {
-                        location.reload();
-                    }
-                });
+                api.vendor.products.deleteImage({{ $product->id }}, imageId)
+                    .then(() => location.reload())
+                    .catch(error => console.error('Image delete error:', error));
             }
         }
     </script>

@@ -647,85 +647,63 @@
             button.disabled = true;
             button.classList.add('opacity-50');
 
-            fetch(`/api/wishlist/${productId}`, {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                }
-            })
-            .then(response => {
-                if (!response.ok) throw new Error('Network response was not ok');
-                return response.json();
-            })
-            .then(data => {
-                if (data.success) {
-                    const nowWishlisted = data.data?.added;
-                    button.dataset.wishlisted = nowWishlisted ? 'true' : 'false';
+            api.wishlist.toggle(productId)
+                .then(data => {
+                    if (data.success) {
+                        const nowWishlisted = data.data?.added;
+                        button.dataset.wishlisted = nowWishlisted ? 'true' : 'false';
 
-                    if (nowWishlisted) {
-                        button.className = 'flex-1 flex items-center justify-center gap-2 px-4 py-3 border rounded-xl font-medium transition-all duration-200 cursor-pointer border-pink-300 bg-pink-50 text-pink-600';
-                        if (icon) icon.setAttribute('fill', 'currentColor');
-                        if (text) text.textContent = '위시리스트에 추가됨';
-                    } else {
-                        button.className = 'flex-1 flex items-center justify-center gap-2 px-4 py-3 border rounded-xl font-medium transition-all duration-200 cursor-pointer border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-gray-300';
-                        if (icon) icon.setAttribute('fill', 'none');
-                        if (text) text.textContent = '위시리스트 추가';
-                    }
+                        if (nowWishlisted) {
+                            button.className = 'flex-1 flex items-center justify-center gap-2 px-4 py-3 border rounded-xl font-medium transition-all duration-200 cursor-pointer border-pink-300 bg-pink-50 text-pink-600';
+                            if (icon) icon.setAttribute('fill', 'currentColor');
+                            if (text) text.textContent = '위시리스트에 추가됨';
+                        } else {
+                            button.className = 'flex-1 flex items-center justify-center gap-2 px-4 py-3 border rounded-xl font-medium transition-all duration-200 cursor-pointer border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-gray-300';
+                            if (icon) icon.setAttribute('fill', 'none');
+                            if (text) text.textContent = '위시리스트 추가';
+                        }
 
-                    if (icon) {
-                        icon.style.transform = 'scale(1.25)';
-                        setTimeout(() => { icon.style.transform = 'scale(1)'; }, 200);
+                        if (icon) {
+                            icon.style.transform = 'scale(1.25)';
+                            setTimeout(() => { icon.style.transform = 'scale(1)'; }, 200);
+                        }
                     }
-                }
-            })
-            .catch(error => console.error('Wishlist error:', error))
-            .finally(() => {
-                button.disabled = false;
-                button.classList.remove('opacity-50');
-            });
+                })
+                .catch(error => console.error('Wishlist error:', error))
+                .finally(() => {
+                    button.disabled = false;
+                    button.classList.remove('opacity-50');
+                });
         }
 
         // Wishlist - Product card buttons (related products)
         function toggleWishlist(productId, button) {
             const icon = button.querySelector('.wishlist-icon');
 
-            fetch(`/api/wishlist/${productId}`, {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                }
-            })
-            .then(response => {
-                if (!response.ok) throw new Error('Network response was not ok');
-                return response.json();
-            })
-            .then(data => {
-                if (data.success) {
-                    const nowWishlisted = data.data?.added;
-                    button.dataset.wishlisted = nowWishlisted ? 'true' : 'false';
+            api.wishlist.toggle(productId)
+                .then(data => {
+                    if (data.success) {
+                        const nowWishlisted = data.data?.added;
+                        button.dataset.wishlisted = nowWishlisted ? 'true' : 'false';
 
-                    if (nowWishlisted) {
-                        button.classList.remove('text-gray-500', 'hover:text-pink-500');
-                        button.classList.add('text-pink-500');
-                        if (icon) icon.setAttribute('fill', 'currentColor');
-                    } else {
-                        button.classList.remove('text-pink-500');
-                        button.classList.add('text-gray-500', 'hover:text-pink-500');
-                        if (icon) icon.setAttribute('fill', 'none');
-                    }
+                        if (nowWishlisted) {
+                            button.classList.remove('text-gray-500', 'hover:text-pink-500');
+                            button.classList.add('text-pink-500');
+                            if (icon) icon.setAttribute('fill', 'currentColor');
+                        } else {
+                            button.classList.remove('text-pink-500');
+                            button.classList.add('text-gray-500', 'hover:text-pink-500');
+                            if (icon) icon.setAttribute('fill', 'none');
+                        }
 
-                    // Heart animation
-                    if (icon) {
-                        icon.classList.add('scale-125');
-                        setTimeout(() => icon.classList.remove('scale-125'), 200);
+                        // Heart animation
+                        if (icon) {
+                            icon.classList.add('scale-125');
+                            setTimeout(() => icon.classList.remove('scale-125'), 200);
+                        }
                     }
-                }
-            })
-            .catch(error => console.error('Wishlist error:', error));
+                })
+                .catch(error => console.error('Wishlist error:', error));
         }
     </script>
     @endpush
