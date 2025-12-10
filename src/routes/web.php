@@ -118,12 +118,15 @@ Route::middleware(['auth', 'user.active', 'role:vendor,admin'])->prefix('vendor'
     // Dashboard
     Route::get('/', [\App\Http\Controllers\Vendor\DashboardController::class, 'index'])->name('dashboard');
 
-    // Product management - API routes (JSON responses)
-    Route::apiResource('products', \App\Http\Controllers\Vendor\ProductController::class);
-
-    // Product management - Web routes
+    // Product management - Web routes (must be defined before apiResource)
+    Route::get('products', [\App\Http\Controllers\Vendor\ProductController::class, 'indexView'])->name('products.index');
     Route::get('products/create', [\App\Http\Controllers\Vendor\ProductController::class, 'createView'])->name('products.create');
+    Route::post('products', [\App\Http\Controllers\Vendor\ProductController::class, 'storeWeb'])->name('products.store');
     Route::get('products/{product}/edit', [\App\Http\Controllers\Vendor\ProductController::class, 'editView'])->name('products.edit');
+    Route::put('products/{product}', [\App\Http\Controllers\Vendor\ProductController::class, 'updateWeb'])->name('products.update');
+
+    // Product management - API routes (JSON responses)
+    Route::apiResource('products', \App\Http\Controllers\Vendor\ProductController::class)->except(['index', 'store', 'update']);
 
     // Product API endpoints
     Route::post('products/{product}/images', [\App\Http\Controllers\Vendor\ProductController::class, 'uploadImages'])
@@ -154,10 +157,10 @@ Route::middleware(['auth', 'user.active', 'role:vendor,admin'])->prefix('vendor'
     Route::post('products/{product}/schedules/open', [\App\Http\Controllers\Vendor\ScheduleController::class, 'open'])
         ->name('products.schedules.open');
 
-    // Booking management (API + Web UI)
-    Route::get('bookings', [\App\Http\Controllers\Vendor\BookingController::class, 'index'])
+    // Booking management - Web routes
+    Route::get('bookings', [\App\Http\Controllers\Vendor\BookingController::class, 'indexView'])
         ->name('bookings.index');
-    Route::get('bookings/{booking}', [\App\Http\Controllers\Vendor\BookingController::class, 'show'])
+    Route::get('bookings/{booking}', [\App\Http\Controllers\Vendor\BookingController::class, 'showView'])
         ->name('bookings.show');
     Route::patch('bookings/{booking}/approve', [\App\Http\Controllers\Vendor\BookingController::class, 'approve'])
         ->name('bookings.approve');

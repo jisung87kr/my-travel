@@ -119,21 +119,15 @@
                             </td>
                             <td class="px-6 py-4">
                                 @php
-                                    $statusColors = [
-                                        'draft' => 'bg-slate-100 text-slate-700',
-                                        'pending_review' => 'bg-amber-100 text-amber-700',
-                                        'active' => 'bg-emerald-100 text-emerald-700',
-                                        'inactive' => 'bg-red-100 text-red-700',
-                                    ];
-                                    $statusLabels = [
-                                        'draft' => '초안',
-                                        'pending_review' => '검토중',
-                                        'active' => '활성',
-                                        'inactive' => '비활성',
+                                    $colorClasses = [
+                                        'gray' => 'bg-slate-100 text-slate-700',
+                                        'yellow' => 'bg-amber-100 text-amber-700',
+                                        'green' => 'bg-emerald-100 text-emerald-700',
+                                        'red' => 'bg-red-100 text-red-700',
                                     ];
                                 @endphp
-                                <span class="inline-flex items-center px-2.5 py-1 text-xs font-medium rounded-full {{ $statusColors[$product->status] ?? 'bg-slate-100 text-slate-600' }}">
-                                    {{ $statusLabels[$product->status] ?? $product->status }}
+                                <span class="inline-flex items-center px-2.5 py-1 text-xs font-medium rounded-full {{ $colorClasses[$product->status->color()] ?? 'bg-slate-100 text-slate-600' }}">
+                                    {{ $product->status->label() }}
                                 </span>
                             </td>
                             <td class="px-6 py-4">
@@ -149,21 +143,21 @@
                                        class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 rounded-lg transition-colors">
                                         일정
                                     </a>
-                                    @if($product->status === 'draft')
+                                    @if($product->status === \App\Enums\ProductStatus::DRAFT)
                                         <form method="POST" action="{{ route('vendor.products.submit', $product) }}" class="inline">
                                             @csrf
                                             <button type="submit" class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-amber-600 hover:text-amber-700 hover:bg-amber-50 rounded-lg transition-colors">
                                                 검토요청
                                             </button>
                                         </form>
-                                    @elseif($product->status === 'active')
+                                    @elseif($product->status === \App\Enums\ProductStatus::ACTIVE)
                                         <form method="POST" action="{{ route('vendor.products.deactivate', $product) }}" class="inline">
                                             @csrf
                                             <button type="submit" class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors">
                                                 비활성화
                                             </button>
                                         </form>
-                                    @elseif($product->status === 'inactive')
+                                    @elseif($product->status === \App\Enums\ProductStatus::INACTIVE)
                                         <form method="POST" action="{{ route('vendor.products.activate', $product) }}" class="inline">
                                             @csrf
                                             <button type="submit" class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 rounded-lg transition-colors">

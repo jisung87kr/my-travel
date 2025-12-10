@@ -19,7 +19,7 @@ class BookingController extends Controller
         private readonly BookingService $bookingService
     ) {}
 
-    public function index(Request $request): JsonResponse|View
+    public function index(Request $request): JsonResponse
     {
         $filters = $request->only([
             'status',
@@ -35,6 +35,46 @@ class BookingController extends Controller
         return ApiResponse::paginated($bookings);
     }
 
+    public function indexView(Request $request): View
+    {
+        $user = $request->user();
+        $vendor = $user->vendor;
+
+        $filters = $request->only([
+            'status',
+            'product',
+            'date_from',
+            'date_to',
+            'search',
+        ]);
+
+        if (!empty($filters['product'])) {
+            $filters['product_id'] = $filters['product'];
+        }
+
+        $bookings = $this->bookingService->getVendorBookings($user, $filters);
+
+        // Get vendor's products for filter dropdown
+        $products = $vendor->products()->with('translations')->get();
+
+        // Calculate stats
+        $stats = [
+            'total' => $bookings->total(),
+            'pending' => Booking::whereHas('product', fn($q) => $q->where('vendor_id', $vendor->id))
+                ->where('status', 'pending')->count(),
+            'confirmed' => Booking::whereHas('product', fn($q) => $q->where('vendor_id', $vendor->id))
+                ->where('status', 'confirmed')->count(),
+            'completed' => Booking::whereHas('product', fn($q) => $q->where('vendor_id', $vendor->id))
+                ->where('status', 'completed')->count(),
+            'cancelled' => Booking::whereHas('product', fn($q) => $q->where('vendor_id', $vendor->id))
+                ->where('status', 'cancelled')->count(),
+            'no_show' => Booking::whereHas('product', fn($q) => $q->where('vendor_id', $vendor->id))
+                ->where('status', 'no_show')->count(),
+        ];
+
+        return view('vendor.bookings.index', compact('bookings', 'products', 'stats'));
+    }
+
     public function show(Booking $booking): JsonResponse
     {
         Gate::authorize('viewAsVendor', $booking);
@@ -42,6 +82,15 @@ class BookingController extends Controller
         $booking->load(['product.translations', 'schedule', 'user', 'review']);
 
         return ApiResponse::success($booking);
+    }
+
+    public function showView(Booking $booking): View
+    {
+        Gate::authorize('viewAsVendor', $booking);
+
+        $booking->load(['product.translations', 'product.images', 'schedule', 'user', 'review']);
+
+        return view('vendor.bookings.show', compact('booking'));
     }
 
     public function approve(Booking $booking): JsonResponse

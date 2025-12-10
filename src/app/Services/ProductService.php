@@ -10,47 +10,97 @@ use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class ProductService
 {
     public function create(array $data, User $vendor): Product
     {
         return DB::transaction(function () use ($data, $vendor) {
+            // Determine status from data or default to DRAFT
+            $status = ProductStatus::DRAFT;
+            if (!empty($data['status'])) {
+                $status = $data['status'] === 'pending' ? ProductStatus::PENDING : ProductStatus::DRAFT;
+            }
+            // Generate unique slug from Korean title
+            $koTitle = $data['translations']['ko']['title'] ?? 'product';
+            $baseSlug = Str::slug($koTitle) ?: 'product-' . time();
+            $slug = $baseSlug;
+            $counter = 1;
+            while (Product::where('slug', $slug)->exists()) {
+                $slug = $baseSlug . '-' . $counter++;
+            }
+
             $product = Product::create([
                 'vendor_id' => $vendor->vendor->id,
+                'slug' => $slug,
                 'type' => $data['type'],
                 'region' => $data['region'],
-                'duration' => $data['duration'],
-                'min_persons' => $data['min_persons'],
-                'max_persons' => $data['max_persons'],
+                'duration' => $data['duration'] ?? null,
+                'min_persons' => $data['min_persons'] ?? 1,
+                'max_persons' => $data['max_persons'] ?? 100,
                 'booking_type' => $data['booking_type'],
                 'meeting_point' => $data['meeting_point'] ?? null,
                 'meeting_point_detail' => $data['meeting_point_detail'] ?? null,
                 'latitude' => $data['latitude'] ?? null,
                 'longitude' => $data['longitude'] ?? null,
-                'status' => ProductStatus::DRAFT,
+                'status' => $status,
             ]);
 
+            // Handle translations - support both keyed (ko, en) and array format
             if (!empty($data['translations'])) {
-                foreach ($data['translations'] as $translation) {
-                    $product->translations()->create($translation);
+                foreach ($data['translations'] as $locale => $translation) {
+                    // Check if it's keyed by locale (ko, en) or has locale in data
+                    if (is_string($locale) && is_array($translation)) {
+                        // Keyed format: translations[ko][title]
+                        $product->translations()->create([
+                            'locale' => $locale,
+                            'name' => $translation['title'] ?? null,
+                            'short_description' => $translation['short_description'] ?? null,
+                            'description' => $translation['description'] ?? null,
+                            'included' => $translation['includes'] ?? null,
+                            'excluded' => $translation['excludes'] ?? null,
+                        ]);
+                    } elseif (isset($translation['locale'])) {
+                        // Array format: translations[0][locale]
+                        $product->translations()->create($translation);
+                    }
                 }
             }
 
+            // Handle prices - support both keyed (adult, child) and array format
             if (!empty($data['prices'])) {
-                foreach ($data['prices'] as $price) {
-                    $product->prices()->create($price);
+                foreach ($data['prices'] as $type => $price) {
+                    if (is_string($type) && in_array($type, ['adult', 'child', 'infant'])) {
+                        // Keyed format: prices[adult] = 50000
+                        if (!empty($price) || $price === 0 || $price === '0') {
+                            $product->prices()->create([
+                                'type' => $type,
+                                'label' => $type === 'adult' ? '성인' : ($type === 'child' ? '아동' : '유아'),
+                                'price' => (int) $price,
+                                'is_active' => true,
+                            ]);
+                        }
+                    } elseif (is_array($price) && isset($price['type'])) {
+                        // Array format: prices[0][type]
+                        $product->prices()->create($price);
+                    }
                 }
             }
 
-            return $product->load(['translations', 'prices', 'vendor']);
+            // Handle image uploads
+            if (!empty($data['images'])) {
+                $this->uploadImages($product, $data['images']);
+            }
+
+            return $product->load(['translations', 'prices', 'vendor', 'images']);
         });
     }
 
     public function update(Product $product, array $data): Product
     {
         return DB::transaction(function () use ($product, $data) {
-            $product->update(array_filter([
+            $updateData = array_filter([
                 'type' => $data['type'] ?? null,
                 'region' => $data['region'] ?? null,
                 'duration' => $data['duration'] ?? null,
@@ -61,23 +111,69 @@ class ProductService
                 'meeting_point_detail' => $data['meeting_point_detail'] ?? null,
                 'latitude' => $data['latitude'] ?? null,
                 'longitude' => $data['longitude'] ?? null,
-                'status' => $data['status'] ?? null,
-            ], fn($value) => $value !== null));
+            ], fn($value) => $value !== null);
 
+            // Handle status separately
+            if (!empty($data['status'])) {
+                $updateData['status'] = $data['status'] === 'pending' ? ProductStatus::PENDING :
+                    ($data['status'] === 'draft' ? ProductStatus::DRAFT : $data['status']);
+            }
+
+            $product->update($updateData);
+
+            // Handle translations - support both keyed (ko, en) and array format
             if (!empty($data['translations'])) {
-                foreach ($data['translations'] as $translation) {
-                    $product->translations()->updateOrCreate(
-                        ['locale' => $translation['locale']],
-                        $translation
-                    );
+                foreach ($data['translations'] as $locale => $translation) {
+                    if (is_string($locale) && is_array($translation)) {
+                        // Keyed format: translations[ko][title]
+                        $product->translations()->updateOrCreate(
+                            ['locale' => $locale],
+                            [
+                                'name' => $translation['title'] ?? null,
+                                'short_description' => $translation['short_description'] ?? null,
+                                'description' => $translation['description'] ?? null,
+                                'included' => $translation['includes'] ?? null,
+                                'excluded' => $translation['excludes'] ?? null,
+                            ]
+                        );
+                    } elseif (isset($translation['locale'])) {
+                        // Array format: translations[0][locale]
+                        $product->translations()->updateOrCreate(
+                            ['locale' => $translation['locale']],
+                            $translation
+                        );
+                    }
                 }
             }
 
+            // Handle prices - support both keyed (adult, child) and array format
             if (isset($data['prices'])) {
-                $product->prices()->delete();
-                foreach ($data['prices'] as $price) {
-                    $product->prices()->create($price);
+                foreach ($data['prices'] as $type => $price) {
+                    if (is_string($type) && in_array($type, ['adult', 'child', 'infant'])) {
+                        // Keyed format: prices[adult] = 50000
+                        if (!empty($price) || $price === 0 || $price === '0') {
+                            $product->prices()->updateOrCreate(
+                                ['type' => $type],
+                                [
+                                    'label' => $type === 'adult' ? '성인' : ($type === 'child' ? '아동' : '유아'),
+                                    'price' => (int) $price,
+                                    'is_active' => true,
+                                ]
+                            );
+                        }
+                    } elseif (is_array($price) && isset($price['type'])) {
+                        // Array format: prices[0][type]
+                        $product->prices()->updateOrCreate(
+                            ['type' => $price['type']],
+                            $price
+                        );
+                    }
                 }
+            }
+
+            // Handle image uploads
+            if (!empty($data['images'])) {
+                $this->uploadImages($product, $data['images']);
             }
 
             return $product->fresh(['translations', 'prices', 'vendor', 'images']);
