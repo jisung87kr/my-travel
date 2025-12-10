@@ -40,7 +40,7 @@
     <script>
         function deleteImage(imageId) {
             if (confirm('이미지를 삭제하시겠습니까?')) {
-                fetch(`{{ route('vendor.products.images.destroy', [$product->id, '']) }}/${imageId}`, {
+                fetch(`/api/vendor/products/{{ $product->id }}/images/${imageId}`, {
                     method: 'DELETE',
                     headers: {
                         'X-CSRF-TOKEN': '{{ csrf_token() }}',

@@ -116,11 +116,14 @@
             hideMessages();
 
             try {
-                const response = await fetch(`{{ route('guide.checkin.lookup') }}?code=${encodeURIComponent(code)}`, {
+                const response = await fetch('/api/guide/checkin/lookup', {
+                    method: 'POST',
                     headers: {
                         'Accept': 'application/json',
+                        'Content-Type': 'application/json',
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                    }
+                    },
+                    body: JSON.stringify({ code: code })
                 });
 
                 const data = await response.json();
@@ -184,7 +187,7 @@
             if (!currentBookingId) return;
 
             try {
-                const response = await fetch(`/guide/checkin/${currentBookingId}`, {
+                const response = await fetch(`/api/guide/checkin/${currentBookingId}`, {
                     method: 'POST',
                     headers: {
                         'Accept': 'application/json',

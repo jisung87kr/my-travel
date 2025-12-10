@@ -477,7 +477,7 @@
         // Wishlist toggle function
         async function toggleWishlist(productId, button) {
             try {
-                const response = await fetch(`/wishlist/${productId}`, {
+                const response = await fetch(`/api/wishlist/${productId}`, {
                     method: 'POST',
                     headers: {
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '',
@@ -497,7 +497,7 @@
                 const data = await response.json();
 
                 if (data.success) {
-                    const isNowWishlisted = data.added;
+                    const isNowWishlisted = data.data?.added;
                     const icon = button.querySelector('.wishlist-icon');
 
                     // Update button state

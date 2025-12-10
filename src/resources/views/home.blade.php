@@ -964,7 +964,7 @@
             // Optimistic UI update
             button.classList.add('pointer-events-none');
 
-            fetch(`/wishlist/${productId}`, {
+            fetch(`/api/wishlist/${productId}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -975,7 +975,7 @@
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    const nowWishlisted = data.added;
+                    const nowWishlisted = data.data?.added;
                     button.dataset.wishlisted = nowWishlisted ? 'true' : 'false';
 
                     if (nowWishlisted) {

@@ -214,7 +214,7 @@
 
         function deleteReview(reviewId) {
             if (confirm('정말로 이 리뷰를 삭제하시겠습니까?')) {
-                fetch(`/my/reviews/${reviewId}`, {
+                fetch(`/reviews/${reviewId}`, {
                     method: 'DELETE',
                     headers: {
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,

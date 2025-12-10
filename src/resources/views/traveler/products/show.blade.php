@@ -647,7 +647,7 @@
             button.disabled = true;
             button.classList.add('opacity-50');
 
-            fetch(`/wishlist/${productId}`, {
+            fetch(`/api/wishlist/${productId}`, {
                 method: 'POST',
                 headers: {
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
@@ -661,7 +661,7 @@
             })
             .then(data => {
                 if (data.success) {
-                    const nowWishlisted = data.added;
+                    const nowWishlisted = data.data?.added;
                     button.dataset.wishlisted = nowWishlisted ? 'true' : 'false';
 
                     if (nowWishlisted) {
@@ -691,7 +691,7 @@
         function toggleWishlist(productId, button) {
             const icon = button.querySelector('.wishlist-icon');
 
-            fetch(`/wishlist/${productId}`, {
+            fetch(`/api/wishlist/${productId}`, {
                 method: 'POST',
                 headers: {
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
@@ -705,7 +705,7 @@
             })
             .then(data => {
                 if (data.success) {
-                    const nowWishlisted = data.added;
+                    const nowWishlisted = data.data?.added;
                     button.dataset.wishlisted = nowWishlisted ? 'true' : 'false';
 
                     if (nowWishlisted) {

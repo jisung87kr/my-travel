@@ -142,7 +142,7 @@
                         week: '주',
                         list: '목록'
                     },
-                    events: '{{ route("guide.schedules.events") }}',
+                    events: '/api/guide/schedules/events',
                     eventClick: function(info) {
                         showEventModal(info.event);
                     },

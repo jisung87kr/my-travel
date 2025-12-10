@@ -86,7 +86,7 @@
     @push('scripts')
     <script>
         function removeFromWishlist(productId, button) {
-            fetch(`/wishlist/${productId}`, {
+            fetch(`/api/wishlist/${productId}`, {
                 method: 'POST',
                 headers: {
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
