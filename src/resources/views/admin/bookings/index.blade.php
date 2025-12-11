@@ -1,7 +1,7 @@
 <x-layouts.admin>
     <x-slot name="header">예약 관리</x-slot>
 
-    <div class="space-y-6">
+    <div class="space-y-6" id="app">
         <!-- Stats Cards -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
             <div class="bg-white rounded-2xl border border-slate-200/60 shadow-sm p-5">
@@ -203,7 +203,7 @@
                                             상세
                                         </a>
                                         @if(!in_array($statusValue, ['cancelled', 'no_show', 'completed']))
-                                            <button type="button" onclick="openCancelModal({{ $booking->id }})"
+                                            <button type="button" @click="handleCancel('{{ $booking->id }}')"
                                                     class="inline-flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-all">
                                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
@@ -239,69 +239,39 @@
                 {{ $bookings->withQueryString()->links() }}
             </div>
         @endif
+
+        <toast-container></toast-container>
+        <modal-container></modal-container>
     </div>
+    <script type="module">
+        createVueApp({
+            data() {
+                return {};
+            },
+            methods: {
+                handleCancel(bookingId) {
+                    this.$modal.confirm({
+                        title: '예약 취소',
+                        description: '정말 이 예약을 취소하시겠습니까? 이 작업은 되돌릴 수 없습니다.',
+                        confirmText: '예약 취소',
+                        cancelText: '닫기',
+                        variant: 'danger',
+                        icon: 'x',
+                    }).then((confirm) => {
+                        if(confirm){
+                            api.bookings.cancel(bookingId).then(() => {
+                                this.$toast.success('예약이 취소되었습니다.');
+                                setTimeout(() => {
+                                    location.reload();
+                                }, 500);
 
-    <!-- Cancel Modal -->
-    <div id="cancelModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden items-center justify-center z-50">
-        <div class="bg-white rounded-2xl p-6 w-full max-w-md shadow-2xl mx-4">
-            <div class="flex items-center gap-4 mb-4">
-                <div class="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0">
-                    <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
-                    </svg>
-                </div>
-                <div>
-                    <h3 class="text-lg font-semibold text-slate-900">예약 취소</h3>
-                    <p class="text-sm text-slate-500">이 예약을 취소하시겠습니까?</p>
-                </div>
-            </div>
-            <form id="cancelForm" method="POST">
-                @csrf
-                @method('PATCH')
-                <div class="mb-6">
-                    <label class="block text-sm font-medium text-slate-700 mb-2">취소 사유</label>
-                    <textarea name="reason" rows="3"
-                              placeholder="취소 사유를 입력하세요..."
-                              class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:bg-white transition-all resize-none"></textarea>
-                </div>
-                <div class="flex justify-end gap-3">
-                    <button type="button" onclick="closeCancelModal()"
-                            class="px-5 py-2.5 border border-slate-200 rounded-xl text-slate-600 hover:bg-slate-50 font-medium transition-all">
-                        닫기
-                    </button>
-                    <button type="submit"
-                            class="px-5 py-2.5 bg-gradient-to-r from-red-600 to-red-700 text-white rounded-xl hover:from-red-700 hover:to-red-800 font-medium shadow-lg shadow-red-500/30 transition-all">
-                        취소하기
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <script>
-        function openCancelModal(bookingId) {
-            document.getElementById('cancelForm').action = `/admin/bookings/${bookingId}/cancel`;
-            document.getElementById('cancelModal').classList.remove('hidden');
-            document.getElementById('cancelModal').classList.add('flex');
-        }
-
-        function closeCancelModal() {
-            document.getElementById('cancelModal').classList.add('hidden');
-            document.getElementById('cancelModal').classList.remove('flex');
-        }
-
-        // Close modal on outside click
-        document.getElementById('cancelModal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                closeCancelModal();
-            }
-        });
-
-        // Close modal on Escape key
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') {
-                closeCancelModal();
-            }
-        });
+                            });
+                        } else {
+                            this.$toast.info('취소되었습니다.');
+                        }
+                    });
+                },
+            },
+        }).mount('#app');
     </script>
 </x-layouts.admin>
