@@ -15,7 +15,7 @@
             <form method="POST" action="{{ route('admin.vendors.store') }}">
                 @csrf
 
-                @include('admin.vendors._form')
+                <x-admin.vendor-form />
 
                 <!-- 버튼 -->
                 <div class="px-6 py-4 bg-slate-50/50 border-t border-slate-200/60 flex items-center justify-end gap-3">

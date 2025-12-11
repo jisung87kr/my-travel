@@ -139,7 +139,7 @@
                                        class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-violet-600 hover:text-violet-700 hover:bg-violet-50 rounded-lg transition-colors">
                                         수정
                                     </a>
-                                    <a href="{{ route('vendor.products.schedules.index', $product) }}"
+                                    <a href="{{ route('vendor.schedules.index', ['product' => $product->id]) }}"
                                        class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 rounded-lg transition-colors">
                                         일정
                                     </a>

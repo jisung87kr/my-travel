@@ -13,27 +13,16 @@
             </nav>
         </div>
 
-        <form method="POST" action="{{ route('admin.products.store') }}" enctype="multipart/form-data" class="space-y-6">
-            @csrf
-
-            @include('admin.products._form', [
-                'vendors' => $vendors,
-                'types' => $types,
-                'regions' => $regions,
-                'bookingTypes' => $bookingTypes,
-            ])
-
-            <!-- 버튼 -->
-            <div class="flex items-center justify-end gap-3 pt-2">
-                <a href="{{ route('admin.products.index') }}"
-                   class="px-6 py-3 border border-slate-200 rounded-xl text-slate-600 hover:bg-slate-50 hover:border-slate-300 font-medium transition-all">
-                    취소
-                </a>
-                <button type="submit"
-                        class="px-8 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl hover:from-blue-700 hover:to-indigo-700 font-medium shadow-lg shadow-blue-500/30 transition-all">
-                    상품 등록
-                </button>
-            </div>
-        </form>
+        <x-product.form
+            :action="route('admin.products.store')"
+            :vendors="$vendors"
+            :types="$types"
+            :regions="$regions"
+            :booking-types="$bookingTypes"
+            :cancel-route="route('admin.products.index')"
+            :show-vendor-select="true"
+            color-scheme="blue"
+            submit-label="상품 등록"
+        />
     </div>
 </x-layouts.admin>

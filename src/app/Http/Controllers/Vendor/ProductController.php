@@ -98,4 +98,34 @@ class ProductController extends Controller
         return redirect()->route('vendor.products.index')
             ->with('success', '상품이 삭제되었습니다.');
     }
+
+    public function submit(Product $product): RedirectResponse
+    {
+        Gate::authorize('update', $product);
+
+        $this->productService->submitForReview($product);
+
+        return redirect()->route('vendor.products.index')
+            ->with('success', '검토 요청이 완료되었습니다.');
+    }
+
+    public function activate(Product $product): RedirectResponse
+    {
+        Gate::authorize('update', $product);
+
+        $this->productService->activate($product);
+
+        return redirect()->route('vendor.products.index')
+            ->with('success', '상품이 활성화되었습니다.');
+    }
+
+    public function deactivate(Product $product): RedirectResponse
+    {
+        Gate::authorize('update', $product);
+
+        $this->productService->deactivate($product);
+
+        return redirect()->route('vendor.products.index')
+            ->with('success', '상품이 비활성화되었습니다.');
+    }
 }

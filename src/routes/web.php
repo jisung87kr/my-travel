@@ -109,6 +109,9 @@ Route::middleware(['auth', 'user.active', 'role:vendor,admin'])->prefix('vendor'
 
     // Product management
     Route::resource('products', \App\Http\Controllers\Vendor\ProductController::class);
+    Route::post('products/{product}/submit', [\App\Http\Controllers\Vendor\ProductController::class, 'submit'])->name('products.submit');
+    Route::post('products/{product}/activate', [\App\Http\Controllers\Vendor\ProductController::class, 'activate'])->name('products.activate');
+    Route::post('products/{product}/deactivate', [\App\Http\Controllers\Vendor\ProductController::class, 'deactivate'])->name('products.deactivate');
 
     // Schedule management
     Route::get('schedules', [\App\Http\Controllers\Vendor\ScheduleController::class, 'index'])->name('schedules.index');

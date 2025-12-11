@@ -20,14 +20,7 @@
                class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors @error('name') border-red-500 bg-red-50 @enderror"
                placeholder="사용자 이름을 입력하세요"
                required>
-        @error('name')
-            <p class="mt-2 text-sm text-red-500 flex items-center gap-1">
-                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
-                </svg>
-                {{ $message }}
-            </p>
-        @enderror
+        <x-form-error field="name" />
     </div>
 
     <!-- 이메일 -->
@@ -39,14 +32,7 @@
                class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors @error('email') border-red-500 bg-red-50 @enderror"
                placeholder="example@email.com"
                required>
-        @error('email')
-            <p class="mt-2 text-sm text-red-500 flex items-center gap-1">
-                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
-                </svg>
-                {{ $message }}
-            </p>
-        @enderror
+        <x-form-error field="email" />
     </div>
 
     <!-- 전화번호 -->
@@ -57,14 +43,7 @@
         <input type="text" id="phone" name="phone" value="{{ old('phone', $user?->phone) }}"
                placeholder="010-1234-5678"
                class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors @error('phone') border-red-500 bg-red-50 @enderror">
-        @error('phone')
-            <p class="mt-2 text-sm text-red-500 flex items-center gap-1">
-                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
-                </svg>
-                {{ $message }}
-            </p>
-        @enderror
+        <x-form-error field="phone" />
     </div>
 
     <!-- 비밀번호 -->
@@ -83,14 +62,7 @@
                 최소 8자 이상의 비밀번호를 입력하세요.
             @endif
         </p>
-        @error('password')
-            <p class="mt-2 text-sm text-red-500 flex items-center gap-1">
-                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
-                </svg>
-                {{ $message }}
-            </p>
-        @enderror
+        <x-form-error field="password" />
     </div>
 
     <!-- 역할 -->
@@ -110,14 +82,7 @@
                 </option>
             @endforeach
         </select>
-        @error('role')
-            <p class="mt-2 text-sm text-red-500 flex items-center gap-1">
-                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
-                </svg>
-                {{ $message }}
-            </p>
-        @enderror
+        <x-form-error field="role" />
     </div>
 
     <!-- 활성 상태 -->

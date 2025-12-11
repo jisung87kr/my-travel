@@ -34,7 +34,7 @@
                 @csrf
                 @method('PUT')
 
-                @include('admin.users._form', ['user' => $user, 'roles' => $roles])
+                <x-admin.user-form :user="$user" :roles="$roles" />
 
                 <!-- 버튼 -->
                 <div class="mt-8 pt-6 border-t border-slate-200 flex items-center justify-between">

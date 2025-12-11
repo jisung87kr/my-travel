@@ -31,7 +31,7 @@
             <form method="POST" action="{{ route('admin.users.store') }}" class="p-6">
                 @csrf
 
-                @include('admin.users._form', ['roles' => $roles])
+                <x-admin.user-form :roles="$roles" />
 
                 <!-- 버튼 -->
                 <div class="mt-8 pt-6 border-t border-slate-200 flex items-center justify-end gap-3">

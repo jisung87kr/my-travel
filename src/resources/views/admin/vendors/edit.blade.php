@@ -33,7 +33,7 @@
                     </div>
                 </div>
 
-                @include('admin.vendors._form', ['vendor' => $vendor])
+                <x-admin.vendor-form :vendor="$vendor" />
 
                 <!-- 버튼 -->
                 <div class="px-6 py-4 bg-slate-50/50 border-t border-slate-200/60 flex items-center justify-between">

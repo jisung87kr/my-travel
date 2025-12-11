@@ -65,53 +65,55 @@
             </div>
         </div>
 
-        <form method="POST" action="{{ route('admin.products.update', $product) }}" enctype="multipart/form-data" class="space-y-6">
-            @csrf
-            @method('PUT')
-
-            @include('admin.products._form', [
-                'product' => $product,
-                'vendors' => $vendors,
-                'types' => $types,
-                'regions' => $regions,
-                'bookingTypes' => $bookingTypes,
-            ])
-
-            <!-- 버튼 -->
-            <div class="flex items-center justify-between pt-2">
-                <div>
-                    @php
-                        $hasActiveBookings = $product->bookings()->whereNotIn('status', ['cancelled', 'completed', 'no_show'])->count() > 0;
-                    @endphp
-                    @if(!$hasActiveBookings)
-                        <button type="button" onclick="confirmDelete()"
-                                class="inline-flex items-center gap-2 px-4 py-2.5 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-xl transition-all font-medium">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                            </svg>
-                            상품 삭제
+        <x-product.form
+            :action="route('admin.products.update', $product)"
+            method="PUT"
+            :product="$product"
+            :vendors="$vendors"
+            :types="$types"
+            :regions="$regions"
+            :booking-types="$bookingTypes"
+            :cancel-route="route('admin.products.show', $product)"
+            :show-vendor-select="true"
+            color-scheme="blue"
+            submit-label="저장"
+        >
+            <x-slot:buttons>
+                <div class="flex items-center justify-between pt-2">
+                    <div>
+                        @php
+                            $hasActiveBookings = $product->bookings()->whereNotIn('status', ['cancelled', 'completed', 'no_show'])->count() > 0;
+                        @endphp
+                        @if(!$hasActiveBookings)
+                            <button type="button" onclick="confirmDelete()"
+                                    class="inline-flex items-center gap-2 px-4 py-2.5 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-xl transition-all font-medium">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                </svg>
+                                상품 삭제
+                            </button>
+                        @else
+                            <span class="text-sm text-slate-500 flex items-center gap-2">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                                </svg>
+                                진행 중인 예약이 있어 삭제할 수 없습니다
+                            </span>
+                        @endif
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <a href="{{ route('admin.products.show', $product) }}"
+                           class="px-6 py-3 border border-slate-200 rounded-xl text-slate-600 hover:bg-slate-50 hover:border-slate-300 font-medium transition-all">
+                            취소
+                        </a>
+                        <button type="submit"
+                                class="px-8 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl hover:from-blue-700 hover:to-indigo-700 font-medium shadow-lg shadow-blue-500/30 transition-all">
+                            저장
                         </button>
-                    @else
-                        <span class="text-sm text-slate-500 flex items-center gap-2">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
-                            </svg>
-                            진행 중인 예약이 있어 삭제할 수 없습니다
-                        </span>
-                    @endif
+                    </div>
                 </div>
-                <div class="flex items-center gap-3">
-                    <a href="{{ route('admin.products.show', $product) }}"
-                       class="px-6 py-3 border border-slate-200 rounded-xl text-slate-600 hover:bg-slate-50 hover:border-slate-300 font-medium transition-all">
-                        취소
-                    </a>
-                    <button type="submit"
-                            class="px-8 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl hover:from-blue-700 hover:to-indigo-700 font-medium shadow-lg shadow-blue-500/30 transition-all">
-                        저장
-                    </button>
-                </div>
-            </div>
-        </form>
+            </x-slot:buttons>
+        </x-product.form>
     </div>
 
     <!-- Delete Confirmation Modal -->

@@ -1,3 +1,5 @@
+@props(['vendor' => null])
+
 @php
     $isEdit = isset($vendor) && $vendor->exists;
 @endphp
