@@ -214,3 +214,139 @@ const setupApp = (app) => {
     <!-- 페이지 컨텐츠 -->
 </div>
 ```
+
+---
+
+## 동적 모달 Body 슬롯 사용
+
+모달 타입에 따라 다른 폼을 표시해야 할 때 슬롯 내부에서 `v-if`를 사용합니다.
+
+### 주의사항
+
+**❌ 잘못된 방법** - `v-if`로 `modal-container`를 감싸면 안됩니다:
+```html
+<!-- 이렇게 하면 모달이 열리지 않습니다! -->
+<template v-if="showModal1">
+    <modal-container>
+        <template v-slot:body>폼 1</template>
+    </modal-container>
+</template>
+
+<template v-if="showModal2">
+    <modal-container>
+        <template v-slot:body>폼 2</template>
+    </modal-container>
+</template>
+```
+
+**✅ 올바른 방법** - 하나의 `modal-container`에서 슬롯 내용만 조건부 렌더링:
+```html
+<modal-container>
+    <template v-slot:body>
+        <div v-if="modalType === 'cancel'">취소 폼...</div>
+        <div v-else-if="modalType === 'noshow'">노쇼 폼...</div>
+    </template>
+</modal-container>
+```
+
+### 전체 예제 (예약 관리)
+
+```html
+<div id="app">
+    <!-- 버튼들 -->
+    <button @click="handleCancel(booking.id)">예약 취소</button>
+    <button @click="handleNoShow(booking.id)">노쇼 처리</button>
+
+    <toast-container></toast-container>
+    <modal-container>
+        <template v-slot:body>
+            <!-- 모달 타입에 따라 다른 내용 표시 -->
+            <div v-if="modalType === 'cancel'" class="mb-4">
+                <label class="block text-sm font-medium text-slate-700 mb-2">취소 사유</label>
+                <textarea
+                    v-model="cancelReason"
+                    rows="3"
+                    placeholder="취소 사유를 입력하세요..."
+                    class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl"
+                ></textarea>
+            </div>
+            <div v-else-if="modalType === 'noshow'" class="mb-4">
+                <label class="block text-sm font-medium text-slate-700 mb-2">노쇼 사유</label>
+                <select
+                    v-model="noShowReason"
+                    class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl"
+                >
+                    <option value="">사유 선택</option>
+                    <option value="no_contact">연락 두절</option>
+                    <option value="late">시간 초과</option>
+                    <option value="other">기타</option>
+                </select>
+            </div>
+        </template>
+    </modal-container>
+</div>
+
+<script type="module">
+    createVueApp({
+        data() {
+            return {
+                modalType: '',           // 'cancel' | 'noshow'
+                cancelReason: '',
+                noShowReason: '',
+                currentBookingId: null,
+            };
+        },
+        methods: {
+            handleCancel(bookingId) {
+                this.modalType = 'cancel';
+                this.cancelReason = '';
+                this.currentBookingId = bookingId;
+
+                this.$modal.confirm({
+                    title: '예약 취소',
+                    description: '정말 이 예약을 취소하시겠습니까?',
+                    confirmText: '예약 취소',
+                    cancelText: '닫기',
+                    variant: 'danger',
+                    icon: 'x',
+                }).then((confirm) => {
+                    if (confirm) {
+                        // API 호출: this.cancelReason, this.currentBookingId 사용
+                        this.$toast.success('예약이 취소되었습니다.');
+                    }
+                    this.modalType = '';
+                });
+            },
+
+            handleNoShow(bookingId) {
+                this.modalType = 'noshow';
+                this.noShowReason = '';
+                this.currentBookingId = bookingId;
+
+                this.$modal.confirm({
+                    title: '노쇼 처리',
+                    description: '이 예약을 노쇼로 처리하시겠습니까?',
+                    confirmText: '노쇼 처리',
+                    cancelText: '닫기',
+                    variant: 'danger',
+                    icon: 'ban',
+                }).then((confirm) => {
+                    if (confirm) {
+                        // API 호출: this.noShowReason, this.currentBookingId 사용
+                        this.$toast.success('노쇼로 처리되었습니다.');
+                    }
+                    this.modalType = '';
+                });
+            },
+        },
+    }).mount('#app');
+</script>
+```
+
+### 동작 흐름
+
+1. `handleCancel()` 호출 → `modalType = 'cancel'` 설정
+2. `this.$modal.confirm()` 호출 → 모달 열림
+3. 슬롯이 `modalType`에 따라 취소 사유 폼 표시
+4. 사용자가 확인/취소 클릭
+5. Promise resolve 후 `modalType = ''`으로 리셋
