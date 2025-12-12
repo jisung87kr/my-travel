@@ -14,11 +14,14 @@ class ProductTranslation extends Model
     protected $fillable = [
         'product_id',
         'locale',
-        'name',
+        'title',
+        'short_description',
         'description',
         'includes',
         'excludes',
         'notes',
+        'meeting_point',
+        'meeting_point_detail',
     ];
 
     protected function casts(): array

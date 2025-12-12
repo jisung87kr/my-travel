@@ -161,16 +161,6 @@
                     <x-form-error field="max_persons" />
                 </div>
 
-                <div>
-                    <label for="meeting_point" class="block text-sm font-medium text-slate-700 mb-2">
-                        만남 장소
-                    </label>
-                    <input type="text" id="meeting_point" name="meeting_point" value="{{ old('meeting_point', $product?->meeting_point) }}"
-                           placeholder="예: 서울역 1번 출구"
-                           class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl {{ $scheme['focus'] }} focus:bg-white transition-all @error('meeting_point') border-red-500 bg-red-50 @enderror">
-                    <x-form-error field="meeting_point" />
-                </div>
-
                 @if($showVendorSelect)
                     <div>
                         <label for="status" class="block text-sm font-medium text-slate-700 mb-2">
@@ -186,16 +176,6 @@
                         <x-form-error field="status" />
                     </div>
                 @endif
-
-                <div class="md:col-span-2">
-                    <label for="meeting_point_detail" class="block text-sm font-medium text-slate-700 mb-2">
-                        만남 장소 상세
-                    </label>
-                    <textarea id="meeting_point_detail" name="meeting_point_detail" rows="2"
-                              placeholder="상세한 만남 장소 안내를 입력해주세요"
-                              class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl {{ $scheme['focus'] }} focus:bg-white transition-all resize-none @error('meeting_point_detail') border-red-500 bg-red-50 @enderror">{{ old('meeting_point_detail', $product?->meeting_point_detail) }}</textarea>
-                    <x-form-error field="meeting_point_detail" />
-                </div>
             </div>
         </div>
     </div>
@@ -222,7 +202,7 @@
                     상품명 <span class="text-red-500">*</span>
                 </label>
                 <input type="text" id="translations_ko_title" name="translations[ko][title]"
-                       value="{{ old('translations.ko.title', $koTranslation?->name ?? $koTranslation?->title) }}"
+                       value="{{ old('translations.ko.title', $koTranslation?->title) }}"
                        placeholder="상품명을 입력해주세요"
                        class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl {{ $scheme['focus'] }} focus:bg-white transition-all @error('translations.ko.title') border-red-500 bg-red-50 @enderror"
                        required>
@@ -270,6 +250,39 @@
                               placeholder="줄바꿈으로 구분하여 입력해주세요&#10;예: 항공권&#10;여행자 보험&#10;개인 경비"
                               class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl {{ $scheme['focus'] }} focus:bg-white transition-all resize-none @error('translations.ko.excludes') border-red-500 bg-red-50 @enderror">{{ old('translations.ko.excludes', $koTranslation?->excludes) }}</textarea>
                     <x-form-error field="translations.ko.excludes" />
+                </div>
+            </div>
+
+            <div>
+                <label for="translations_ko_notes" class="block text-sm font-medium text-slate-700 mb-2">
+                    추가 안내사항
+                </label>
+                <textarea id="translations_ko_notes" name="translations[ko][notes]" rows="3"
+                          placeholder="고객에게 전달할 추가 안내사항을 입력해주세요"
+                          class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl {{ $scheme['focus'] }} focus:bg-white transition-all resize-none @error('translations.ko.notes') border-red-500 bg-red-50 @enderror">{{ old('translations.ko.notes', $koTranslation?->notes) }}</textarea>
+                <x-form-error field="translations.ko.notes" />
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div>
+                    <label for="translations_ko_meeting_point" class="block text-sm font-medium text-slate-700 mb-2">
+                        만남 장소
+                    </label>
+                    <input type="text" id="translations_ko_meeting_point" name="translations[ko][meeting_point]"
+                           value="{{ old('translations.ko.meeting_point', $koTranslation?->meeting_point) }}"
+                           placeholder="예: 서울역 1번 출구"
+                           class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl {{ $scheme['focus'] }} focus:bg-white transition-all @error('translations.ko.meeting_point') border-red-500 bg-red-50 @enderror">
+                    <x-form-error field="translations.ko.meeting_point" />
+                </div>
+
+                <div>
+                    <label for="translations_ko_meeting_point_detail" class="block text-sm font-medium text-slate-700 mb-2">
+                        만남 장소 상세
+                    </label>
+                    <textarea id="translations_ko_meeting_point_detail" name="translations[ko][meeting_point_detail]" rows="1"
+                              placeholder="상세한 만남 장소 안내"
+                              class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl {{ $scheme['focus'] }} focus:bg-white transition-all resize-none @error('translations.ko.meeting_point_detail') border-red-500 bg-red-50 @enderror">{{ old('translations.ko.meeting_point_detail', $koTranslation?->meeting_point_detail) }}</textarea>
+                    <x-form-error field="translations.ko.meeting_point_detail" />
                 </div>
             </div>
         </div>

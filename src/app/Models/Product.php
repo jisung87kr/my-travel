@@ -26,8 +26,6 @@ class Product extends Model
         'min_persons',
         'max_persons',
         'booking_type',
-        'meeting_point',
-        'meeting_point_detail',
         'latitude',
         'longitude',
         'status',

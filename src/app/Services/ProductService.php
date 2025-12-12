@@ -40,8 +40,6 @@ class ProductService
                 'min_persons' => $data['min_persons'] ?? 1,
                 'max_persons' => $data['max_persons'] ?? 100,
                 'booking_type' => $data['booking_type'],
-                'meeting_point' => $data['meeting_point'] ?? null,
-                'meeting_point_detail' => $data['meeting_point_detail'] ?? null,
                 'latitude' => $data['latitude'] ?? null,
                 'longitude' => $data['longitude'] ?? null,
                 'status' => $status,
@@ -55,11 +53,14 @@ class ProductService
                         // Keyed format: translations[ko][title]
                         $product->translations()->create([
                             'locale' => $locale,
-                            'name' => $translation['title'] ?? null,
+                            'title' => $translation['title'] ?? null,
                             'short_description' => $translation['short_description'] ?? null,
                             'description' => $translation['description'] ?? null,
-                            'included' => $translation['includes'] ?? null,
-                            'excluded' => $translation['excludes'] ?? null,
+                            'includes' => $translation['includes'] ?? null,
+                            'excludes' => $translation['excludes'] ?? null,
+                            'notes' => $translation['notes'] ?? null,
+                            'meeting_point' => $translation['meeting_point'] ?? null,
+                            'meeting_point_detail' => $translation['meeting_point_detail'] ?? null,
                         ]);
                     } elseif (isset($translation['locale'])) {
                         // Array format: translations[0][locale]
@@ -107,8 +108,6 @@ class ProductService
                 'min_persons' => $data['min_persons'] ?? null,
                 'max_persons' => $data['max_persons'] ?? null,
                 'booking_type' => $data['booking_type'] ?? null,
-                'meeting_point' => $data['meeting_point'] ?? null,
-                'meeting_point_detail' => $data['meeting_point_detail'] ?? null,
                 'latitude' => $data['latitude'] ?? null,
                 'longitude' => $data['longitude'] ?? null,
             ], fn($value) => $value !== null);
@@ -129,11 +128,14 @@ class ProductService
                         $product->translations()->updateOrCreate(
                             ['locale' => $locale],
                             [
-                                'name' => $translation['title'] ?? null,
+                                'title' => $translation['title'] ?? null,
                                 'short_description' => $translation['short_description'] ?? null,
                                 'description' => $translation['description'] ?? null,
-                                'included' => $translation['includes'] ?? null,
-                                'excluded' => $translation['excludes'] ?? null,
+                                'includes' => $translation['includes'] ?? null,
+                                'excludes' => $translation['excludes'] ?? null,
+                                'notes' => $translation['notes'] ?? null,
+                                'meeting_point' => $translation['meeting_point'] ?? null,
+                                'meeting_point_detail' => $translation['meeting_point_detail'] ?? null,
                             ]
                         );
                     } elseif (isset($translation['locale'])) {
@@ -255,7 +257,7 @@ class ProductService
         if (!empty($filters['keyword'])) {
             $keyword = $filters['keyword'];
             $query->whereHas('translations', function ($q) use ($keyword) {
-                $q->where('name', 'like', "%{$keyword}%")
+                $q->where('title', 'like', "%{$keyword}%")
                     ->orWhere('description', 'like', "%{$keyword}%");
             });
         }

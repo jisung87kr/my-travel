@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Requests\Vendor;
+namespace App\Http\Requests\Admin;
 
+use App\Enums\ProductStatus;
 use App\Http\Requests\Traits\ProductValidationRules;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -12,17 +13,17 @@ class StoreProductRequest extends FormRequest
 
     public function authorize(): bool
     {
-        return $this->user()?->vendor !== null;
+        return $this->user()?->hasRole('admin') ?? false;
     }
 
     public function rules(): array
     {
         return array_merge(
+            ['vendor_id' => ['required', 'exists:vendors,id']],
             $this->baseProductRules(),
-            ['status' => ['nullable', 'string', Rule::in(['draft', 'pending'])]],
-            ['translations' => ['required', 'array', 'min:1']],
+            ['status' => ['required', Rule::in(ProductStatus::values())]],
+            ['translations' => ['required', 'array']],
             $this->translationRules('ko', required: true),
-            $this->translationRules('en', required: false),
             $this->priceRules(),
             $this->imageRules(),
         );
@@ -30,13 +31,9 @@ class StoreProductRequest extends FormRequest
 
     public function messages(): array
     {
-        return $this->productValidationMessages();
-    }
-
-    protected function prepareForValidation(): void
-    {
-        if (!$this->has('min_persons')) {
-            $this->merge(['min_persons' => 1]);
-        }
+        return array_merge(
+            $this->productValidationMessages(),
+            ['vendor_id.required' => '제공자를 선택해주세요.'],
+        );
     }
 }

@@ -7,6 +7,8 @@ use App\Enums\ProductStatus;
 use App\Enums\ProductType;
 use App\Enums\Region;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\StoreProductRequest;
+use App\Http\Requests\Admin\UpdateProductRequest;
 use App\Models\Product;
 use App\Models\ProductImage;
 use App\Models\ProductPrice;
@@ -17,7 +19,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
-use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
 class ProductController extends Controller
@@ -87,34 +88,13 @@ class ProductController extends Controller
         return view('admin.products.create', compact('vendors', 'regions', 'types', 'bookingTypes'));
     }
 
-    public function store(Request $request): RedirectResponse
+    public function store(StoreProductRequest $request): RedirectResponse
     {
-        $validated = $request->validate([
-            'vendor_id' => ['required', 'exists:vendors,id'],
-            'type' => ['required', Rule::in(ProductType::values())],
-            'region' => ['required', Rule::in(Region::values())],
-            'duration' => ['nullable', 'integer', 'min:0'],
-            'min_persons' => ['nullable', 'integer', 'min:1'],
-            'max_persons' => ['nullable', 'integer', 'min:1'],
-            'booking_type' => ['required', Rule::in(BookingType::values())],
-            'meeting_point' => ['nullable', 'string', 'max:255'],
-            'meeting_point_detail' => ['nullable', 'string', 'max:500'],
-            'status' => ['required', Rule::in(ProductStatus::values())],
-            'translations' => ['required', 'array'],
-            'translations.ko.name' => ['required', 'string', 'max:255'],
-            'translations.ko.description' => ['required', 'string'],
-            'translations.ko.includes' => ['nullable', 'string'],
-            'translations.ko.excludes' => ['nullable', 'string'],
-            'translations.ko.notes' => ['nullable', 'string'],
-            'prices.adult' => ['required', 'integer', 'min:0'],
-            'prices.child' => ['nullable', 'integer', 'min:0'],
-            'images' => ['nullable', 'array'],
-            'images.*' => ['image', 'max:5120'],
-        ]);
+        $validated = $request->validated();
 
         $product = DB::transaction(function () use ($validated, $request) {
             // 슬러그 생성
-            $slug = Str::slug($validated['translations']['ko']['name']);
+            $slug = Str::slug($validated['translations']['ko']['title']);
             $originalSlug = $slug;
             $count = 1;
             while (Product::where('slug', $slug)->exists()) {
@@ -129,24 +109,25 @@ class ProductController extends Controller
                 'region' => $validated['region'],
                 'duration' => $validated['duration'] ?? null,
                 'min_persons' => $validated['min_persons'] ?? 1,
-                'max_persons' => $validated['max_persons'] ?? null,
+                'max_persons' => $validated['max_persons'] ?? 100,
                 'booking_type' => $validated['booking_type'],
-                'meeting_point' => $validated['meeting_point'] ?? null,
-                'meeting_point_detail' => $validated['meeting_point_detail'] ?? null,
                 'status' => $validated['status'],
             ]);
 
             // 번역 생성
             foreach ($validated['translations'] as $locale => $translation) {
-                if (!empty($translation['name'])) {
+                if (!empty($translation['title'])) {
                     ProductTranslation::create([
                         'product_id' => $product->id,
                         'locale' => $locale,
-                        'name' => $translation['name'],
+                        'title' => $translation['title'],
+                        'short_description' => $translation['short_description'] ?? null,
                         'description' => $translation['description'] ?? '',
                         'includes' => $translation['includes'] ?? null,
                         'excludes' => $translation['excludes'] ?? null,
                         'notes' => $translation['notes'] ?? null,
+                        'meeting_point' => $translation['meeting_point'] ?? null,
+                        'meeting_point_detail' => $translation['meeting_point_detail'] ?? null,
                     ]);
                 }
             }
@@ -157,7 +138,7 @@ class ProductController extends Controller
                     'product_id' => $product->id,
                     'type' => 'adult',
                     'label' => '성인',
-                    'amount' => $validated['prices']['adult'],
+                    'price' => $validated['prices']['adult'],
                 ]);
             }
 
@@ -166,7 +147,7 @@ class ProductController extends Controller
                     'product_id' => $product->id,
                     'type' => 'child',
                     'label' => '아동',
-                    'amount' => $validated['prices']['child'],
+                    'price' => $validated['prices']['child'],
                 ]);
             }
 
@@ -204,32 +185,9 @@ class ProductController extends Controller
         return view('admin.products.edit', compact('product', 'vendors', 'regions', 'types', 'bookingTypes'));
     }
 
-    public function update(Request $request, Product $product): RedirectResponse
+    public function update(UpdateProductRequest $request, Product $product): RedirectResponse
     {
-        $validated = $request->validate([
-            'vendor_id' => ['required', 'exists:vendors,id'],
-            'type' => ['required', Rule::in(ProductType::values())],
-            'region' => ['required', Rule::in(Region::values())],
-            'duration' => ['nullable', 'integer', 'min:0'],
-            'min_persons' => ['nullable', 'integer', 'min:1'],
-            'max_persons' => ['nullable', 'integer', 'min:1'],
-            'booking_type' => ['required', Rule::in(BookingType::values())],
-            'meeting_point' => ['nullable', 'string', 'max:255'],
-            'meeting_point_detail' => ['nullable', 'string', 'max:500'],
-            'status' => ['required', Rule::in(ProductStatus::values())],
-            'translations' => ['required', 'array'],
-            'translations.ko.name' => ['required', 'string', 'max:255'],
-            'translations.ko.description' => ['required', 'string'],
-            'translations.ko.includes' => ['nullable', 'string'],
-            'translations.ko.excludes' => ['nullable', 'string'],
-            'translations.ko.notes' => ['nullable', 'string'],
-            'prices.adult' => ['required', 'integer', 'min:0'],
-            'prices.child' => ['nullable', 'integer', 'min:0'],
-            'images' => ['nullable', 'array'],
-            'images.*' => ['image', 'max:5120'],
-            'delete_images' => ['nullable', 'array'],
-            'delete_images.*' => ['integer', 'exists:product_images,id'],
-        ]);
+        $validated = $request->validated();
 
         DB::transaction(function () use ($validated, $request, $product) {
             // 상품 업데이트
@@ -239,24 +197,25 @@ class ProductController extends Controller
                 'region' => $validated['region'],
                 'duration' => $validated['duration'] ?? null,
                 'min_persons' => $validated['min_persons'] ?? 1,
-                'max_persons' => $validated['max_persons'] ?? null,
+                'max_persons' => $validated['max_persons'] ?? 100,
                 'booking_type' => $validated['booking_type'],
-                'meeting_point' => $validated['meeting_point'] ?? null,
-                'meeting_point_detail' => $validated['meeting_point_detail'] ?? null,
                 'status' => $validated['status'],
             ]);
 
             // 번역 업데이트
             foreach ($validated['translations'] as $locale => $translation) {
-                if (!empty($translation['name'])) {
+                if (!empty($translation['title'])) {
                     ProductTranslation::updateOrCreate(
                         ['product_id' => $product->id, 'locale' => $locale],
                         [
-                            'name' => $translation['name'],
+                            'title' => $translation['title'],
+                            'short_description' => $translation['short_description'] ?? null,
                             'description' => $translation['description'] ?? '',
                             'includes' => $translation['includes'] ?? null,
                             'excludes' => $translation['excludes'] ?? null,
                             'notes' => $translation['notes'] ?? null,
+                            'meeting_point' => $translation['meeting_point'] ?? null,
+                            'meeting_point_detail' => $translation['meeting_point_detail'] ?? null,
                         ]
                     );
                 }
@@ -265,13 +224,13 @@ class ProductController extends Controller
             // 가격 업데이트
             ProductPrice::updateOrCreate(
                 ['product_id' => $product->id, 'type' => 'adult'],
-                ['label' => '성인', 'amount' => $validated['prices']['adult']]
+                ['label' => '성인', 'price' => $validated['prices']['adult']]
             );
 
             if (!empty($validated['prices']['child'])) {
                 ProductPrice::updateOrCreate(
                     ['product_id' => $product->id, 'type' => 'child'],
-                    ['label' => '아동', 'amount' => $validated['prices']['child']]
+                    ['label' => '아동', 'price' => $validated['prices']['child']]
                 );
             } else {
                 ProductPrice::where('product_id', $product->id)->where('type', 'child')->delete();
