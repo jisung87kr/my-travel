@@ -31,7 +31,7 @@
                         </div>
                     @endif
                     <div class="flex-1">
-                        <h2 class="text-xl font-bold text-slate-900">{{ $product->getTranslation('ko')?->name ?? '상품명 없음' }}</h2>
+                        <h2 class="text-xl font-bold text-slate-900">{{ $product->getTranslation('ko')?->title ?? '상품명 없음' }}</h2>
                         <p class="text-slate-500 text-sm mt-1">{{ $product->vendor->company_name }}</p>
                         <div class="flex items-center gap-3 mt-2">
                             @php

@@ -24,6 +24,7 @@ class StoreProductRequest extends FormRequest
             ['status' => ['required', Rule::in(ProductStatus::values())]],
             ['translations' => ['required', 'array']],
             $this->translationRules('ko', required: true),
+            $this->translationRules('en'),
             $this->priceRules(),
             $this->imageRules(),
         );

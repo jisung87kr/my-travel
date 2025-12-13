@@ -10,19 +10,20 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreProductRequest;
 use App\Http\Requests\Admin\UpdateProductRequest;
 use App\Models\Product;
-use App\Models\ProductImage;
-use App\Models\ProductPrice;
-use App\Models\ProductTranslation;
 use App\Models\Vendor;
+use App\Services\ProductService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 class ProductController extends Controller
 {
+    public function __construct(
+        private readonly ProductService $productService
+    ) {}
+
     public function index(Request $request): View
     {
         $query = Product::with(['vendor.user', 'translations', 'images']);
@@ -90,84 +91,11 @@ class ProductController extends Controller
 
     public function store(StoreProductRequest $request): RedirectResponse
     {
-        $validated = $request->validated();
-
-        $product = DB::transaction(function () use ($validated, $request) {
-            // 슬러그 생성
-            $slug = Str::slug($validated['translations']['ko']['title']);
-            $originalSlug = $slug;
-            $count = 1;
-            while (Product::where('slug', $slug)->exists()) {
-                $slug = $originalSlug . '-' . $count++;
-            }
-
-            // 상품 생성
-            $product = Product::create([
-                'vendor_id' => $validated['vendor_id'],
-                'slug' => $slug,
-                'type' => $validated['type'],
-                'region' => $validated['region'],
-                'duration' => $validated['duration'] ?? null,
-                'min_persons' => $validated['min_persons'] ?? 1,
-                'max_persons' => $validated['max_persons'] ?? 100,
-                'booking_type' => $validated['booking_type'],
-                'status' => $validated['status'],
-            ]);
-
-            // 번역 생성
-            foreach ($validated['translations'] as $locale => $translation) {
-                if (!empty($translation['title'])) {
-                    ProductTranslation::create([
-                        'product_id' => $product->id,
-                        'locale' => $locale,
-                        'title' => $translation['title'],
-                        'short_description' => $translation['short_description'] ?? null,
-                        'description' => $translation['description'] ?? '',
-                        'includes' => $translation['includes'] ?? null,
-                        'excludes' => $translation['excludes'] ?? null,
-                        'notes' => $translation['notes'] ?? null,
-                        'meeting_point' => $translation['meeting_point'] ?? null,
-                        'meeting_point_detail' => $translation['meeting_point_detail'] ?? null,
-                    ]);
-                }
-            }
-
-            // 가격 생성
-            if (!empty($validated['prices']['adult'])) {
-                ProductPrice::create([
-                    'product_id' => $product->id,
-                    'type' => 'adult',
-                    'label' => '성인',
-                    'price' => $validated['prices']['adult'],
-                ]);
-            }
-
-            if (!empty($validated['prices']['child'])) {
-                ProductPrice::create([
-                    'product_id' => $product->id,
-                    'type' => 'child',
-                    'label' => '아동',
-                    'price' => $validated['prices']['child'],
-                ]);
-            }
-
-            // 이미지 업로드
-            if ($request->hasFile('images')) {
-                $sortOrder = 0;
-                foreach ($request->file('images') as $image) {
-                    $path = $image->store('products/' . $product->id, 'public');
-                    ProductImage::create([
-                        'product_id' => $product->id,
-                        'url' => Storage::url($path),
-                        'path' => $path,
-                        'sort_order' => $sortOrder++,
-                        'is_primary' => $sortOrder === 1,
-                    ]);
-                }
-            }
-
-            return $product;
-        });
+        $product = $this->productService->create(
+            $request->validated(),
+            null,
+            $request->file('images') ?? []
+        );
 
         return redirect()->route('admin.products.show', $product)
             ->with('success', '상품이 등록되었습니다.');
@@ -189,84 +117,12 @@ class ProductController extends Controller
     {
         $validated = $request->validated();
 
-        DB::transaction(function () use ($validated, $request, $product) {
-            // 상품 업데이트
-            $product->update([
-                'vendor_id' => $validated['vendor_id'],
-                'type' => $validated['type'],
-                'region' => $validated['region'],
-                'duration' => $validated['duration'] ?? null,
-                'min_persons' => $validated['min_persons'] ?? 1,
-                'max_persons' => $validated['max_persons'] ?? 100,
-                'booking_type' => $validated['booking_type'],
-                'status' => $validated['status'],
-            ]);
-
-            // 번역 업데이트
-            foreach ($validated['translations'] as $locale => $translation) {
-                if (!empty($translation['title'])) {
-                    ProductTranslation::updateOrCreate(
-                        ['product_id' => $product->id, 'locale' => $locale],
-                        [
-                            'title' => $translation['title'],
-                            'short_description' => $translation['short_description'] ?? null,
-                            'description' => $translation['description'] ?? '',
-                            'includes' => $translation['includes'] ?? null,
-                            'excludes' => $translation['excludes'] ?? null,
-                            'notes' => $translation['notes'] ?? null,
-                            'meeting_point' => $translation['meeting_point'] ?? null,
-                            'meeting_point_detail' => $translation['meeting_point_detail'] ?? null,
-                        ]
-                    );
-                }
-            }
-
-            // 가격 업데이트
-            ProductPrice::updateOrCreate(
-                ['product_id' => $product->id, 'type' => 'adult'],
-                ['label' => '성인', 'price' => $validated['prices']['adult']]
-            );
-
-            if (!empty($validated['prices']['child'])) {
-                ProductPrice::updateOrCreate(
-                    ['product_id' => $product->id, 'type' => 'child'],
-                    ['label' => '아동', 'price' => $validated['prices']['child']]
-                );
-            } else {
-                ProductPrice::where('product_id', $product->id)->where('type', 'child')->delete();
-            }
-
-            // 이미지 삭제
-            if (!empty($validated['delete_images'])) {
-                $imagesToDelete = ProductImage::whereIn('id', $validated['delete_images'])
-                    ->where('product_id', $product->id)
-                    ->get();
-
-                foreach ($imagesToDelete as $image) {
-                    if ($image->path) {
-                        Storage::disk('public')->delete($image->path);
-                    }
-                    $image->delete();
-                }
-            }
-
-            // 새 이미지 업로드
-            if ($request->hasFile('images')) {
-                $maxSortOrder = $product->images()->max('sort_order') ?? -1;
-                $sortOrder = $maxSortOrder + 1;
-
-                foreach ($request->file('images') as $image) {
-                    $path = $image->store('products/' . $product->id, 'public');
-                    ProductImage::create([
-                        'product_id' => $product->id,
-                        'url' => Storage::url($path),
-                        'path' => $path,
-                        'sort_order' => $sortOrder++,
-                        'is_primary' => $product->images()->count() === 0,
-                    ]);
-                }
-            }
-        });
+        $this->productService->update(
+            $product,
+            $validated,
+            $request->file('images') ?? [],
+            $validated['delete_images'] ?? []
+        );
 
         return redirect()->route('admin.products.show', $product)
             ->with('success', '상품이 수정되었습니다.');

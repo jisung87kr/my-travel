@@ -37,6 +37,8 @@
     // 번역 데이터
     $koTranslation = $product?->translations?->firstWhere('locale', 'ko')
         ?? $product?->translations?->first(fn($t) => ($t->locale->value ?? $t->locale) === 'ko');
+    $enTranslation = $product?->translations?->firstWhere('locale', 'en')
+        ?? $product?->translations?->first(fn($t) => ($t->locale->value ?? $t->locale) === 'en');
 
     // 가격 데이터
     $adultPrice = $product?->prices?->firstWhere('type', 'adult')
@@ -180,7 +182,7 @@
         </div>
     </div>
 
-    <!-- 상품 정보 (한국어) -->
+    <!-- 상품 정보 (다국어) -->
     <div class="bg-white rounded-2xl border border-slate-200/60 shadow-sm overflow-hidden">
         <div class="px-6 py-4 border-b border-slate-100 bg-gradient-to-r from-emerald-50 to-teal-50">
             <div class="flex items-center gap-3">
@@ -190,102 +192,198 @@
                     </svg>
                 </div>
                 <div>
-                    <h3 class="text-lg font-semibold text-slate-900">상품 정보 (한국어)</h3>
-                    <p class="text-sm text-slate-500">한국어로 된 상품 정보를 {{ $isEdit ? '수정' : '입력' }}해주세요</p>
+                    <h3 class="text-lg font-semibold text-slate-900">상품 정보</h3>
+                    <p class="text-sm text-slate-500">다국어로 상품 정보를 {{ $isEdit ? '수정' : '입력' }}해주세요</p>
                 </div>
             </div>
         </div>
 
-        <div class="p-6 space-y-5">
-            <div>
-                <label for="translations_ko_title" class="block text-sm font-medium text-slate-700 mb-2">
-                    상품명 <span class="text-red-500">*</span>
-                </label>
-                <input type="text" id="translations_ko_title" name="translations[ko][title]"
-                       value="{{ old('translations.ko.title', $koTranslation?->title) }}"
-                       placeholder="상품명을 입력해주세요"
-                       class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl {{ $scheme['focus'] }} focus:bg-white transition-all @error('translations.ko.title') border-red-500 bg-red-50 @enderror"
-                       required>
-                <x-form-error field="translations.ko.title" />
-            </div>
-
-            <div>
-                <label for="translations_ko_short_description" class="block text-sm font-medium text-slate-700 mb-2">
-                    간단 설명
-                </label>
-                <input type="text" id="translations_ko_short_description" name="translations[ko][short_description]"
-                       value="{{ old('translations.ko.short_description', $koTranslation?->short_description) }}"
-                       placeholder="한 줄로 상품을 소개해주세요"
-                       class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl {{ $scheme['focus'] }} focus:bg-white transition-all @error('translations.ko.short_description') border-red-500 bg-red-50 @enderror">
-                <x-form-error field="translations.ko.short_description" />
-            </div>
-
-            <div>
-                <label for="translations_ko_description" class="block text-sm font-medium text-slate-700 mb-2">
-                    상세 설명 <span class="text-red-500">*</span>
-                </label>
-                <textarea id="translations_ko_description" name="translations[ko][description]" rows="5"
-                          placeholder="상품에 대한 상세한 설명을 입력해주세요"
-                          class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl {{ $scheme['focus'] }} focus:bg-white transition-all resize-none @error('translations.ko.description') border-red-500 bg-red-50 @enderror"
-                          required>{{ old('translations.ko.description', $koTranslation?->description) }}</textarea>
-                <x-form-error field="translations.ko.description" />
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                <div>
-                    <label for="translations_ko_includes" class="block text-sm font-medium text-slate-700 mb-2">
-                        포함 사항
-                    </label>
-                    <textarea id="translations_ko_includes" name="translations[ko][includes]" rows="4"
-                              placeholder="줄바꿈으로 구분하여 입력해주세요&#10;예: 호텔 픽업&#10;점심 식사&#10;영어 가이드"
-                              class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl {{ $scheme['focus'] }} focus:bg-white transition-all resize-none @error('translations.ko.includes') border-red-500 bg-red-50 @enderror">{{ old('translations.ko.includes', $koTranslation?->includes) }}</textarea>
-                    <x-form-error field="translations.ko.includes" />
-                </div>
-
-                <div>
-                    <label for="translations_ko_excludes" class="block text-sm font-medium text-slate-700 mb-2">
-                        불포함 사항
-                    </label>
-                    <textarea id="translations_ko_excludes" name="translations[ko][excludes]" rows="4"
-                              placeholder="줄바꿈으로 구분하여 입력해주세요&#10;예: 항공권&#10;여행자 보험&#10;개인 경비"
-                              class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl {{ $scheme['focus'] }} focus:bg-white transition-all resize-none @error('translations.ko.excludes') border-red-500 bg-red-50 @enderror">{{ old('translations.ko.excludes', $koTranslation?->excludes) }}</textarea>
-                    <x-form-error field="translations.ko.excludes" />
-                </div>
-            </div>
-
-            <div>
-                <label for="translations_ko_notes" class="block text-sm font-medium text-slate-700 mb-2">
-                    추가 안내사항
-                </label>
-                <textarea id="translations_ko_notes" name="translations[ko][notes]" rows="3"
-                          placeholder="고객에게 전달할 추가 안내사항을 입력해주세요"
-                          class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl {{ $scheme['focus'] }} focus:bg-white transition-all resize-none @error('translations.ko.notes') border-red-500 bg-red-50 @enderror">{{ old('translations.ko.notes', $koTranslation?->notes) }}</textarea>
-                <x-form-error field="translations.ko.notes" />
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                <div>
-                    <label for="translations_ko_meeting_point" class="block text-sm font-medium text-slate-700 mb-2">
-                        만남 장소
-                    </label>
-                    <input type="text" id="translations_ko_meeting_point" name="translations[ko][meeting_point]"
-                           value="{{ old('translations.ko.meeting_point', $koTranslation?->meeting_point) }}"
-                           placeholder="예: 서울역 1번 출구"
-                           class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl {{ $scheme['focus'] }} focus:bg-white transition-all @error('translations.ko.meeting_point') border-red-500 bg-red-50 @enderror">
-                    <x-form-error field="translations.ko.meeting_point" />
-                </div>
-
-                <div>
-                    <label for="translations_ko_meeting_point_detail" class="block text-sm font-medium text-slate-700 mb-2">
-                        만남 장소 상세
-                    </label>
-                    <textarea id="translations_ko_meeting_point_detail" name="translations[ko][meeting_point_detail]" rows="1"
-                              placeholder="상세한 만남 장소 안내"
-                              class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl {{ $scheme['focus'] }} focus:bg-white transition-all resize-none @error('translations.ko.meeting_point_detail') border-red-500 bg-red-50 @enderror">{{ old('translations.ko.meeting_point_detail', $koTranslation?->meeting_point_detail) }}</textarea>
-                    <x-form-error field="translations.ko.meeting_point_detail" />
-                </div>
-            </div>
+        <!-- 언어 탭 -->
+        <div class="border-b border-slate-200">
+            <nav class="flex -mb-px" aria-label="Tabs">
+                <button type="button" data-tab="ko"
+                        class="lang-tab active flex-1 py-3 px-4 text-center border-b-2 border-emerald-500 text-emerald-600 font-medium text-sm transition-all">
+                    <span class="flex items-center justify-center gap-2">
+                        <span class="text-lg">🇰🇷</span>
+                        한국어
+                        <span class="text-red-500 text-xs">*필수</span>
+                    </span>
+                </button>
+                <button type="button" data-tab="en"
+                        class="lang-tab flex-1 py-3 px-4 text-center border-b-2 border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300 font-medium text-sm transition-all">
+                    <span class="flex items-center justify-center gap-2">
+                        <span class="text-lg">🇺🇸</span>
+                        English
+                        <span class="text-slate-400 text-xs">선택</span>
+                    </span>
+                </button>
+            </nav>
         </div>
+
+        @php
+            $translations = [
+                'ko' => [
+                    'data' => $koTranslation,
+                    'required' => true,
+                    'hidden' => false,
+                    'labels' => [
+                        'title' => '상품명',
+                        'short_description' => '간단 설명',
+                        'description' => '상세 설명',
+                        'includes' => '포함 사항',
+                        'excludes' => '불포함 사항',
+                        'notes' => '추가 안내사항',
+                        'meeting_point' => '만남 장소',
+                        'meeting_point_detail' => '만남 장소 상세',
+                    ],
+                    'placeholders' => [
+                        'title' => '상품명을 입력해주세요',
+                        'short_description' => '한 줄로 상품을 소개해주세요',
+                        'description' => '상품에 대한 상세한 설명을 입력해주세요',
+                        'includes' => "줄바꿈으로 구분하여 입력해주세요\n예: 호텔 픽업\n점심 식사\n영어 가이드",
+                        'excludes' => "줄바꿈으로 구분하여 입력해주세요\n예: 항공권\n여행자 보험\n개인 경비",
+                        'notes' => '고객에게 전달할 추가 안내사항을 입력해주세요',
+                        'meeting_point' => '예: 서울역 1번 출구',
+                        'meeting_point_detail' => '상세한 만남 장소 안내',
+                    ],
+                ],
+                'en' => [
+                    'data' => $enTranslation,
+                    'required' => false,
+                    'hidden' => true,
+                    'labels' => [
+                        'title' => 'Product Title',
+                        'short_description' => 'Short Description',
+                        'description' => 'Full Description',
+                        'includes' => "What's Included",
+                        'excludes' => "What's Not Included",
+                        'notes' => 'Additional Notes',
+                        'meeting_point' => 'Meeting Point',
+                        'meeting_point_detail' => 'Meeting Point Details',
+                    ],
+                    'placeholders' => [
+                        'title' => 'Enter product title',
+                        'short_description' => 'Brief introduction of the product',
+                        'description' => 'Enter detailed description of the product',
+                        'includes' => "Separate items with line breaks\ne.g. Hotel pickup\nLunch\nEnglish guide",
+                        'excludes' => "Separate items with line breaks\ne.g. Airfare\nTravel insurance\nPersonal expenses",
+                        'notes' => 'Additional information for customers',
+                        'meeting_point' => 'e.g. Seoul Station Exit 1',
+                        'meeting_point_detail' => 'Detailed meeting point instructions',
+                    ],
+                ],
+            ];
+        @endphp
+
+        @foreach($translations as $locale => $config)
+            <div id="tab-{{ $locale }}" class="lang-tab-content {{ $config['hidden'] ? 'hidden' : '' }} p-6 space-y-5">
+                @if($locale === 'en')
+                    <div class="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-xl">
+                        <p class="text-sm text-blue-700 flex items-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            영어 번역은 선택사항입니다. 외국인 고객을 위해 입력하시면 좋습니다.
+                        </p>
+                    </div>
+                @endif
+
+                {{-- 상품명/Title --}}
+                <div>
+                    <label for="translations_{{ $locale }}_title" class="block text-sm font-medium text-slate-700 mb-2">
+                        {{ $config['labels']['title'] }} @if($config['required'])<span class="text-red-500">*</span>@endif
+                    </label>
+                    <input type="text" id="translations_{{ $locale }}_title" name="translations[{{ $locale }}][title]"
+                           value="{{ old("translations.{$locale}.title", $config['data']?->title) }}"
+                           placeholder="{{ $config['placeholders']['title'] }}"
+                           class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl {{ $scheme['focus'] }} focus:bg-white transition-all @error("translations.{$locale}.title") border-red-500 bg-red-50 @enderror"
+                           {{ $config['required'] ? 'required' : '' }}>
+                    <x-form-error field="translations.{{ $locale }}.title" />
+                </div>
+
+                {{-- 간단 설명/Short Description --}}
+                <div>
+                    <label for="translations_{{ $locale }}_short_description" class="block text-sm font-medium text-slate-700 mb-2">
+                        {{ $config['labels']['short_description'] }}
+                    </label>
+                    <input type="text" id="translations_{{ $locale }}_short_description" name="translations[{{ $locale }}][short_description]"
+                           value="{{ old("translations.{$locale}.short_description", $config['data']?->short_description) }}"
+                           placeholder="{{ $config['placeholders']['short_description'] }}"
+                           class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl {{ $scheme['focus'] }} focus:bg-white transition-all @error("translations.{$locale}.short_description") border-red-500 bg-red-50 @enderror">
+                    <x-form-error field="translations.{{ $locale }}.short_description" />
+                </div>
+
+                {{-- 상세 설명/Full Description --}}
+                <div>
+                    <label for="translations_{{ $locale }}_description" class="block text-sm font-medium text-slate-700 mb-2">
+                        {{ $config['labels']['description'] }} @if($config['required'])<span class="text-red-500">*</span>@endif
+                    </label>
+                    <textarea id="translations_{{ $locale }}_description" name="translations[{{ $locale }}][description]" rows="5"
+                              placeholder="{{ $config['placeholders']['description'] }}"
+                              class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl {{ $scheme['focus'] }} focus:bg-white transition-all resize-none @error("translations.{$locale}.description") border-red-500 bg-red-50 @enderror"
+                              {{ $config['required'] ? 'required' : '' }}>{{ old("translations.{$locale}.description", $config['data']?->description) }}</textarea>
+                    <x-form-error field="translations.{{ $locale }}.description" />
+                </div>
+
+                {{-- 포함/불포함 사항 --}}
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div>
+                        <label for="translations_{{ $locale }}_includes" class="block text-sm font-medium text-slate-700 mb-2">
+                            {{ $config['labels']['includes'] }}
+                        </label>
+                        <textarea id="translations_{{ $locale }}_includes" name="translations[{{ $locale }}][includes]" rows="4"
+                                  placeholder="{{ $config['placeholders']['includes'] }}"
+                                  class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl {{ $scheme['focus'] }} focus:bg-white transition-all resize-none @error("translations.{$locale}.includes") border-red-500 bg-red-50 @enderror">{{ old("translations.{$locale}.includes", $config['data']?->includes) }}</textarea>
+                        <x-form-error field="translations.{{ $locale }}.includes" />
+                    </div>
+
+                    <div>
+                        <label for="translations_{{ $locale }}_excludes" class="block text-sm font-medium text-slate-700 mb-2">
+                            {{ $config['labels']['excludes'] }}
+                        </label>
+                        <textarea id="translations_{{ $locale }}_excludes" name="translations[{{ $locale }}][excludes]" rows="4"
+                                  placeholder="{{ $config['placeholders']['excludes'] }}"
+                                  class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl {{ $scheme['focus'] }} focus:bg-white transition-all resize-none @error("translations.{$locale}.excludes") border-red-500 bg-red-50 @enderror">{{ old("translations.{$locale}.excludes", $config['data']?->excludes) }}</textarea>
+                        <x-form-error field="translations.{{ $locale }}.excludes" />
+                    </div>
+                </div>
+
+                {{-- 추가 안내사항/Additional Notes --}}
+                <div>
+                    <label for="translations_{{ $locale }}_notes" class="block text-sm font-medium text-slate-700 mb-2">
+                        {{ $config['labels']['notes'] }}
+                    </label>
+                    <textarea id="translations_{{ $locale }}_notes" name="translations[{{ $locale }}][notes]" rows="3"
+                              placeholder="{{ $config['placeholders']['notes'] }}"
+                              class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl {{ $scheme['focus'] }} focus:bg-white transition-all resize-none @error("translations.{$locale}.notes") border-red-500 bg-red-50 @enderror">{{ old("translations.{$locale}.notes", $config['data']?->notes) }}</textarea>
+                    <x-form-error field="translations.{{ $locale }}.notes" />
+                </div>
+
+                {{-- 만남 장소/Meeting Point --}}
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div>
+                        <label for="translations_{{ $locale }}_meeting_point" class="block text-sm font-medium text-slate-700 mb-2">
+                            {{ $config['labels']['meeting_point'] }}
+                        </label>
+                        <input type="text" id="translations_{{ $locale }}_meeting_point" name="translations[{{ $locale }}][meeting_point]"
+                               value="{{ old("translations.{$locale}.meeting_point", $config['data']?->meeting_point) }}"
+                               placeholder="{{ $config['placeholders']['meeting_point'] }}"
+                               class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl {{ $scheme['focus'] }} focus:bg-white transition-all @error("translations.{$locale}.meeting_point") border-red-500 bg-red-50 @enderror">
+                        <x-form-error field="translations.{{ $locale }}.meeting_point" />
+                    </div>
+
+                    <div>
+                        <label for="translations_{{ $locale }}_meeting_point_detail" class="block text-sm font-medium text-slate-700 mb-2">
+                            {{ $config['labels']['meeting_point_detail'] }}
+                        </label>
+                        <textarea id="translations_{{ $locale }}_meeting_point_detail" name="translations[{{ $locale }}][meeting_point_detail]" rows="1"
+                                  placeholder="{{ $config['placeholders']['meeting_point_detail'] }}"
+                                  class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl {{ $scheme['focus'] }} focus:bg-white transition-all resize-none @error("translations.{$locale}.meeting_point_detail") border-red-500 bg-red-50 @enderror">{{ old("translations.{$locale}.meeting_point_detail", $config['data']?->meeting_point_detail) }}</textarea>
+                        <x-form-error field="translations.{{ $locale }}.meeting_point_detail" />
+                    </div>
+                </div>
+            </div>
+        @endforeach
     </div>
 
     <!-- 가격 설정 -->
@@ -401,7 +499,7 @@
         </div>
 
         <div class="p-6">
-            <div class="border-2 border-dashed border-slate-200 rounded-xl p-8 text-center hover:border-{{ $colorScheme }}-400 hover:bg-{{ $colorScheme }}-50/30 transition-all">
+            <div id="image-dropzone" class="border-2 border-dashed border-slate-200 rounded-xl p-8 text-center hover:border-{{ $colorScheme }}-400 hover:bg-{{ $colorScheme }}-50/30 transition-all">
                 <input type="file" id="images" name="images[]" multiple accept="image/*" class="hidden">
                 <label for="images" class="cursor-pointer">
                     <div class="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center">
@@ -413,6 +511,20 @@
                     <p class="text-sm text-slate-400">또는 파일을 드래그하세요</p>
                 </label>
             </div>
+
+            <!-- 이미지 미리보기 -->
+            <div id="image-preview-container" class="hidden mt-4">
+                <div class="flex items-center justify-between mb-3">
+                    <p class="text-sm font-medium text-slate-700">
+                        선택된 이미지 (<span id="image-count">0</span>장)
+                    </p>
+                    <button type="button" id="clear-images" class="text-sm text-red-500 hover:text-red-700 transition-colors">
+                        전체 삭제
+                    </button>
+                </div>
+                <div id="image-preview" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3"></div>
+            </div>
+
             <div class="mt-3 flex items-center gap-4 text-sm text-slate-500">
                 <span class="flex items-center gap-1">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
@@ -459,3 +571,135 @@
         </div>
     @endif
 </form>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // 언어 탭 전환
+    const langTabs = document.querySelectorAll('.lang-tab');
+    const langTabContents = document.querySelectorAll('.lang-tab-content');
+
+    langTabs.forEach(tab => {
+        tab.addEventListener('click', function() {
+            const targetTab = this.dataset.tab;
+
+            // 모든 탭 비활성화
+            langTabs.forEach(t => {
+                t.classList.remove('active', 'border-emerald-500', 'text-emerald-600');
+                t.classList.add('border-transparent', 'text-slate-500');
+            });
+
+            // 클릭한 탭 활성화
+            this.classList.add('active', 'border-emerald-500', 'text-emerald-600');
+            this.classList.remove('border-transparent', 'text-slate-500');
+
+            // 모든 콘텐츠 숨기기
+            langTabContents.forEach(content => {
+                content.classList.add('hidden');
+            });
+
+            // 해당 콘텐츠 표시
+            document.getElementById('tab-' + targetTab).classList.remove('hidden');
+        });
+    });
+
+    // 이미지 업로드 미리보기
+    const imageInput = document.getElementById('images');
+    const previewContainer = document.getElementById('image-preview-container');
+    const previewGrid = document.getElementById('image-preview');
+    const imageCount = document.getElementById('image-count');
+    const clearButton = document.getElementById('clear-images');
+    const dropzone = document.getElementById('image-dropzone');
+
+    let selectedFiles = new DataTransfer();
+
+    // 파일 선택 시 미리보기
+    imageInput.addEventListener('change', function(e) {
+        handleFiles(e.target.files);
+    });
+
+    // 드래그 앤 드롭
+    dropzone.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        dropzone.classList.add('border-violet-400', 'bg-violet-50/30');
+    });
+
+    dropzone.addEventListener('dragleave', function(e) {
+        e.preventDefault();
+        dropzone.classList.remove('border-violet-400', 'bg-violet-50/30');
+    });
+
+    dropzone.addEventListener('drop', function(e) {
+        e.preventDefault();
+        dropzone.classList.remove('border-violet-400', 'bg-violet-50/30');
+        handleFiles(e.dataTransfer.files);
+    });
+
+    // 전체 삭제
+    clearButton.addEventListener('click', function() {
+        selectedFiles = new DataTransfer();
+        imageInput.files = selectedFiles.files;
+        updatePreview();
+    });
+
+    function handleFiles(files) {
+        for (let file of files) {
+            if (file.type.startsWith('image/') && selectedFiles.files.length < 10) {
+                selectedFiles.items.add(file);
+            }
+        }
+        imageInput.files = selectedFiles.files;
+        updatePreview();
+    }
+
+    function updatePreview() {
+        previewGrid.innerHTML = '';
+
+        if (selectedFiles.files.length > 0) {
+            previewContainer.classList.remove('hidden');
+            imageCount.textContent = selectedFiles.files.length;
+
+            Array.from(selectedFiles.files).forEach((file, index) => {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const div = document.createElement('div');
+                    div.className = 'relative group aspect-square';
+                    div.innerHTML = `
+                        <img src="${e.target.result}" alt="미리보기" class="w-full h-full object-cover rounded-xl shadow-sm">
+                        <button type="button" data-index="${index}"
+                                class="remove-image absolute top-2 right-2 w-7 h-7 bg-black/60 hover:bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                            </svg>
+                        </button>
+                        <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-2 rounded-b-xl">
+                            <p class="text-white text-xs truncate">${file.name}</p>
+                        </div>
+                        ${index === 0 ? '<span class="absolute top-2 left-2 px-2 py-1 bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-xs font-medium rounded-lg shadow-md">대표</span>' : ''}
+                    `;
+                    previewGrid.appendChild(div);
+
+                    // 개별 삭제 버튼 이벤트
+                    div.querySelector('.remove-image').addEventListener('click', function() {
+                        removeFile(parseInt(this.dataset.index));
+                    });
+                };
+                reader.readAsDataURL(file);
+            });
+        } else {
+            previewContainer.classList.add('hidden');
+        }
+    }
+
+    function removeFile(index) {
+        const newFiles = new DataTransfer();
+        Array.from(selectedFiles.files).forEach((file, i) => {
+            if (i !== index) {
+                newFiles.items.add(file);
+            }
+        });
+        selectedFiles = newFiles;
+        imageInput.files = selectedFiles.files;
+        updatePreview();
+    }
+});
+</script>

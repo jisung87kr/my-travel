@@ -10,30 +10,25 @@ use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 
 class ProductService
 {
-    public function create(array $data, User $vendor): Product
+    /**
+     * 상품 생성
+     * @param array $data 상품 데이터
+     * @param User|null $vendor Vendor 사용자 (Admin은 null, data['vendor_id'] 사용)
+     * @param array $images 업로드 이미지 파일 배열
+     */
+    public function create(array $data, ?User $vendor = null, array $images = []): Product
     {
-        return DB::transaction(function () use ($data, $vendor) {
-            // Determine status from data or default to DRAFT
-            $status = ProductStatus::DRAFT;
-            if (!empty($data['status'])) {
-                $status = $data['status'] === 'pending' ? ProductStatus::PENDING : ProductStatus::DRAFT;
-            }
-            // Generate unique slug from Korean title
-            $koTitle = $data['translations']['ko']['title'] ?? 'product';
-            $baseSlug = Str::slug($koTitle) ?: 'product-' . time();
-            $slug = $baseSlug;
-            $counter = 1;
-            while (Product::where('slug', $slug)->exists()) {
-                $slug = $baseSlug . '-' . $counter++;
-            }
+        return DB::transaction(function () use ($data, $vendor, $images) {
+            // Vendor: draft/pending만 허용, Admin: 모든 status 허용
+            $status = $vendor
+                ? ($data['status'] === 'pending' ? ProductStatus::PENDING : ProductStatus::DRAFT)
+                : ($data['status'] ?? ProductStatus::DRAFT);
 
-            $product = Product::create([
-                'vendor_id' => $vendor->vendor->id,
-                'slug' => $slug,
+            $product = new Product([
+                'vendor_id' => $vendor?->vendor->id ?? $data['vendor_id'],
                 'type' => $data['type'],
                 'region' => $data['region'],
                 'duration' => $data['duration'] ?? null,
@@ -44,64 +39,37 @@ class ProductService
                 'longitude' => $data['longitude'] ?? null,
                 'status' => $status,
             ]);
+            $product->slug_source = $data['translations']['ko']['title'] ?? 'product';
+            $product->save();
 
-            // Handle translations - support both keyed (ko, en) and array format
             if (!empty($data['translations'])) {
-                foreach ($data['translations'] as $locale => $translation) {
-                    // Check if it's keyed by locale (ko, en) or has locale in data
-                    if (is_string($locale) && is_array($translation)) {
-                        // Keyed format: translations[ko][title]
-                        $product->translations()->create([
-                            'locale' => $locale,
-                            'title' => $translation['title'] ?? null,
-                            'short_description' => $translation['short_description'] ?? null,
-                            'description' => $translation['description'] ?? null,
-                            'includes' => $translation['includes'] ?? null,
-                            'excludes' => $translation['excludes'] ?? null,
-                            'notes' => $translation['notes'] ?? null,
-                            'meeting_point' => $translation['meeting_point'] ?? null,
-                            'meeting_point_detail' => $translation['meeting_point_detail'] ?? null,
-                        ]);
-                    } elseif (isset($translation['locale'])) {
-                        // Array format: translations[0][locale]
-                        $product->translations()->create($translation);
-                    }
-                }
+                $this->syncTranslations($product, $data['translations']);
             }
 
-            // Handle prices - support both keyed (adult, child) and array format
             if (!empty($data['prices'])) {
-                foreach ($data['prices'] as $type => $price) {
-                    if (is_string($type) && in_array($type, ['adult', 'child', 'infant'])) {
-                        // Keyed format: prices[adult] = 50000
-                        if (!empty($price) || $price === 0 || $price === '0') {
-                            $product->prices()->create([
-                                'type' => $type,
-                                'label' => $type === 'adult' ? '성인' : ($type === 'child' ? '아동' : '유아'),
-                                'price' => (int) $price,
-                                'is_active' => true,
-                            ]);
-                        }
-                    } elseif (is_array($price) && isset($price['type'])) {
-                        // Array format: prices[0][type]
-                        $product->prices()->create($price);
-                    }
-                }
+                $this->syncPrices($product, $data['prices']);
             }
 
-            // Handle image uploads
-            if (!empty($data['images'])) {
-                $this->uploadImages($product, $data['images']);
+            if (!empty($images)) {
+                $this->uploadImagesWithUrl($product, $images, true);
             }
 
             return $product->load(['translations', 'prices', 'vendor', 'images']);
         });
     }
 
-    public function update(Product $product, array $data): Product
+    /**
+     * 상품 수정
+     * @param Product $product 수정할 상품
+     * @param array $data 상품 데이터
+     * @param array $images 업로드 이미지 파일 배열
+     * @param array $deleteImageIds 삭제할 이미지 ID 배열
+     */
+    public function update(Product $product, array $data, array $images = [], array $deleteImageIds = []): Product
     {
-        return DB::transaction(function () use ($product, $data) {
+        return DB::transaction(function () use ($product, $data, $images, $deleteImageIds) {
             $updateData = array_filter([
+                'vendor_id' => $data['vendor_id'] ?? null,
                 'type' => $data['type'] ?? null,
                 'region' => $data['region'] ?? null,
                 'duration' => $data['duration'] ?? null,
@@ -112,70 +80,26 @@ class ProductService
                 'longitude' => $data['longitude'] ?? null,
             ], fn($value) => $value !== null);
 
-            // Handle status separately
-            if (!empty($data['status'])) {
-                $updateData['status'] = $data['status'] === 'pending' ? ProductStatus::PENDING :
-                    ($data['status'] === 'draft' ? ProductStatus::DRAFT : $data['status']);
+            if (isset($data['status'])) {
+                $updateData['status'] = $data['status'];
             }
 
             $product->update($updateData);
 
-            // Handle translations - support both keyed (ko, en) and array format
             if (!empty($data['translations'])) {
-                foreach ($data['translations'] as $locale => $translation) {
-                    if (is_string($locale) && is_array($translation)) {
-                        // Keyed format: translations[ko][title]
-                        $product->translations()->updateOrCreate(
-                            ['locale' => $locale],
-                            [
-                                'title' => $translation['title'] ?? null,
-                                'short_description' => $translation['short_description'] ?? null,
-                                'description' => $translation['description'] ?? null,
-                                'includes' => $translation['includes'] ?? null,
-                                'excludes' => $translation['excludes'] ?? null,
-                                'notes' => $translation['notes'] ?? null,
-                                'meeting_point' => $translation['meeting_point'] ?? null,
-                                'meeting_point_detail' => $translation['meeting_point_detail'] ?? null,
-                            ]
-                        );
-                    } elseif (isset($translation['locale'])) {
-                        // Array format: translations[0][locale]
-                        $product->translations()->updateOrCreate(
-                            ['locale' => $translation['locale']],
-                            $translation
-                        );
-                    }
-                }
+                $this->syncTranslations($product, $data['translations']);
             }
 
-            // Handle prices - support both keyed (adult, child) and array format
             if (isset($data['prices'])) {
-                foreach ($data['prices'] as $type => $price) {
-                    if (is_string($type) && in_array($type, ['adult', 'child', 'infant'])) {
-                        // Keyed format: prices[adult] = 50000
-                        if (!empty($price) || $price === 0 || $price === '0') {
-                            $product->prices()->updateOrCreate(
-                                ['type' => $type],
-                                [
-                                    'label' => $type === 'adult' ? '성인' : ($type === 'child' ? '아동' : '유아'),
-                                    'price' => (int) $price,
-                                    'is_active' => true,
-                                ]
-                            );
-                        }
-                    } elseif (is_array($price) && isset($price['type'])) {
-                        // Array format: prices[0][type]
-                        $product->prices()->updateOrCreate(
-                            ['type' => $price['type']],
-                            $price
-                        );
-                    }
-                }
+                $this->syncPrices($product, $data['prices']);
             }
 
-            // Handle image uploads
-            if (!empty($data['images'])) {
-                $this->uploadImages($product, $data['images']);
+            if (!empty($deleteImageIds)) {
+                $this->deleteImagesByIds($product, $deleteImageIds);
+            }
+
+            if (!empty($images)) {
+                $this->uploadImagesWithUrl($product, $images, false);
             }
 
             return $product->fresh(['translations', 'prices', 'vendor', 'images']);
@@ -304,6 +228,119 @@ class ProductService
         $perPage = min($filters['per_page'] ?? 20, 100);
 
         return $query->paginate($perPage);
+    }
+
+    /**
+     * 번역 동기화 (영어 빈 값 삭제 포함)
+     */
+    private function syncTranslations(Product $product, array $translations): void
+    {
+        foreach ($translations as $locale => $translation) {
+            $hasContent = $this->hasTranslationContent($translation);
+
+            if ($locale === 'ko' && !empty($translation['title'])) {
+                $product->translations()->updateOrCreate(
+                    ['locale' => $locale],
+                    $this->buildTranslationData($translation, true)
+                );
+            } elseif ($locale !== 'ko' && $hasContent) {
+                $product->translations()->updateOrCreate(
+                    ['locale' => $locale],
+                    $this->buildTranslationData($translation, false)
+                );
+            } elseif ($locale !== 'ko' && !$hasContent) {
+                $product->translations()->where('locale', $locale)->delete();
+            }
+        }
+    }
+
+    /**
+     * 번역 컨텐츠 존재 여부 확인
+     */
+    private function hasTranslationContent(array $translation): bool
+    {
+        return !empty($translation['title'])
+            || !empty($translation['description'])
+            || !empty($translation['short_description'])
+            || !empty($translation['includes'])
+            || !empty($translation['excludes'])
+            || !empty($translation['notes'])
+            || !empty($translation['meeting_point'])
+            || !empty($translation['meeting_point_detail']);
+    }
+
+    /**
+     * 번역 데이터 배열 생성
+     */
+    private function buildTranslationData(array $translation, bool $isKorean): array
+    {
+        return [
+            'title' => $translation['title'] ?? ($isKorean ? '' : null),
+            'short_description' => $translation['short_description'] ?? null,
+            'description' => $translation['description'] ?? ($isKorean ? '' : null),
+            'includes' => $translation['includes'] ?? null,
+            'excludes' => $translation['excludes'] ?? null,
+            'notes' => $translation['notes'] ?? null,
+            'meeting_point' => $translation['meeting_point'] ?? null,
+            'meeting_point_detail' => $translation['meeting_point_detail'] ?? null,
+        ];
+    }
+
+    /**
+     * 가격 동기화 (아동 가격 빈 값 삭제 포함)
+     */
+    private function syncPrices(Product $product, array $prices): void
+    {
+        if (!empty($prices['adult'])) {
+            $product->prices()->updateOrCreate(
+                ['type' => 'adult'],
+                ['label' => '성인', 'price' => $prices['adult']]
+            );
+        }
+
+        if (!empty($prices['child'])) {
+            $product->prices()->updateOrCreate(
+                ['type' => 'child'],
+                ['label' => '아동', 'price' => $prices['child']]
+            );
+        } else {
+            $product->prices()->where('type', 'child')->delete();
+        }
+    }
+
+    /**
+     * 이미지 업로드 (URL 포함)
+     */
+    private function uploadImagesWithUrl(Product $product, array $files, bool $isNew): void
+    {
+        $sortOrder = $isNew ? 0 : ($product->images()->max('sort_order') ?? -1) + 1;
+        $hasExistingImages = !$isNew && $product->images()->count() > 0;
+
+        foreach ($files as $file) {
+            $path = $file->store('products/' . $product->id, 'public');
+            $product->images()->create([
+                'url' => Storage::url($path),
+                'path' => $path,
+                'sort_order' => $sortOrder++,
+                'is_primary' => $isNew ? ($sortOrder === 1) : !$hasExistingImages,
+            ]);
+            $hasExistingImages = true;
+        }
+    }
+
+    /**
+     * 이미지 ID로 삭제
+     */
+    private function deleteImagesByIds(Product $product, array $imageIds): void
+    {
+        $images = $product->images()->whereIn('id', $imageIds)->get();
+
+        foreach ($images as $image) {
+            if ($image->path) {
+                Storage::disk('public')->delete($image->path);
+            }
+            $image->delete();
+        }
     }
 
     public function submitForReview(Product $product): Product

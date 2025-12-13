@@ -24,6 +24,7 @@ class UpdateProductRequest extends FormRequest
             ['status' => ['required', Rule::in(ProductStatus::values())]],
             ['translations' => ['required', 'array']],
             $this->translationRules('ko', required: true),
+            $this->translationRules('en', required: false),
             $this->priceRules(),
             $this->imageRules(),
             [

@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Str;
 
 class Product extends Model
 {
@@ -43,6 +44,30 @@ class Product extends Model
             'status' => ProductStatus::class,
             'average_rating' => 'decimal:1',
         ];
+    }
+
+    protected static function boot(): void
+    {
+        parent::boot();
+
+        static::creating(function (Product $product) {
+            if (empty($product->slug)) {
+                $product->slug = static::generateUniqueSlug($product->slug_source ?? 'product');
+            }
+        });
+    }
+
+    public static function generateUniqueSlug(string $title): string
+    {
+        $slug = Str::slug($title) ?: 'product-' . time();
+        $originalSlug = $slug;
+        $count = 1;
+
+        while (static::where('slug', $slug)->exists()) {
+            $slug = $originalSlug . '-' . $count++;
+        }
+
+        return $slug;
     }
 
     public function vendor(): BelongsTo
