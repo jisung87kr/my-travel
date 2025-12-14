@@ -25,6 +25,7 @@ class StoreProductRequest extends FormRequest
             $this->translationRules('en', required: false),
             $this->priceRules(),
             $this->imageRules(),
+            $this->scheduleRules(),
         );
     }
 

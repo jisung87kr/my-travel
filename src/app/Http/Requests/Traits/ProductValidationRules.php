@@ -18,6 +18,8 @@ trait ProductValidationRules
             'min_persons' => ['nullable', 'integer', 'min:1', 'max:100'],
             'max_persons' => ['nullable', 'integer', 'min:1', 'max:100'],
             'booking_type' => ['required', 'string', Rule::in(BookingType::values())],
+            'latitude' => ['nullable', 'numeric', 'between:-90,90'],
+            'longitude' => ['nullable', 'numeric', 'between:-180,180'],
         ];
     }
 
@@ -55,6 +57,19 @@ trait ProductValidationRules
         ];
     }
 
+    protected function scheduleRules(): array
+    {
+        return [
+            'schedules' => ['nullable', 'array'],
+            'schedules.*.date' => ['required_with:schedules', 'date', 'after_or_equal:today'],
+            'schedules.*.start_time' => ['required_with:schedules', 'date_format:H:i'],
+            'schedules.*.total_count' => ['required_with:schedules', 'integer', 'min:1', 'max:1000'],
+            'schedules.*.is_active' => ['nullable', 'boolean'],
+            'delete_schedules' => ['nullable', 'array'],
+            'delete_schedules.*' => ['integer', 'exists:product_schedules,id'],
+        ];
+    }
+
     protected function productValidationMessages(): array
     {
         return [
@@ -71,6 +86,14 @@ trait ProductValidationRules
             'prices.adult.required' => '성인 가격을 입력해주세요.',
             'prices.adult.numeric' => '성인 가격은 숫자여야 합니다.',
             'prices.child.numeric' => '아동 가격은 숫자여야 합니다.',
+            'schedules.*.date.required_with' => '스케줄 날짜를 입력해주세요.',
+            'schedules.*.date.date' => '유효한 날짜 형식이 아닙니다.',
+            'schedules.*.date.after_or_equal' => '스케줄 날짜는 오늘 이후여야 합니다.',
+            'schedules.*.start_time.required_with' => '시작 시간을 입력해주세요.',
+            'schedules.*.start_time.date_format' => '시간 형식이 올바르지 않습니다 (HH:MM).',
+            'schedules.*.total_count.required_with' => '정원을 입력해주세요.',
+            'schedules.*.total_count.integer' => '정원은 숫자여야 합니다.',
+            'schedules.*.total_count.min' => '정원은 최소 1명이어야 합니다.',
         ];
     }
 }

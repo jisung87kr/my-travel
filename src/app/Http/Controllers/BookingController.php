@@ -33,8 +33,11 @@ class BookingController extends Controller
     {
         $product->load(['translations', 'images', 'prices', 'schedules' => function ($query) {
             $query->where('date', '>=', now()->toDateString())
-                  ->where('is_closed', false)
-                  ->orderBy('date');
+                  ->where('date', '<=', now()->addDays(30)->toDateString())
+                  ->where('is_active', true)
+                  ->where('available_count', '>', 0)
+                  ->orderBy('date')
+                  ->orderBy('start_time');
         }]);
 
         $locale = app()->getLocale();

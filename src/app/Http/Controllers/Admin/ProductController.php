@@ -48,7 +48,14 @@ class ProductController extends Controller
 
     public function show(Product $product): View
     {
-        $product->load(['vendor.user', 'translations', 'prices', 'images', 'reviews' => fn ($q) => $q->latest()->limit(5)]);
+        $product->load([
+            'vendor.user',
+            'translations',
+            'prices',
+            'images' => fn ($q) => $q->orderBy('sort_order'),
+            'schedules' => fn ($q) => $q->orderBy('date'),
+            'reviews' => fn ($q) => $q->latest()->limit(5),
+        ]);
 
         return view('admin.products.show', compact('product'));
     }
@@ -103,7 +110,7 @@ class ProductController extends Controller
 
     public function edit(Product $product): View
     {
-        $product->load(['vendor.user', 'translations', 'prices', 'images']);
+        $product->load(['vendor.user', 'translations', 'prices', 'images', 'schedules']);
 
         $vendors = Vendor::with('user')->where('status', 'approved')->get();
         $regions = collect(Region::cases())->map(fn ($r) => ['value' => $r->value, 'label' => $r->label()]);

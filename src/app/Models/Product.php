@@ -54,6 +54,7 @@ class Product extends Model
             if (empty($product->slug)) {
                 $product->slug = static::generateUniqueSlug($product->slug_source ?? 'product');
             }
+            unset($product->slug_source);
         });
     }
 

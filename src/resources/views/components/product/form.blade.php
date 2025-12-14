@@ -47,6 +47,7 @@
         ?? $product?->prices?->first(fn($p) => ($p->type->value ?? $p->type) === 'child');
 @endphp
 
+<script src="https://oapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=az8xhnr3ar&submodules=geocoder"></script>
 <form method="POST" action="{{ $action }}" enctype="multipart/form-data" class="space-y-6">
     @csrf
     @if($method !== 'POST')
@@ -360,27 +361,86 @@
                 </div>
 
                 {{-- 만남 장소/Meeting Point --}}
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                    <div>
-                        <label for="translations_{{ $locale }}_meeting_point" class="block text-sm font-medium text-slate-700 mb-2">
-                            {{ $config['labels']['meeting_point'] }}
-                        </label>
-                        <input type="text" id="translations_{{ $locale }}_meeting_point" name="translations[{{ $locale }}][meeting_point]"
-                               value="{{ old("translations.{$locale}.meeting_point", $config['data']?->meeting_point) }}"
-                               placeholder="{{ $config['placeholders']['meeting_point'] }}"
-                               class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl {{ $scheme['focus'] }} focus:bg-white transition-all @error("translations.{$locale}.meeting_point") border-red-500 bg-red-50 @enderror">
-                        <x-form-error field="translations.{{ $locale }}.meeting_point" />
+                <div class="space-y-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div>
+                            <label for="translations_{{ $locale }}_meeting_point" class="block text-sm font-medium text-slate-700 mb-2">
+                                {{ $config['labels']['meeting_point'] }}
+                            </label>
+                            <div class="flex gap-2">
+                                <input type="text" id="translations_{{ $locale }}_meeting_point" name="translations[{{ $locale }}][meeting_point]"
+                                       value="{{ old("translations.{$locale}.meeting_point", $config['data']?->meeting_point) }}"
+                                       placeholder="{{ $config['placeholders']['meeting_point'] }}"
+                                       class="flex-1 px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl {{ $scheme['focus'] }} focus:bg-white transition-all @error("translations.{$locale}.meeting_point") border-red-500 bg-red-50 @enderror">
+                                @if($locale === 'ko')
+                                <button type="button" id="search-address-btn"
+                                        class="px-4 py-3 bg-gradient-to-r from-cyan-500 to-sky-600 text-white rounded-xl hover:from-cyan-600 hover:to-sky-700 font-medium transition-all flex items-center gap-2">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                                    </svg>
+                                    검색
+                                </button>
+                                @endif
+                            </div>
+                            <x-form-error field="translations.{{ $locale }}.meeting_point" />
+                        </div>
+
+                        <div>
+                            <label for="translations_{{ $locale }}_meeting_point_detail" class="block text-sm font-medium text-slate-700 mb-2">
+                                {{ $config['labels']['meeting_point_detail'] }}
+                            </label>
+                            <textarea id="translations_{{ $locale }}_meeting_point_detail" name="translations[{{ $locale }}][meeting_point_detail]" rows="1"
+                                      placeholder="{{ $config['placeholders']['meeting_point_detail'] }}"
+                                      class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl {{ $scheme['focus'] }} focus:bg-white transition-all resize-none @error("translations.{$locale}.meeting_point_detail") border-red-500 bg-red-50 @enderror">{{ old("translations.{$locale}.meeting_point_detail", $config['data']?->meeting_point_detail) }}</textarea>
+                            <x-form-error field="translations.{{ $locale }}.meeting_point_detail" />
+                        </div>
                     </div>
 
-                    <div>
-                        <label for="translations_{{ $locale }}_meeting_point_detail" class="block text-sm font-medium text-slate-700 mb-2">
-                            {{ $config['labels']['meeting_point_detail'] }}
-                        </label>
-                        <textarea id="translations_{{ $locale }}_meeting_point_detail" name="translations[{{ $locale }}][meeting_point_detail]" rows="1"
-                                  placeholder="{{ $config['placeholders']['meeting_point_detail'] }}"
-                                  class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl {{ $scheme['focus'] }} focus:bg-white transition-all resize-none @error("translations.{$locale}.meeting_point_detail") border-red-500 bg-red-50 @enderror">{{ old("translations.{$locale}.meeting_point_detail", $config['data']?->meeting_point_detail) }}</textarea>
-                        <x-form-error field="translations.{{ $locale }}.meeting_point_detail" />
+                    @if($locale === 'ko')
+                    {{-- 지도 (한국어 탭에서만 표시) --}}
+                    <div class="space-y-3">
+                        <!-- 검색 결과 -->
+                        <div id="search-results" class="hidden max-h-48 overflow-y-auto border border-slate-200 rounded-xl bg-white divide-y divide-slate-100"></div>
+
+                        <!-- 지도 -->
+                        <div id="meeting-point-map" class="w-full h-64 rounded-xl border border-slate-200 overflow-hidden"></div>
+
+                        <!-- 선택된 위치 정보 -->
+                        <div id="selected-location-info" class="p-3 bg-slate-50 rounded-xl {{ $product?->latitude ? '' : 'hidden' }}">
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 rounded-lg bg-cyan-100 flex items-center justify-center flex-shrink-0">
+                                    <svg class="w-4 h-4 text-cyan-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                                    </svg>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <p id="selected-address" class="text-sm text-slate-700 truncate">{{ $product?->latitude ? '위치가 저장되어 있습니다' : '' }}</p>
+                                    <p id="selected-coords" class="text-xs text-slate-400">
+                                        @if($product?->latitude && $product?->longitude)
+                                            {{ $product->latitude }}, {{ $product->longitude }}
+                                        @endif
+                                    </p>
+                                </div>
+                                <button type="button" id="clear-location" class="text-slate-400 hover:text-red-500 transition-colors">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Hidden inputs -->
+                        <input type="hidden" id="latitude" name="latitude" value="{{ old('latitude', $product?->latitude) }}">
+                        <input type="hidden" id="longitude" name="longitude" value="{{ old('longitude', $product?->longitude) }}">
+
+                        <p class="text-xs text-slate-500 flex items-center gap-1">
+                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            만남 장소를 입력 후 검색하거나 지도를 클릭하세요
+                        </p>
                     </div>
+                    @endif
                 </div>
             </div>
         @endforeach
@@ -430,6 +490,106 @@
                     </div>
                     <x-form-error field="prices.child" />
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 스케줄 관리 -->
+    <div class="bg-white rounded-2xl border border-slate-200/60 shadow-sm overflow-hidden">
+        <div class="px-6 py-4 border-b border-slate-100 bg-gradient-to-r from-cyan-50 to-sky-50">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500 to-sky-600 flex items-center justify-center shadow-lg shadow-cyan-500/30">
+                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                    </svg>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold text-slate-900">스케줄 관리</h3>
+                    <p class="text-sm text-slate-500">상품의 운영 일정을 {{ $isEdit ? '수정' : '입력' }}해주세요</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="p-6">
+            <!-- 기존 스케줄 목록 (수정 시) -->
+            @if($isEdit && $product->schedules->count() > 0)
+            <div class="mb-6">
+                <h4 class="text-sm font-medium text-slate-700 mb-3">기존 스케줄</h4>
+                <div class="border border-slate-200 rounded-xl overflow-hidden">
+                    <table class="w-full text-sm">
+                        <thead class="bg-slate-50">
+                            <tr>
+                                <th class="px-4 py-3 text-left font-medium text-slate-600">날짜</th>
+                                <th class="px-4 py-3 text-left font-medium text-slate-600">시작시간</th>
+                                <th class="px-4 py-3 text-left font-medium text-slate-600">정원</th>
+                                <th class="px-4 py-3 text-left font-medium text-slate-600">잔여</th>
+                                <th class="px-4 py-3 text-left font-medium text-slate-600">상태</th>
+                                <th class="px-4 py-3 text-center font-medium text-slate-600">삭제</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            @foreach($product->schedules as $schedule)
+                            <tr class="hover:bg-slate-50 transition-colors">
+                                <td class="px-4 py-3">{{ $schedule->date->format('Y-m-d') }}</td>
+                                <td class="px-4 py-3">{{ $schedule->start_time->format('H:i') }}</td>
+                                <td class="px-4 py-3">{{ $schedule->total_count }}명</td>
+                                <td class="px-4 py-3">{{ $schedule->available_count }}명</td>
+                                <td class="px-4 py-3">
+                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium {{ $schedule->is_active ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-600' }}">
+                                        {{ $schedule->is_active ? '활성' : '비활성' }}
+                                    </span>
+                                </td>
+                                <td class="px-4 py-3 text-center">
+                                    <label class="inline-flex items-center cursor-pointer group">
+                                        <input type="checkbox" name="delete_schedules[]" value="{{ $schedule->id }}"
+                                               class="w-5 h-5 rounded border-slate-300 text-red-500 focus:ring-red-500 cursor-pointer">
+                                    </label>
+                                </td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+                <p class="mt-2 text-xs text-slate-500 flex items-center gap-1">
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    삭제할 스케줄을 체크해주세요
+                </p>
+            </div>
+            @endif
+
+            <!-- 새 스케줄 추가 -->
+            <div>
+                <div class="flex items-center justify-between mb-3">
+                    <h4 class="text-sm font-medium text-slate-700">{{ $isEdit ? '새 스케줄 추가' : '스케줄 등록' }}</h4>
+                    <button type="button" id="add-schedule-btn"
+                            class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-cyan-50 hover:bg-cyan-100 text-cyan-700 rounded-lg text-sm font-medium transition-colors">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                        </svg>
+                        스케줄 추가
+                    </button>
+                </div>
+
+                <div id="schedules-container" class="space-y-3">
+                    <!-- 스케줄 입력 행은 JavaScript로 동적 추가 -->
+                </div>
+
+                <div id="no-schedules-message" class="text-center py-8 border-2 border-dashed border-slate-200 rounded-xl text-slate-500">
+                    <svg class="w-12 h-12 mx-auto text-slate-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                    </svg>
+                    <p class="font-medium mb-1">등록된 스케줄이 없습니다</p>
+                    <p class="text-sm">"스케줄 추가" 버튼을 클릭하여 일정을 등록하세요</p>
+                </div>
+            </div>
+
+            <div class="mt-4 p-3 bg-slate-50 rounded-xl">
+                <p class="text-sm text-slate-600 flex items-center gap-2">
+                    <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    잔여 인원은 저장 시 정원과 동일하게 자동 설정됩니다
+                </p>
             </div>
         </div>
     </div>
@@ -701,5 +861,254 @@ document.addEventListener('DOMContentLoaded', function() {
         imageInput.files = selectedFiles.files;
         updatePreview();
     }
+
+    // 네이버 지도 초기화
+    initNaverMap();
+
+    // 스케줄 관리 초기화
+    initScheduleManager();
 });
+
+function initNaverMap() {
+    const mapContainer = document.getElementById('meeting-point-map');
+    if (!mapContainer || typeof naver === 'undefined') return;
+
+    const latInput = document.getElementById('latitude');
+    const lngInput = document.getElementById('longitude');
+    const locationInfo = document.getElementById('selected-location-info');
+    const selectedAddress = document.getElementById('selected-address');
+    const selectedCoords = document.getElementById('selected-coords');
+    const clearBtn = document.getElementById('clear-location');
+    const searchInput = document.getElementById('translations_ko_meeting_point');
+    const searchBtn = document.getElementById('search-address-btn');
+    const searchResults = document.getElementById('search-results');
+
+    if (!searchInput || !searchBtn) return;
+
+    // 초기 위치 (저장된 좌표 또는 서울 시청)
+    const initialLat = parseFloat(latInput.value) || 37.5665;
+    const initialLng = parseFloat(lngInput.value) || 126.9780;
+    const hasInitialLocation = latInput.value && lngInput.value;
+
+    const map = new naver.maps.Map(mapContainer, {
+        center: new naver.maps.LatLng(initialLat, initialLng),
+        zoom: hasInitialLocation ? 16 : 12,
+        zoomControl: true,
+        zoomControlOptions: {
+            position: naver.maps.Position.TOP_RIGHT
+        }
+    });
+
+    let marker = null;
+
+    // 저장된 위치가 있으면 마커 표시
+    if (hasInitialLocation) {
+        marker = new naver.maps.Marker({
+            position: new naver.maps.LatLng(initialLat, initialLng),
+            map: map,
+            animation: naver.maps.Animation.DROP
+        });
+    }
+
+    // 지도 클릭 시 마커 설정
+    naver.maps.Event.addListener(map, 'click', function(e) {
+        setLocation(e.coord.lat(), e.coord.lng());
+    });
+
+    // 위치 설정 함수
+    function setLocation(lat, lng, address = null) {
+        latInput.value = lat;
+        lngInput.value = lng;
+
+        if (marker) {
+            marker.setPosition(new naver.maps.LatLng(lat, lng));
+        } else {
+            marker = new naver.maps.Marker({
+                position: new naver.maps.LatLng(lat, lng),
+                map: map,
+                animation: naver.maps.Animation.DROP
+            });
+        }
+
+        map.setCenter(new naver.maps.LatLng(lat, lng));
+        map.setZoom(16);
+
+        locationInfo.classList.remove('hidden');
+        selectedCoords.textContent = `위도: ${lat.toFixed(6)}, 경도: ${lng.toFixed(6)}`;
+
+        if (address) {
+            selectedAddress.textContent = address;
+            fillMeetingPointFields(address);
+        } else {
+            naver.maps.Service.reverseGeocode({
+                coords: new naver.maps.LatLng(lat, lng),
+                orders: [
+                    naver.maps.Service.OrderType.ADDR,
+                    naver.maps.Service.OrderType.ROAD_ADDR
+                ].join(',')
+            }, function(status, response) {
+                if (status === naver.maps.Service.Status.OK) {
+                    const result = response.v2.address;
+                    const addr = result.roadAddress || result.jibunAddress || '주소를 찾을 수 없습니다';
+                    selectedAddress.textContent = addr;
+                    fillMeetingPointFields(addr);
+                } else {
+                    selectedAddress.textContent = '주소를 찾을 수 없습니다';
+                }
+            });
+        }
+
+        searchResults.classList.add('hidden');
+    }
+
+    // 만남 장소 필드 자동 채우기
+    function fillMeetingPointFields(address) {
+        if (searchInput) {
+            searchInput.value = address;
+        }
+    }
+
+    // 위치 초기화
+    clearBtn.addEventListener('click', function() {
+        latInput.value = '';
+        lngInput.value = '';
+        if (marker) {
+            marker.setMap(null);
+            marker = null;
+        }
+        locationInfo.classList.add('hidden');
+        map.setCenter(new naver.maps.LatLng(37.5665, 126.9780));
+        map.setZoom(12);
+    });
+
+    // 주소 검색
+    function searchAddress(query) {
+        if (!query.trim()) return;
+
+        naver.maps.Service.geocode({
+            query: query
+        }, function(status, response) {
+            if (status !== naver.maps.Service.Status.OK || response.v2.meta.totalCount === 0) {
+                searchResults.innerHTML = '<div class="p-4 text-center text-slate-500">검색 결과가 없습니다</div>';
+                searchResults.classList.remove('hidden');
+                return;
+            }
+
+            const items = response.v2.addresses;
+            searchResults.innerHTML = '';
+
+            items.forEach(function(item) {
+                const div = document.createElement('div');
+                div.className = 'p-3 hover:bg-cyan-50 cursor-pointer transition-colors';
+                div.innerHTML = `
+                    <p class="font-medium text-slate-800">${item.roadAddress || item.jibunAddress}</p>
+                    ${item.roadAddress && item.jibunAddress ? `<p class="text-sm text-slate-500 mt-1">${item.jibunAddress}</p>` : ''}
+                `;
+                div.addEventListener('click', function() {
+                    setLocation(parseFloat(item.y), parseFloat(item.x), item.roadAddress || item.jibunAddress);
+                });
+                searchResults.appendChild(div);
+            });
+
+            searchResults.classList.remove('hidden');
+        });
+    }
+
+    searchBtn.addEventListener('click', function() {
+        searchAddress(searchInput.value);
+    });
+
+    searchInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            searchAddress(searchInput.value);
+        }
+    });
+
+    // 검색창 외부 클릭 시 결과 숨기기
+    document.addEventListener('click', function(e) {
+        if (!searchResults.contains(e.target) && e.target !== searchInput && e.target !== searchBtn) {
+            searchResults.classList.add('hidden');
+        }
+    });
+}
+
+function initScheduleManager() {
+    const container = document.getElementById('schedules-container');
+    const addBtn = document.getElementById('add-schedule-btn');
+    const noSchedulesMessage = document.getElementById('no-schedules-message');
+
+    if (!container || !addBtn) return;
+
+    let scheduleIndex = 0;
+
+    // 스케줄 행 추가
+    function addScheduleRow() {
+        const row = document.createElement('div');
+        row.className = 'schedule-row bg-slate-50 rounded-xl p-4 border border-slate-200';
+        row.dataset.index = scheduleIndex;
+
+        // 오늘 날짜를 기본값으로
+        const today = new Date().toISOString().split('T')[0];
+
+        row.innerHTML = `
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div>
+                    <label class="block text-xs font-medium text-slate-600 mb-1.5">날짜 <span class="text-red-500">*</span></label>
+                    <input type="date" name="schedules[${scheduleIndex}][date]" value="${today}" required
+                           class="w-full px-3 py-2.5 bg-white border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-cyan-500/20 focus:border-cyan-500 transition-all">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-slate-600 mb-1.5">시작시간 <span class="text-red-500">*</span></label>
+                    <input type="time" name="schedules[${scheduleIndex}][start_time]" value="09:00" required
+                           class="w-full px-3 py-2.5 bg-white border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-cyan-500/20 focus:border-cyan-500 transition-all">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-slate-600 mb-1.5">정원 (명) <span class="text-red-500">*</span></label>
+                    <input type="number" name="schedules[${scheduleIndex}][total_count]" value="10" min="1" required
+                           class="w-full px-3 py-2.5 bg-white border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-cyan-500/20 focus:border-cyan-500 transition-all">
+                </div>
+                <div class="flex items-end gap-2">
+                    <div class="flex-1">
+                        <label class="block text-xs font-medium text-slate-600 mb-1.5">활성화</label>
+                        <label class="flex items-center gap-2 px-3 py-2.5 bg-white border border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition-colors">
+                            <input type="checkbox" name="schedules[${scheduleIndex}][is_active]" value="1" checked
+                                   class="w-4 h-4 text-cyan-600 border-slate-300 rounded focus:ring-cyan-500">
+                            <span class="text-sm text-slate-700">활성</span>
+                        </label>
+                    </div>
+                    <button type="button" class="remove-schedule-btn w-10 h-10 flex items-center justify-center bg-red-50 hover:bg-red-100 text-red-500 rounded-lg transition-colors" title="삭제">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        `;
+
+        // 삭제 버튼 이벤트
+        row.querySelector('.remove-schedule-btn').addEventListener('click', function() {
+            row.remove();
+            updateNoSchedulesMessage();
+        });
+
+        container.appendChild(row);
+        scheduleIndex++;
+        updateNoSchedulesMessage();
+    }
+
+    // "스케줄 없음" 메시지 업데이트
+    function updateNoSchedulesMessage() {
+        const hasSchedules = container.querySelectorAll('.schedule-row').length > 0;
+        if (noSchedulesMessage) {
+            noSchedulesMessage.classList.toggle('hidden', hasSchedules);
+        }
+    }
+
+    // 추가 버튼 클릭
+    addBtn.addEventListener('click', addScheduleRow);
+
+    // 초기 상태 업데이트
+    updateNoSchedulesMessage();
+}
 </script>

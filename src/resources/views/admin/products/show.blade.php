@@ -1,22 +1,45 @@
 <x-layouts.admin>
     <x-slot name="header">상품 상세</x-slot>
 
+    @php
+        $koTranslation = $product->getTranslation('ko');
+        $enTranslation = $product->getTranslation('en');
+        $statusValue = $product->status->value ?? $product->status;
+    @endphp
+
     <!-- Breadcrumb -->
     <nav class="mb-6 flex items-center gap-2 text-sm">
         <a href="{{ route('admin.products.index') }}" class="text-slate-500 hover:text-blue-600 transition-colors">상품 관리</a>
         <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
         </svg>
-        <span class="text-slate-800 font-medium">{{ $product->getTranslation('ko')?->title ?? $product->getTranslation('ko')?->name ?? '상품' }}</span>
+        <span class="text-slate-800 font-medium">{{ $koTranslation?->title ?? '상품' }}</span>
     </nav>
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <!-- Product Info Card -->
         <div class="lg:col-span-1 space-y-6">
             <div class="bg-white rounded-2xl border border-slate-200/60 overflow-hidden">
-                <!-- Product Image -->
-                @if($product->images->first())
-                    <img src="{{ $product->images->first()->url }}" alt="" class="w-full h-56 object-cover">
+                <!-- Product Image Gallery -->
+                @if($product->images->count() > 0)
+                    <div class="relative">
+                        <img id="mainImage" src="{{ $product->images->first()->url }}" alt="" class="w-full h-56 object-cover">
+                        @if($product->images->count() > 1)
+                            <div class="absolute bottom-2 right-2 px-2 py-1 bg-black/60 text-white text-xs rounded-lg">
+                                1 / {{ $product->images->count() }}
+                            </div>
+                        @endif
+                    </div>
+                    @if($product->images->count() > 1)
+                        <div class="flex gap-2 p-3 bg-slate-50 overflow-x-auto">
+                            @foreach($product->images as $index => $image)
+                                <button type="button" onclick="changeMainImage('{{ $image->url }}', {{ $index + 1 }})"
+                                        class="flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 border-transparent hover:border-blue-500 transition-colors">
+                                    <img src="{{ $image->url }}" alt="" class="w-full h-full object-cover">
+                                </button>
+                            @endforeach
+                        </div>
+                    @endif
                 @else
                     <div class="w-full h-56 bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center">
                         <svg class="w-16 h-16 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -28,9 +51,6 @@
                 <!-- Product Details -->
                 <div class="p-6">
                     <div class="space-y-4">
-                        @php
-                            $statusValue = $product->status->value ?? $product->status;
-                        @endphp
                         <div class="flex items-center justify-between py-3 border-b border-slate-100">
                             <span class="text-sm text-slate-500">상태</span>
                             @if($statusValue === 'active')
@@ -38,7 +58,7 @@
                                     <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
                                     활성
                                 </span>
-                            @elseif($statusValue === 'pending_review')
+                            @elseif($statusValue === 'pending_review' || $statusValue === 'pending')
                                 <span class="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium rounded-lg bg-amber-100 text-amber-700 ring-1 ring-inset ring-amber-500/20">
                                     <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
                                     검토중
@@ -48,11 +68,20 @@
                                     <span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span>
                                     비활성
                                 </span>
+                            @elseif($statusValue === 'draft')
+                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium rounded-lg bg-blue-100 text-blue-700 ring-1 ring-inset ring-blue-500/20">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
+                                    초안
+                                </span>
                             @else
                                 <span class="inline-flex items-center px-2.5 py-1 text-xs font-medium rounded-lg bg-slate-100 text-slate-600 ring-1 ring-inset ring-slate-500/20">
                                     {{ $statusValue }}
                                 </span>
                             @endif
+                        </div>
+                        <div class="flex items-center justify-between py-3 border-b border-slate-100">
+                            <span class="text-sm text-slate-500">상품 유형</span>
+                            <span class="text-sm font-medium text-slate-700">{{ $product->type?->label() ?? '-' }}</span>
                         </div>
                         <div class="flex items-center justify-between py-3 border-b border-slate-100">
                             <span class="text-sm text-slate-500">지역</span>
@@ -61,12 +90,49 @@
                         <div class="flex items-center justify-between py-3 border-b border-slate-100">
                             <span class="text-sm text-slate-500">제공자</span>
                             <a href="{{ route('admin.vendors.show', $product->vendor) }}" class="text-sm font-medium text-blue-600 hover:text-blue-700">
-                                {{ $product->vendor->business_name }}
+                                {{ $product->vendor->business_name ?? $product->vendor->company_name ?? '-' }}
                             </a>
+                        </div>
+                        <div class="flex items-center justify-between py-3 border-b border-slate-100">
+                            <span class="text-sm text-slate-500">소요시간</span>
+                            <span class="text-sm font-medium text-slate-700">
+                                @if($product->duration)
+                                    @if($product->duration >= 60)
+                                        {{ floor($product->duration / 60) }}시간 {{ $product->duration % 60 > 0 ? ($product->duration % 60).'분' : '' }}
+                                    @else
+                                        {{ $product->duration }}분
+                                    @endif
+                                @else
+                                    -
+                                @endif
+                            </span>
+                        </div>
+                        <div class="flex items-center justify-between py-3 border-b border-slate-100">
+                            <span class="text-sm text-slate-500">인원</span>
+                            <span class="text-sm font-medium text-slate-700">
+                                {{ $product->min_persons ?? 1 }} ~ {{ $product->max_persons ?? '제한없음' }}명
+                            </span>
+                        </div>
+                        <div class="flex items-center justify-between py-3 border-b border-slate-100">
+                            <span class="text-sm text-slate-500">예약 유형</span>
+                            <span class="text-sm font-medium text-slate-700">{{ $product->booking_type?->label() ?? '-' }}</span>
+                        </div>
+                        <div class="flex items-center justify-between py-3 border-b border-slate-100">
+                            <span class="text-sm text-slate-500">평점</span>
+                            <span class="text-sm font-medium text-slate-700 flex items-center gap-1">
+                                <svg class="w-4 h-4 text-amber-400" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                                </svg>
+                                {{ number_format($product->average_rating, 1) }} ({{ $product->review_count }}건)
+                            </span>
+                        </div>
+                        <div class="flex items-center justify-between py-3 border-b border-slate-100">
+                            <span class="text-sm text-slate-500">예약수</span>
+                            <span class="text-sm font-medium text-slate-700">{{ number_format($product->booking_count) }}건</span>
                         </div>
                         <div class="flex items-center justify-between py-3">
                             <span class="text-sm text-slate-500">등록일</span>
-                            <span class="text-sm font-medium text-slate-700">{{ $product->created_at->format('Y-m-d') }}</span>
+                            <span class="text-sm font-medium text-slate-700">{{ $product->created_at->format('Y-m-d H:i') }}</span>
                         </div>
                     </div>
 
@@ -140,7 +206,8 @@
 
         <!-- Details -->
         <div class="lg:col-span-2 space-y-6">
-            <!-- Translations -->
+            <!-- Korean Translation -->
+            @if($koTranslation)
             <div class="bg-white rounded-2xl border border-slate-200/60 overflow-hidden">
                 <div class="px-6 py-4 border-b border-slate-200/60 flex items-center gap-3">
                     <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-lg shadow-blue-500/30">
@@ -148,22 +215,115 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                         </svg>
                     </div>
-                    <h3 class="font-semibold text-slate-800">상품 정보</h3>
+                    <div class="flex items-center gap-2">
+                        <h3 class="font-semibold text-slate-800">상품 정보</h3>
+                        <span class="px-2 py-0.5 text-xs font-medium rounded bg-slate-100 text-slate-600">🇰🇷 한국어</span>
+                    </div>
                 </div>
-                <div class="p-6">
-                    @foreach($product->translations as $translation)
-                        <div class="mb-6 last:mb-0">
-                            <div class="flex items-center gap-2 mb-3">
-                                <span class="px-2.5 py-1 text-xs font-medium rounded-lg bg-slate-100 text-slate-700 ring-1 ring-inset ring-slate-500/20">
-                                    {{ strtoupper($translation->locale->value ?? $translation->locale) }}
-                                </span>
-                                <span class="font-semibold text-slate-800">{{ $translation->title ?? $translation->name }}</span>
+                <div class="p-6 space-y-6">
+                    <!-- Title & Short Description -->
+                    <div>
+                        <h4 class="text-xl font-bold text-slate-900">{{ $koTranslation->title }}</h4>
+                        @if($koTranslation->short_description)
+                            <p class="text-slate-500 mt-1">{{ $koTranslation->short_description }}</p>
+                        @endif
+                    </div>
+
+                    <!-- Description -->
+                    <div>
+                        <h5 class="text-sm font-semibold text-slate-700 mb-2">상세 설명</h5>
+                        <div class="text-slate-600 text-sm leading-relaxed whitespace-pre-line bg-slate-50 rounded-xl p-4">{{ $koTranslation->description }}</div>
+                    </div>
+
+                    <!-- Includes & Excludes -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        @if($koTranslation->includes)
+                            <div class="bg-emerald-50 rounded-xl p-4">
+                                <h5 class="text-sm font-semibold text-emerald-700 mb-2 flex items-center gap-2">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                    </svg>
+                                    포함 사항
+                                </h5>
+                                <div class="text-sm text-emerald-800 whitespace-pre-line">{{ $koTranslation->includes }}</div>
                             </div>
-                            <p class="text-slate-600 text-sm leading-relaxed">{{ $translation->description }}</p>
+                        @endif
+                        @if($koTranslation->excludes)
+                            <div class="bg-red-50 rounded-xl p-4">
+                                <h5 class="text-sm font-semibold text-red-700 mb-2 flex items-center gap-2">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                    </svg>
+                                    불포함 사항
+                                </h5>
+                                <div class="text-sm text-red-800 whitespace-pre-line">{{ $koTranslation->excludes }}</div>
+                            </div>
+                        @endif
+                    </div>
+
+                    <!-- Notes -->
+                    @if($koTranslation->notes)
+                        <div class="bg-amber-50 rounded-xl p-4">
+                            <h5 class="text-sm font-semibold text-amber-700 mb-2 flex items-center gap-2">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                                안내사항
+                            </h5>
+                            <div class="text-sm text-amber-800 whitespace-pre-line">{{ $koTranslation->notes }}</div>
                         </div>
-                    @endforeach
+                    @endif
+
+                    <!-- Meeting Point -->
+                    @if($koTranslation->meeting_point)
+                        <div class="bg-cyan-50 rounded-xl p-4">
+                            <h5 class="text-sm font-semibold text-cyan-700 mb-2 flex items-center gap-2">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                </svg>
+                                만남 장소
+                            </h5>
+                            <p class="text-sm text-cyan-800 font-medium">{{ $koTranslation->meeting_point }}</p>
+                            @if($koTranslation->meeting_point_detail)
+                                <p class="text-sm text-cyan-700 mt-1">{{ $koTranslation->meeting_point_detail }}</p>
+                            @endif
+                            @if($product->latitude && $product->longitude)
+                                <p class="text-xs text-cyan-600 mt-2">📍 {{ $product->latitude }}, {{ $product->longitude }}</p>
+                            @endif
+                        </div>
+                    @endif
                 </div>
             </div>
+            @endif
+
+            <!-- English Translation -->
+            @if($enTranslation)
+            <div class="bg-white rounded-2xl border border-slate-200/60 overflow-hidden">
+                <div class="px-6 py-4 border-b border-slate-200/60 flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-indigo-500/30">
+                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"/>
+                        </svg>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <h3 class="font-semibold text-slate-800">English Information</h3>
+                        <span class="px-2 py-0.5 text-xs font-medium rounded bg-slate-100 text-slate-600">🇺🇸 English</span>
+                    </div>
+                </div>
+                <div class="p-6 space-y-4">
+                    <div>
+                        <h4 class="text-lg font-bold text-slate-900">{{ $enTranslation->title }}</h4>
+                        @if($enTranslation->short_description)
+                            <p class="text-slate-500 mt-1 text-sm">{{ $enTranslation->short_description }}</p>
+                        @endif
+                    </div>
+                    @if($enTranslation->description)
+                        <div class="text-slate-600 text-sm leading-relaxed bg-slate-50 rounded-xl p-4 whitespace-pre-line">{{ $enTranslation->description }}</div>
+                    @endif
+                </div>
+            </div>
+            @endif
 
             <!-- Prices -->
             <div class="bg-white rounded-2xl border border-slate-200/60 overflow-hidden">
@@ -176,18 +336,109 @@
                     <h3 class="font-semibold text-slate-800">가격 정보</h3>
                 </div>
                 <div class="p-6">
-                    <div class="space-y-3">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                         @forelse($product->prices as $price)
-                            <div class="flex justify-between items-center py-3 px-4 bg-slate-50 rounded-xl">
-                                <span class="text-slate-600 font-medium">{{ $price->label }}</span>
-                                <span class="text-lg font-bold text-slate-800">{{ number_format($price->amount) }}원</span>
+                            <div class="flex justify-between items-center py-4 px-5 bg-gradient-to-r from-emerald-50 to-teal-50 rounded-xl border border-emerald-100">
+                                <div>
+                                    <span class="text-slate-600 font-medium">{{ $price->label }}</span>
+                                    <span class="text-xs text-slate-400 ml-1">({{ $price->type }})</span>
+                                </div>
+                                <span class="text-xl font-bold text-emerald-700">₩{{ number_format($price->price) }}</span>
                             </div>
                         @empty
-                            <div class="text-center py-8 text-slate-500">
+                            <div class="col-span-2 text-center py-8 text-slate-500">
                                 가격 정보가 없습니다.
                             </div>
                         @endforelse
                     </div>
+                </div>
+            </div>
+
+            <!-- Schedules -->
+            <div class="bg-white rounded-2xl border border-slate-200/60 overflow-hidden">
+                <div class="px-6 py-4 border-b border-slate-200/60 flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500 to-sky-600 flex items-center justify-center shadow-lg shadow-cyan-500/30">
+                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                            </svg>
+                        </div>
+                        <h3 class="font-semibold text-slate-800">운영 스케줄</h3>
+                    </div>
+                    <span class="text-sm text-slate-500">총 {{ $product->schedules->count() }}개</span>
+                </div>
+                <div class="p-6">
+                    @if($product->schedules->count() > 0)
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-sm">
+                                <thead>
+                                    <tr class="border-b border-slate-200">
+                                        <th class="text-left py-3 px-4 font-semibold text-slate-600">날짜</th>
+                                        <th class="text-left py-3 px-4 font-semibold text-slate-600">시작시간</th>
+                                        <th class="text-center py-3 px-4 font-semibold text-slate-600">정원</th>
+                                        <th class="text-center py-3 px-4 font-semibold text-slate-600">잔여</th>
+                                        <th class="text-center py-3 px-4 font-semibold text-slate-600">상태</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-100">
+                                    @foreach($product->schedules->sortBy('date') as $schedule)
+                                        @php
+                                            $isPast = $schedule->date->isPast();
+                                            $isFull = $schedule->available_count <= 0;
+                                        @endphp
+                                        <tr class="{{ $isPast ? 'bg-slate-50 text-slate-400' : '' }}">
+                                            <td class="py-3 px-4">
+                                                <span class="font-medium {{ $isPast ? 'text-slate-400' : 'text-slate-800' }}">
+                                                    {{ $schedule->date->format('Y-m-d') }}
+                                                </span>
+                                                <span class="text-xs text-slate-400 ml-1">({{ $schedule->date->translatedFormat('l') }})</span>
+                                            </td>
+                                            <td class="py-3 px-4 {{ $isPast ? 'text-slate-400' : 'text-slate-700' }}">
+                                                {{ $schedule->start_time->format('H:i') }}
+                                            </td>
+                                            <td class="py-3 px-4 text-center {{ $isPast ? 'text-slate-400' : 'text-slate-700' }}">
+                                                {{ $schedule->total_count }}명
+                                            </td>
+                                            <td class="py-3 px-4 text-center">
+                                                <span class="{{ $isFull ? 'text-red-500 font-semibold' : ($isPast ? 'text-slate-400' : 'text-emerald-600 font-semibold') }}">
+                                                    {{ $schedule->available_count }}명
+                                                </span>
+                                            </td>
+                                            <td class="py-3 px-4 text-center">
+                                                @if($isPast)
+                                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-500">
+                                                        종료
+                                                    </span>
+                                                @elseif(!$schedule->is_active)
+                                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-600">
+                                                        비활성
+                                                    </span>
+                                                @elseif($isFull)
+                                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-700">
+                                                        마감
+                                                    </span>
+                                                @else
+                                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-emerald-100 text-emerald-700">
+                                                        예약가능
+                                                    </span>
+                                                @endif
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    @else
+                        <div class="text-center py-12">
+                            <div class="w-16 h-16 rounded-2xl bg-slate-100 flex items-center justify-center mx-auto mb-4">
+                                <svg class="w-8 h-8 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                </svg>
+                            </div>
+                            <p class="text-slate-500 font-medium">등록된 스케줄이 없습니다.</p>
+                            <p class="text-sm text-slate-400 mt-1">상품 수정에서 스케줄을 추가해주세요.</p>
+                        </div>
+                    @endif
                 </div>
             </div>
 
@@ -295,6 +546,14 @@
         function closeDeleteModal() {
             document.getElementById('deleteModal').classList.add('hidden');
             document.getElementById('deleteModal').classList.remove('flex');
+        }
+
+        function changeMainImage(url, index) {
+            document.getElementById('mainImage').src = url;
+            const counter = document.querySelector('#mainImage').parentElement.querySelector('div');
+            if (counter) {
+                counter.textContent = index + ' / {{ $product->images->count() }}';
+            }
         }
     </script>
 </x-layouts.admin>

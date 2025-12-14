@@ -51,7 +51,7 @@ class ProductController extends Controller
     {
         Gate::authorize('update', $product);
 
-        $product->load(['translations', 'prices', 'images']);
+        $product->load(['translations', 'prices', 'images', 'schedules']);
 
         $regions = collect(Region::cases())->map(fn ($r) => ['value' => $r->value, 'label' => $r->label()]);
         $types = collect(ProductType::cases())->map(fn ($t) => ['value' => $t->value, 'label' => $t->label()]);

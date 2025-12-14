@@ -4,11 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Enums\Region;
 use App\Enums\ProductType;
+use App\Http\Controllers\Traits\FormatsProducts;
 use App\Models\Product;
 use Illuminate\View\View;
 
 class HomeController extends Controller
 {
+    use FormatsProducts;
     public function index(): View
     {
         $locale = app()->getLocale();
@@ -65,36 +67,5 @@ class HomeController extends Controller
             });
 
         return view('home', compact('recommendedProducts', 'popularProducts', 'regions', 'productTypes'));
-    }
-
-    private function formatProduct(Product $product, string $locale): array
-    {
-        $translation = $product->getTranslation($locale);
-        $lowestPrice = $product->prices->where('is_active', true)->min('price');
-        $primaryImage = $product->images->firstWhere('is_primary', true) ?? $product->images->first();
-
-        $isWishlisted = false;
-        if (auth()->check()) {
-            $isWishlisted = auth()->user()->wishlists()
-                ->where('product_id', $product->id)
-                ->exists();
-        }
-
-        return [
-            'id' => $product->id,
-            'slug' => $product->slug,
-            'title' => $translation?->name ?? $product->getTranslation('ko')?->name ?? '',
-            'location' => $product->region->label() . ', 대한민국',
-            'image' => $primaryImage?->path ?? 'https://placehold.co/800x600?text=NOIMAGE',
-            'region' => $product->region->label(),
-            'type' => $product->type->label(),
-            'price' => $lowestPrice,
-            'formatted_price' => $lowestPrice ? number_format($lowestPrice) : null,
-            'rating' => (float) $product->average_rating,
-            'review_count' => $product->review_count,
-            'reviewCount' => $product->review_count,
-            'url' => route('products.show', ['locale' => $locale, 'product' => $product->slug]),
-            'isWishlisted' => $isWishlisted,
-        ];
     }
 }

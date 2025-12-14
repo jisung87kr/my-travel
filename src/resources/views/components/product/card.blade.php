@@ -34,9 +34,18 @@ $p = is_array($product) ? (object) $product : $product;
         <!-- Content -->
         <div class="p-4">
             <!-- Title -->
-            <h3 class="font-semibold text-gray-900 line-clamp-2 group-hover:text-pink-600 transition-colors mb-2">
+            <h3 class="font-semibold text-gray-900 line-clamp-2 group-hover:text-pink-600 transition-colors">
                 {{ $p->title }}
             </h3>
+
+            <!-- Short Description -->
+            @if(isset($p->shortDescription) && $p->shortDescription)
+                <p class="text-sm text-gray-500 line-clamp-2 mt-1 mb-2">
+                    {{ $p->shortDescription }}
+                </p>
+            @else
+                <div class="mb-2"></div>
+            @endif
 
             <!-- Rating -->
             @if(isset($p->rating) && ($p->reviewCount ?? 0) > 0)

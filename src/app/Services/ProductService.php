@@ -54,7 +54,11 @@ class ProductService
                 $this->uploadImagesWithUrl($product, $images, true);
             }
 
-            return $product->load(['translations', 'prices', 'vendor', 'images']);
+            if (!empty($data['schedules'])) {
+                $this->syncSchedules($product, $data['schedules']);
+            }
+
+            return $product->load(['translations', 'prices', 'vendor', 'images', 'schedules']);
         });
     }
 
@@ -102,7 +106,15 @@ class ProductService
                 $this->uploadImagesWithUrl($product, $images, false);
             }
 
-            return $product->fresh(['translations', 'prices', 'vendor', 'images']);
+            if (!empty($data['delete_schedules'])) {
+                $this->deleteSchedulesByIds($product, $data['delete_schedules']);
+            }
+
+            if (!empty($data['schedules'])) {
+                $this->syncSchedules($product, $data['schedules']);
+            }
+
+            return $product->fresh(['translations', 'prices', 'vendor', 'images', 'schedules']);
         });
     }
 
@@ -359,5 +371,52 @@ class ProductService
     {
         $product->update(['status' => ProductStatus::INACTIVE]);
         return $product;
+    }
+
+    /**
+     * 스케줄 동기화
+     */
+    private function syncSchedules(Product $product, array $schedules): void
+    {
+        foreach ($schedules as $schedule) {
+            if (empty($schedule['date']) || empty($schedule['start_time']) || empty($schedule['total_count'])) {
+                continue;
+            }
+
+            $existing = $product->schedules()->where('date', $schedule['date'])->first();
+
+            if ($existing) {
+                // 기존 스케줄이 있으면 업데이트 (예약이 없는 경우에만 정원 변경)
+                $updateData = [
+                    'start_time' => $schedule['start_time'],
+                    'is_active' => isset($schedule['is_active']) ? (bool) $schedule['is_active'] : true,
+                ];
+
+                // 예약이 없으면 정원도 업데이트
+                if ($existing->bookings()->count() === 0) {
+                    $updateData['total_count'] = $schedule['total_count'];
+                    $updateData['available_count'] = $schedule['total_count'];
+                }
+
+                $existing->update($updateData);
+            } else {
+                // 새 스케줄 생성
+                $product->schedules()->create([
+                    'date' => $schedule['date'],
+                    'start_time' => $schedule['start_time'],
+                    'total_count' => $schedule['total_count'],
+                    'available_count' => $schedule['total_count'],
+                    'is_active' => isset($schedule['is_active']) ? (bool) $schedule['is_active'] : true,
+                ]);
+            }
+        }
+    }
+
+    /**
+     * 스케줄 ID로 삭제
+     */
+    private function deleteSchedulesByIds(Product $product, array $scheduleIds): void
+    {
+        $product->schedules()->whereIn('id', $scheduleIds)->delete();
     }
 }

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Traveler;
 use App\Enums\Region;
 use App\Enums\ProductType;
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Traits\FormatsProducts;
 use App\Models\Product;
 use App\Models\ProductSchedule;
 use Illuminate\Http\Request;
@@ -12,6 +13,7 @@ use Illuminate\View\View;
 
 class ProductController extends Controller
 {
+    use FormatsProducts;
     public function index(Request $request): View
     {
         $locale = app()->getLocale();
@@ -110,13 +112,24 @@ class ProductController extends Controller
         $translation = $product->getTranslation($locale);
 
         // Get available schedules for next 30 days
+        $now = now();
+        $currentTime = $now->format('H:i');
+
         $schedules = ProductSchedule::where('product_id', $product->id)
             ->where('date', '>=', today())
             ->where('date', '<=', today()->addDays(30))
             ->where('is_active', true)
             ->where('available_count', '>', 0)
-            ->orderBy('date')
-            ->get();
+            ->get()
+//            ->filter(function ($schedule) use ($now, $currentTime) {
+//                // 오늘 날짜인 경우 시작시간이 지나지 않은 것만
+//                if ($schedule->date->isToday()) {
+//                    return $schedule->start_time->format('H:i') > $currentTime;
+//                }
+//                return true;
+//            })
+            ->sortBy(['date', 'start_time'])
+            ->values();
 
         // Related products (same type and region)
         $relatedProducts = Product::with(['translations', 'images', 'prices'])
@@ -131,39 +144,5 @@ class ProductController extends Controller
             ->map(fn ($p) => $this->formatProduct($p, $locale));
 
         return view('traveler.products.show', compact('product', 'translation', 'schedules', 'relatedProducts'));
-    }
-
-    private function formatProduct(Product $product, string $locale): array
-    {
-        $translation = $product->getTranslation($locale);
-        $lowestPrice = $product->prices->where('is_active', true)->min('price');
-        $primaryImage = $product->images->firstWhere('is_primary', true) ?? $product->images->first();
-
-        // Check if product is wishlisted by current user
-        $isWishlisted = false;
-        if (auth()->check()) {
-            $isWishlisted = auth()->user()->wishlists()
-                ->where('product_id', $product->id)
-                ->exists();
-        }
-
-        return [
-            'id' => $product->id,
-            'slug' => $product->slug,
-            'title' => $translation?->name ?? $product->getTranslation('ko')?->name ?? '',
-            'description' => $translation?->description ?? '',
-            'image' => $primaryImage?->path ?? 'https://placehold.co/800x600?text=NO+IMAGE',
-            'region' => $product->region->label(),
-            'region_value' => $product->region->value,
-            'type' => $product->type->label(),
-            'type_value' => $product->type->value,
-            'price' => $lowestPrice,
-            'formatted_price' => $lowestPrice ? number_format($lowestPrice) : null,
-            'rating' => (float) $product->average_rating,
-            'review_count' => $product->review_count,
-            'reviewCount' => $product->review_count,
-            'url' => route('products.show', ['locale' => $locale, 'product' => $product->slug]),
-            'isWishlisted' => $isWishlisted,
-        ];
     }
 }
