@@ -40,6 +40,12 @@ class BookingController extends Controller
                   ->orderBy('start_time');
         }]);
 
+        // is_past가 false인 스케줄만 필터링
+        $product->setRelation(
+            'schedules',
+            $product->schedules->filter(fn ($schedule) => !$schedule->is_past)->values()
+        );
+
         $locale = app()->getLocale();
         $translation = $product->getTranslation($locale) ?? $product->getTranslation('ko');
 

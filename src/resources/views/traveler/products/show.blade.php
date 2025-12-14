@@ -278,7 +278,7 @@
 
                             <!-- Booking Form -->
                             <div x-data="{
-                                selectedDate: '',
+                                selectedScheduleId: null,
                                 adults: 1,
                                 children: 0,
                                 showDatePicker: false,
@@ -287,7 +287,7 @@
                                 adultPrice: {{ $adultPrice?->price ?? 0 }},
                                 childPrice: {{ $childPrice?->price ?? 0 }},
                                 get selectedSchedule() {
-                                    return this.schedules.find(s => s.date === this.selectedDate);
+                                    return this.schedules.find(s => s.id === this.selectedScheduleId);
                                 },
                                 get maxPersons() {
                                     return this.selectedSchedule?.available_count ?? 99;
@@ -299,10 +299,17 @@
                                     return (this.adults * this.adultPrice) + (this.children * this.childPrice);
                                 },
                                 get canBook() {
-                                    return this.selectedDate && this.adults > 0 && this.totalPersons <= this.maxPersons;
+                                    return this.selectedScheduleId && this.adults > 0 && this.totalPersons <= this.maxPersons;
                                 },
                                 formatPrice(price) {
                                     return price.toLocaleString();
+                                },
+                                selectSchedule(schedule) {
+                                    this.selectedScheduleId = schedule.id;
+                                    if (this.totalPersons > schedule.available_count) {
+                                        this.adults = 1;
+                                        this.children = 0;
+                                    }
                                 }
                             }" class="space-y-4">
                                 <!-- Date Selection -->
@@ -340,9 +347,9 @@
                                         </template>
                                         <template x-for="schedule in schedules.filter(s => s.is_active && s.available_count > 0)" :key="schedule.id">
                                             <button type="button"
-                                                    @click="selectedDate = schedule.date; showDatePicker = false; if(totalPersons > schedule.available_count) { adults = 1; children = 0; }"
+                                                    @click="selectSchedule(schedule); showDatePicker = false;"
                                                     class="w-full flex items-center justify-between px-4 py-3 text-sm hover:bg-gray-50 transition-colors"
-                                                    :class="selectedDate === schedule.date ? 'bg-pink-50 text-pink-600' : 'text-gray-700'">
+                                                    :class="selectedScheduleId === schedule.id ? 'bg-pink-50 text-pink-600' : 'text-gray-700'">
                                                 <span class="font-medium" x-text="schedule.starts_at_human"></span>
                                                 <span class="text-xs px-2 py-1 rounded-full" :class="schedule.available_count <= 5 ? 'bg-orange-100 text-orange-600' : 'bg-green-100 text-green-600'" x-text="schedule.available_count + '명 가능'"></span>
                                             </button>
@@ -461,20 +468,12 @@
 
                                 <!-- Submit Button -->
                                 @auth
-                                <form action="{{ route('bookings.store') }}" method="POST">
-                                    @csrf
-                                    <input type="hidden" name="product_id" value="{{ $product->id }}">
-                                    <input type="hidden" name="date" :value="selectedDate">
-                                    <input type="hidden" name="adult_count" :value="adults">
-                                    <input type="hidden" name="child_count" :value="children">
-                                    <button type="submit"
-                                            :disabled="!canBook"
-                                            class="w-full py-4 bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white font-semibold rounded-xl shadow-lg shadow-pink-500/30 hover:shadow-xl hover:shadow-pink-500/40 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none">
-                                        <span x-text="selectedDate ? '예약하기' : '날짜를 선택하세요'"></span>
-                                    </button>
-                                </form>
+                                <a :href="`{{ route('bookings.create', ['product' => $product->id]) }}?schedule_id=${selectedScheduleId || ''}&adults=${adults}&children=${children}`"
+                                   class="block w-full py-4 bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white font-semibold rounded-xl shadow-lg shadow-pink-500/30 hover:shadow-xl hover:shadow-pink-500/40 transition-all duration-300 text-center cursor-pointer">
+                                    예약하기
+                                </a>
                                 @else
-                                <a href="{{ route('login', ['redirect' => url()->current()]) }}"
+                                <a :href="`{{ route('login') }}?redirect={{ urlencode(route('bookings.create', ['product' => $product->id])) }}%3Fschedule_id=${selectedScheduleId || ''}&adults=${adults}&children=${children}`"
                                    class="block w-full py-4 bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white font-semibold rounded-xl shadow-lg shadow-pink-500/30 hover:shadow-xl hover:shadow-pink-500/40 transition-all duration-300 text-center">
                                     로그인 후 예약하기
                                 </a>

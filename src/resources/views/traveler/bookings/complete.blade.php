@@ -10,27 +10,17 @@
                             <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
                         </svg>
                     </div>
-                    <span class="ml-2 text-sm font-medium text-gray-500 hidden sm:inline">정보입력</span>
+                    <span class="ml-2 text-sm font-medium text-gray-500 hidden sm:inline">예약정보</span>
                 </div>
 
-                <div class="w-8 sm:w-16 h-0.5 bg-green-500 rounded-full"></div>
+                <div class="w-12 sm:w-24 h-0.5 bg-green-500 rounded-full"></div>
 
-                <!-- Step 2 - Completed -->
+                <!-- Step 2 - Active (Complete) -->
                 <div class="flex items-center">
-                    <div class="flex items-center justify-center w-10 h-10 bg-green-500 text-white rounded-xl font-semibold">
+                    <div class="flex items-center justify-center w-10 h-10 bg-gradient-to-r from-pink-500 to-rose-500 text-white rounded-xl font-semibold shadow-lg shadow-pink-500/25">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
                         </svg>
-                    </div>
-                    <span class="ml-2 text-sm font-medium text-gray-500 hidden sm:inline">확인</span>
-                </div>
-
-                <div class="w-8 sm:w-16 h-0.5 bg-green-500 rounded-full"></div>
-
-                <!-- Step 3 - Active -->
-                <div class="flex items-center">
-                    <div class="flex items-center justify-center w-10 h-10 bg-gradient-to-r from-pink-500 to-rose-500 text-white rounded-xl font-semibold shadow-lg shadow-pink-500/25">
-                        3
                     </div>
                     <span class="ml-2 text-sm font-medium text-gray-900 hidden sm:inline">완료</span>
                 </div>
@@ -41,12 +31,6 @@
     <div class="bg-gray-50 min-h-[calc(100vh-200px)]">
         <div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
             @php
-                $bookingDate = $booking->schedule?->date ?? $booking->created_at;
-                if (is_string($bookingDate)) {
-                    $bookingDate = \Carbon\Carbon::parse($bookingDate);
-                }
-                $days = ['일', '월', '화', '수', '목', '금', '토'];
-                $dayOfWeek = $days[$bookingDate->dayOfWeek];
 
                 // 상품명 가져오기
                 $locale = app()->getLocale();
@@ -132,7 +116,7 @@
                         <div class="flex-1">
                             <p class="text-sm text-gray-500 mb-1">날짜</p>
                             <p class="font-semibold text-gray-900">
-                                {{ $bookingDate->format('Y년 m월 d일') }} ({{ $dayOfWeek }})
+                                {{ $booking->schedule->starts_at_human }}
                             </p>
                         </div>
                     </div>

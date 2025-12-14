@@ -30,24 +30,35 @@ class BookingService
             throw new BookingNotAllowedException('비활성화된 계정입니다.');
         }
 
-        $date = $data['date'];
-        if (strtotime($date) < strtotime(today())) {
-            throw new BookingExpiredException();
-        }
-
-
-
         return DB::transaction(function () use ($data, $user) {
             $totalPersons = ($data['adult_count'] ?? 0) + ($data['child_count'] ?? 0) + ($data['infant_count'] ?? 0);
 
-            $schedule = $this->inventoryService->checkAvailability(
-                $data['product_id'],
-                $data['date'],
-                $totalPersons
-            );
+            // schedule_id가 있으면 직접 사용, 없으면 date로 검색
+            if (!empty($data['schedule_id'])) {
+                $schedule = $this->inventoryService->checkAvailabilityById(
+                    $data['schedule_id'],
+                    $totalPersons
+                );
+            } else {
+                $date = $data['date'];
+                if (strtotime($date) < strtotime(today())) {
+                    throw new BookingExpiredException();
+                }
+
+                $schedule = $this->inventoryService->checkAvailability(
+                    $data['product_id'],
+                    $data['date'],
+                    $totalPersons
+                );
+            }
 
             if (!$schedule) {
                 throw new InsufficientInventoryException('예약 가능한 상태가 아닙니다.');
+            }
+
+            // 스케줄의 날짜가 과거인지 확인
+            if ($schedule->is_past) {
+                throw new BookingExpiredException();
             }
 
             $product = Product::findOrFail($data['product_id']);

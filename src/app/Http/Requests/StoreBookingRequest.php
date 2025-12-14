@@ -23,14 +23,19 @@ class StoreBookingRequest extends FormRequest
                     $query->where('status', ProductStatus::ACTIVE->value);
                 }),
             ],
-            'date' => 'required|date|after_or_equal:today',
+            'schedule_id' => 'required_without:date|nullable|integer|exists:product_schedules,id',
+            'date' => 'required_without:schedule_id|nullable|date|after_or_equal:today',
             'adult_count' => 'required|integer|min:0|max:100',
             'child_count' => 'nullable|integer|min:0|max:100',
             'infant_count' => 'nullable|integer|min:0|max:100',
             'special_request' => 'nullable|string|max:1000',
+            'notes' => 'nullable|string|max:1000',
             'contact_name' => 'nullable|string|max:100',
+            'name' => 'nullable|string|max:100',
             'contact_phone' => 'nullable|string|max:20',
+            'phone' => 'nullable|string|max:20',
             'contact_email' => 'nullable|email|max:255',
+            'email' => 'nullable|email|max:255',
         ];
     }
 
@@ -39,7 +44,9 @@ class StoreBookingRequest extends FormRequest
         return [
             'product_id.required' => '상품을 선택해주세요.',
             'product_id.exists' => '유효하지 않은 상품입니다.',
-            'date.required' => '날짜를 선택해주세요.',
+            'schedule_id.required_without' => '일정을 선택해주세요.',
+            'schedule_id.exists' => '유효하지 않은 일정입니다.',
+            'date.required_without' => '날짜를 선택해주세요.',
             'date.after_or_equal' => '오늘 이후의 날짜만 예약 가능합니다.',
             'adult_count.required' => '성인 인원을 입력해주세요.',
             'adult_count.min' => '성인 인원은 0명 이상이어야 합니다.',
@@ -51,6 +58,11 @@ class StoreBookingRequest extends FormRequest
         $this->merge([
             'child_count' => $this->child_count ?? 0,
             'infant_count' => $this->infant_count ?? 0,
+            // Normalize field names (form uses name/email/phone/notes, service expects contact_* and special_request)
+            'contact_name' => $this->contact_name ?? $this->name,
+            'contact_email' => $this->contact_email ?? $this->email,
+            'contact_phone' => $this->contact_phone ?? $this->phone,
+            'special_request' => $this->special_request ?? $this->notes,
         ]);
     }
 

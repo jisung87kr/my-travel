@@ -17,6 +17,15 @@ class InventoryService
             ->first();
     }
 
+    public function checkAvailabilityById(int $scheduleId, int $persons): ?ProductSchedule
+    {
+        return ProductSchedule::where('id', $scheduleId)
+            ->where('is_active', true)
+            ->where('available_count', '>=', $persons)
+            ->lockForUpdate()
+            ->first();
+    }
+
     public function getSchedule(int $productId, string $date): ?ProductSchedule
     {
         return ProductSchedule::where('product_id', $productId)
