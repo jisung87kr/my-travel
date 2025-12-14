@@ -7,6 +7,7 @@ use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\Auth\SocialLoginController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\SupportController;
 use App\Http\Controllers\Traveler\MyController;
 use App\Http\Controllers\Traveler\ProductController as TravelerProductController;
 use Illuminate\Support\Facades\Route;
@@ -22,6 +23,17 @@ Route::get('/locale/{locale}', function (string $locale) {
     }
     return redirect()->back();
 })->name('locale.switch');
+
+// Support pages (public)
+Route::prefix('support')->name('support.')->group(function () {
+    Route::get('/help', [SupportController::class, 'help'])->name('help');
+    Route::get('/contact', [SupportController::class, 'contact'])->name('contact');
+    Route::get('/faq', [SupportController::class, 'faq'])->name('faq');
+    Route::get('/cancellation-policy', [SupportController::class, 'cancellationPolicy'])->name('cancellation-policy');
+    Route::get('/about', [SupportController::class, 'aboutUs'])->name('about');
+    Route::get('/privacy', [SupportController::class, 'privacy'])->name('privacy');
+    Route::get('/terms', [SupportController::class, 'terms'])->name('terms');
+});
 
 // Locale-prefixed routes
 Route::prefix('{locale}')->where(['locale' => 'ko|en|zh|ja'])->middleware('locale')->group(function () {
