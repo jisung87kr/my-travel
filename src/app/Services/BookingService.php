@@ -35,6 +35,8 @@ class BookingService
             throw new BookingExpiredException();
         }
 
+
+
         return DB::transaction(function () use ($data, $user) {
             $totalPersons = ($data['adult_count'] ?? 0) + ($data['child_count'] ?? 0) + ($data['infant_count'] ?? 0);
 
@@ -45,7 +47,7 @@ class BookingService
             );
 
             if (!$schedule) {
-                throw new InsufficientInventoryException();
+                throw new InsufficientInventoryException('예약 가능한 상태가 아닙니다.');
             }
 
             $product = Product::findOrFail($data['product_id']);

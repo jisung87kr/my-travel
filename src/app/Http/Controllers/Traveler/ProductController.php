@@ -112,22 +112,13 @@ class ProductController extends Controller
         $translation = $product->getTranslation($locale);
 
         // Get available schedules for next 30 days
-        $now = now();
-        $currentTime = $now->format('H:i');
-
         $schedules = ProductSchedule::where('product_id', $product->id)
             ->where('date', '>=', today())
             ->where('date', '<=', today()->addDays(30))
             ->where('is_active', true)
             ->where('available_count', '>', 0)
             ->get()
-//            ->filter(function ($schedule) use ($now, $currentTime) {
-//                // 오늘 날짜인 경우 시작시간이 지나지 않은 것만
-//                if ($schedule->date->isToday()) {
-//                    return $schedule->start_time->format('H:i') > $currentTime;
-//                }
-//                return true;
-//            })
+            ->filter(fn ($schedule) => !$schedule->is_past)
             ->sortBy(['date', 'start_time'])
             ->values();
 

@@ -301,11 +301,6 @@
                                 get canBook() {
                                     return this.selectedDate && this.adults > 0 && this.totalPersons <= this.maxPersons;
                                 },
-                                formatDate(dateStr) {
-                                    const date = new Date(dateStr);
-                                    const days = ['일', '월', '화', '수', '목', '금', '토'];
-                                    return `${date.getMonth() + 1}월 ${date.getDate()}일 (${days[date.getDay()]})`;
-                                },
                                 formatPrice(price) {
                                     return price.toLocaleString();
                                 }
@@ -323,7 +318,7 @@
                                         </div>
                                         <div class="flex-1 min-w-0">
                                             <span class="block text-[10px] font-bold text-cyan-600 uppercase tracking-wider">일정</span>
-                                            <span class="block text-sm font-medium truncate" :class="selectedDate ? 'text-gray-900' : 'text-gray-400'" x-text="selectedDate ? formatDate(selectedDate) : '날짜를 선택하세요'"></span>
+                                            <span class="block text-sm font-medium truncate" :class="selectedDate ? 'text-gray-900' : 'text-gray-400'" x-text="selectedSchedule?.starts_at_human ?? '날짜를 선택하세요'"></span>
                                         </div>
                                         <svg class="w-5 h-5 text-gray-400 transition-transform" :class="showDatePicker ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
@@ -348,7 +343,7 @@
                                                     @click="selectedDate = schedule.date; showDatePicker = false; if(totalPersons > schedule.available_count) { adults = 1; children = 0; }"
                                                     class="w-full flex items-center justify-between px-4 py-3 text-sm hover:bg-gray-50 transition-colors"
                                                     :class="selectedDate === schedule.date ? 'bg-pink-50 text-pink-600' : 'text-gray-700'">
-                                                <span class="font-medium" x-text="formatDate(schedule.date)"></span>
+                                                <span class="font-medium" x-text="schedule.starts_at_human"></span>
                                                 <span class="text-xs px-2 py-1 rounded-full" :class="schedule.available_count <= 5 ? 'bg-orange-100 text-orange-600' : 'bg-green-100 text-green-600'" x-text="schedule.available_count + '명 가능'"></span>
                                             </button>
                                         </template>
