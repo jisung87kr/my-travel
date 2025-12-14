@@ -1,14 +1,10 @@
 <x-layouts.app :title="__('nav.products')">
     <div class="min-h-screen bg-gray-50" x-data="productFilters()">
         <!-- Hero Section -->
-        <div class="bg-gradient-to-br from-rose-950 via-pink-950 to-fuchsia-950 relative overflow-hidden">
-            <div class="absolute inset-0">
-                <div class="absolute top-0 left-0 w-[50%] h-[50%] bg-gradient-to-br from-pink-500/30 to-transparent rounded-full blur-[80px]"></div>
-                <div class="absolute bottom-0 right-0 w-[40%] h-[40%] bg-gradient-to-tl from-fuchsia-500/20 to-transparent rounded-full blur-[60px]"></div>
-            </div>
-            <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
-                <h1 class="text-3xl sm:text-4xl font-bold text-white mb-3">{{ __('nav.products') }}</h1>
-                <p class="text-rose-100/80 text-lg">현지 가이드와 함께하는 특별한 여행 경험을 찾아보세요</p>
+        <div class="bg-white border-b border-slate-200">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-12">
+                <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 mb-2">{{ __('nav.products') }}</h1>
+                <p class="text-slate-500">현지 가이드와 함께하는 특별한 여행 경험을 찾아보세요</p>
             </div>
         </div>
 
