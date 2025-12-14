@@ -485,28 +485,13 @@
                     <p class="text-gray-500 mt-3 text-lg">여행자들이 지금 가장 많이 예약하는 베스트셀러</p>
                 </div>
 
-                <!-- Carousel Navigation -->
-                <div class="hidden sm:flex items-center gap-3">
-                    <button type="button" id="popular-prev"
-                            class="w-12 h-12 rounded-full border-2 border-gray-200 bg-white flex items-center justify-center text-gray-600 hover:border-orange-300 hover:bg-orange-50 hover:text-orange-600 transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed shadow-sm hover:shadow-md">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
-                        </svg>
-                    </button>
-                    <button type="button" id="popular-next"
-                            class="w-12 h-12 rounded-full border-2 border-gray-200 bg-white flex items-center justify-center text-gray-600 hover:border-orange-300 hover:bg-orange-50 hover:text-orange-600 transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed shadow-sm hover:shadow-md">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
-                        </svg>
-                    </button>
-                </div>
             </div>
 
-            <!-- Swiper Carousel -->
-            <div class="swiper popular-swiper pt-6 pb-8 -mx-4 px-4 sm:mx-0 sm:px-0">
-                <div class="swiper-wrapper">
-                    @forelse($popularProducts as $index => $product)
-                        <div class="swiper-slide !w-[280px] sm:!w-[320px]">
+            <!-- Product Grid -->
+            <div class="mt-10">
+                @if($popularProducts->count() > 0)
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                        @foreach($popularProducts as $index => $product)
                             <div class="relative">
                                 @if($index < 3)
                                 <!-- Ranking Badge -->
@@ -516,32 +501,20 @@
                                 @endif
                                 <x-product.card :product="(object) $product" :showWishlist="true" />
                             </div>
+                        @endforeach
+                    </div>
+                @else
+                    <div class="w-full flex flex-col items-center justify-center py-20 text-gray-400 bg-white rounded-3xl border border-gray-100 shadow-sm">
+                        <div class="w-20 h-20 rounded-2xl bg-gradient-to-br from-orange-50 to-amber-50 flex items-center justify-center mb-5">
+                            <svg class="w-10 h-10 text-orange-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15.362 5.214A8.252 8.252 0 0112 21 8.25 8.25 0 016.038 7.048 8.287 8.287 0 009 9.6a8.983 8.983 0 013.361-6.867 8.21 8.21 0 003 2.48z" />
+                            </svg>
                         </div>
-                    @empty
-                        <div class="swiper-slide !w-full">
-                            <div class="w-full flex flex-col items-center justify-center py-20 text-gray-400 bg-white rounded-3xl border border-gray-100 shadow-sm">
-                                <div class="w-20 h-20 rounded-2xl bg-gradient-to-br from-orange-50 to-amber-50 flex items-center justify-center mb-5">
-                                    <svg class="w-10 h-10 text-orange-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.362 5.214A8.252 8.252 0 0112 21 8.25 8.25 0 016.038 7.048 8.287 8.287 0 009 9.6a8.983 8.983 0 013.361-6.867 8.21 8.21 0 003 2.48z" />
-                                    </svg>
-                                </div>
-                                <p class="text-gray-600 font-semibold text-lg">인기 상품이 없습니다</p>
-                                <p class="text-gray-400 text-sm mt-1">곧 새로운 인기 체험이 추가됩니다</p>
-                            </div>
-                        </div>
-                    @endforelse
-                </div>
+                        <p class="text-gray-600 font-semibold text-lg">인기 상품이 없습니다</p>
+                        <p class="text-gray-400 text-sm mt-1">곧 새로운 인기 체험이 추가됩니다</p>
+                    </div>
+                @endif
             </div>
-
-            <!-- Progress Bar -->
-            <div class="hidden sm:block mt-8">
-                <div class="h-1 bg-gray-100 rounded-full overflow-hidden max-w-md mx-auto">
-                    <div id="popular-progress" class="h-full bg-gradient-to-r from-orange-400 to-amber-400 rounded-full transition-all duration-300" style="width: 20%"></div>
-                </div>
-            </div>
-
-            <!-- Swiper Pagination (Mobile) -->
-            <div class="popular-pagination flex justify-center gap-2 mt-8 sm:hidden"></div>
         </div>
     </section>
 
@@ -672,39 +645,13 @@
 
             <!-- Testimonials Grid -->
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+                @forelse($reviews as $index => $review)
                 @php
-                    $testimonials = [
-                        [
-                            'name' => '김지현',
-                            'avatar' => 'JH',
-                            'location' => '서울',
-                            'rating' => 5,
-                            'product' => '제주 자연 힐링 투어',
-                            'comment' => '가이드님이 정말 친절하시고 숨겨진 명소들을 많이 알려주셔서 너무 좋았어요! 사진도 예쁘게 찍어주시고, 현지인만 아는 맛집도 소개해 주셨어요.',
-                            'date' => '2주 전'
-                        ],
-                        [
-                            'name' => '이승민',
-                            'avatar' => 'SM',
-                            'location' => '부산',
-                            'rating' => 5,
-                            'product' => '경주 역사 문화 투어',
-                            'comment' => '역사에 대한 해박한 지식과 재미있는 설명 덕분에 지루할 틈이 없었습니다. 아이들도 너무 재미있어 했어요. 가족 여행으로 강력 추천합니다!',
-                            'date' => '1달 전'
-                        ],
-                        [
-                            'name' => '박소연',
-                            'avatar' => 'SY',
-                            'location' => '인천',
-                            'rating' => 5,
-                            'product' => '전주 한옥마을 & 맛집 투어',
-                            'comment' => '한복 체험부터 전통 음식까지, 한국의 멋을 제대로 느낄 수 있었어요. 외국인 친구와 함께 갔는데 정말 만족스러웠습니다!',
-                            'date' => '3주 전'
-                        ],
-                    ];
+                    $locale = app()->getLocale();
+                    $productTranslation = $review->product->getTranslation($locale) ?? $review->product->getTranslation('ko');
+                    $userName = $review->user->name ?? '익명';
+                    $userInitials = mb_substr($userName, 0, 2);
                 @endphp
-
-                @foreach($testimonials as $index => $testimonial)
                 <div class="group bg-white rounded-3xl p-8 shadow-lg shadow-gray-900/5 border border-gray-100 hover:shadow-xl hover:shadow-pink-500/10 hover:border-pink-100 transition-all duration-500 hover:-translate-y-1 {{ $index === 1 ? 'lg:-translate-y-4' : '' }}">
                     <!-- Quote Icon -->
                     <div class="mb-6">
@@ -715,42 +662,60 @@
 
                     <!-- Rating -->
                     <div class="flex items-center gap-1 mb-4">
-                        @for($i = 0; $i < $testimonial['rating']; $i++)
+                        @for($i = 0; $i < $review->rating; $i++)
                         <svg class="w-5 h-5 text-amber-400" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                        </svg>
+                        @endfor
+                        @for($i = $review->rating; $i < 5; $i++)
+                        <svg class="w-5 h-5 text-gray-200" fill="currentColor" viewBox="0 0 20 20">
                             <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                         </svg>
                         @endfor
                     </div>
 
                     <!-- Comment -->
-                    <p class="text-gray-600 leading-relaxed mb-6">"{{ $testimonial['comment'] }}"</p>
+                    <p class="text-gray-600 leading-relaxed mb-6 line-clamp-4">"{{ $review->content }}"</p>
 
                     <!-- Product Tag -->
                     <div class="mb-6">
-                        <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-pink-50 text-pink-600 text-xs font-medium">
+                        <a href="{{ route('products.show', ['locale' => $locale, 'product' => $review->product_id]) }}"
+                           class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-pink-50 text-pink-600 text-xs font-medium hover:bg-pink-100 transition-colors">
                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
                             </svg>
-                            {{ $testimonial['product'] }}
-                        </span>
+                            {{ $productTranslation?->name ?? $review->product->name }}
+                        </a>
                     </div>
 
                     <!-- Author -->
                     <div class="flex items-center justify-between pt-6 border-t border-gray-100">
                         <div class="flex items-center gap-3">
+                            @if($review->user->avatar)
+                            <img src="{{ $review->user->avatar }}" alt="{{ $userName }}" class="w-12 h-12 rounded-full object-cover">
+                            @else
                             <div class="w-12 h-12 rounded-full bg-gradient-to-br from-pink-400 to-rose-500 flex items-center justify-center text-white font-bold text-sm">
-                                {{ $testimonial['avatar'] }}
+                                {{ $userInitials }}
                             </div>
+                            @endif
                             <div>
-                                <div class="font-semibold text-gray-900">{{ $testimonial['name'] }}</div>
-                                <div class="text-sm text-gray-400">{{ $testimonial['location'] }}</div>
+                                <div class="font-semibold text-gray-900">{{ $userName }}</div>
                             </div>
                         </div>
-                        <span class="text-xs text-gray-400">{{ $testimonial['date'] }}</span>
+                        <span class="text-xs text-gray-400">{{ $review->created_at->diffForHumans() }}</span>
                     </div>
                 </div>
-                @endforeach
+                @empty
+                <!-- 리뷰가 없을 때 빈 상태 표시 -->
+                <div class="col-span-full text-center py-12">
+                    <svg class="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 01-2.555-.337A5.972 5.972 0 015.41 20.97a5.969 5.969 0 01-.474-.065 4.48 4.48 0 00.978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25z" />
+                    </svg>
+                    <p class="text-gray-500 text-lg">아직 등록된 후기가 없습니다</p>
+                    <p class="text-gray-400 mt-1">첫 번째 후기를 남겨주세요!</p>
+                </div>
+                @endforelse
             </div>
 
             <!-- View All Reviews Button -->
@@ -954,58 +919,11 @@
             }
         }
     </style>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
-    <style>
-        /* Swiper custom styles - override default overflow:hidden */
-        .popular-swiper,
-        .popular-swiper .swiper-wrapper,
-        .popular-swiper .swiper-slide {
-            overflow: visible !important;
-        }
-        .popular-swiper .swiper-slide {
-            height: auto;
-        }
-    </style>
     @endpush
 
     @push('scripts')
-    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
     <script>
-        // Popular Products Swiper
         document.addEventListener('DOMContentLoaded', function() {
-            const progressBar = document.getElementById('popular-progress');
-
-            const popularSwiper = new Swiper('.popular-swiper', {
-                slidesPerView: 'auto',
-                spaceBetween: 24,
-                freeMode: true,
-                grabCursor: true,
-                navigation: {
-                    nextEl: '#popular-next',
-                    prevEl: '#popular-prev',
-                },
-                pagination: {
-                    el: '.popular-pagination',
-                    clickable: true,
-                    bulletClass: 'w-2 h-2 rounded-full bg-gray-300 cursor-pointer transition-all duration-300',
-                    bulletActiveClass: '!bg-orange-500 !w-6',
-                },
-                on: {
-                    progress: function(swiper, progress) {
-                        if (progressBar) {
-                            const percentage = Math.max(20, Math.min(100, progress * 80 + 20));
-                            progressBar.style.width = percentage + '%';
-                        }
-                    },
-                    slideChange: function(swiper) {
-                        const prevBtn = document.getElementById('popular-prev');
-                        const nextBtn = document.getElementById('popular-next');
-                        if (prevBtn) prevBtn.disabled = swiper.isBeginning;
-                        if (nextBtn) nextBtn.disabled = swiper.isEnd;
-                    },
-                },
-            });
-
             // Category nav scroll shadow
             const categoryNav = document.getElementById('category-nav');
             if (categoryNav) {

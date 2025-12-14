@@ -6,6 +6,7 @@ use App\Enums\Region;
 use App\Enums\ProductType;
 use App\Http\Controllers\Traits\FormatsProducts;
 use App\Models\Product;
+use App\Models\Review;
 use Illuminate\View\View;
 
 class HomeController extends Controller
@@ -66,6 +67,14 @@ class HomeController extends Controller
                 ];
             });
 
-        return view('home', compact('recommendedProducts', 'popularProducts', 'regions', 'productTypes'));
+        // Recent reviews for testimonials
+        $reviews = Review::with(['user', 'product.translations'])
+            ->visible()
+            ->whereHas('product', fn ($q) => $q->active())
+            ->orderByDesc('created_at')
+            ->take(3)
+            ->get();
+
+        return view('home', compact('recommendedProducts', 'popularProducts', 'regions', 'productTypes', 'reviews'));
     }
 }
