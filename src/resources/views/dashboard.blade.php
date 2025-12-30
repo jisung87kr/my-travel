@@ -27,7 +27,7 @@
 
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 -mt-8 relative z-10">
             <!-- Stats Grid -->
-            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8 mt-6">
                 <!-- Total Bookings -->
                 <div class="bg-white rounded-2xl shadow-sm p-5 sm:p-6 border border-gray-100 hover:shadow-md hover:border-pink-100 transition-all duration-300 cursor-pointer group">
                     <div class="flex items-center justify-between mb-4">
