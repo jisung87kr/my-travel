@@ -21,8 +21,8 @@
                         </svg>
                     </div>
                     <div>
-                        <h2 class="text-lg font-bold text-gray-900">기본 정보</h2>
-                        <p class="text-sm text-gray-500">개인 정보를 수정할 수 있습니다</p>
+                        <h2 class="text-lg font-bold text-gray-900">{{ __('profile.basic_info') }}</h2>
+                        <p class="text-sm text-gray-500">{{ __('profile.basic_info_desc') }}</p>
                     </div>
                 </div>
 
@@ -79,7 +79,7 @@
                                 </svg>
                             </div>
                         </div>
-                        <p class="mt-1 text-xs text-gray-500">이메일은 변경할 수 없습니다</p>
+                        <p class="mt-1 text-xs text-gray-500">{{ __('profile.email_readonly') }}</p>
                     </div>
 
                     <!-- Phone -->
@@ -113,7 +113,7 @@
                     <!-- Preferred Language -->
                     <div>
                         <label for="preferred_language" class="block text-sm font-medium text-gray-700 mb-1.5">
-                            선호 언어
+                            {{ __('profile.preferred_language') }}
                         </label>
                         <div class="relative">
                             <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
@@ -141,7 +141,7 @@
                     <div class="pt-4">
                         <button type="submit"
                                 class="w-full py-3.5 px-4 bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white font-semibold rounded-xl shadow-lg shadow-pink-500/25 hover:shadow-xl hover:shadow-pink-500/30 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-pink-500/50 cursor-pointer">
-                            변경사항 저장
+                            {{ __('profile.save_changes') }}
                         </button>
                     </div>
                 </form>
@@ -158,23 +158,23 @@
                             <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 01-1.043 3.296 3.745 3.745 0 01-3.296 1.043A3.745 3.745 0 0112 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 01-3.296-1.043 3.745 3.745 0 01-1.043-3.296A3.745 3.745 0 013 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 011.043-3.296 3.746 3.746 0 013.296-1.043A3.746 3.746 0 0112 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 013.296 1.043 3.746 3.746 0 011.043 3.296A3.745 3.745 0 0121 12z" />
                         </svg>
                     </div>
-                    <h3 class="font-bold text-gray-900">계정 상태</h3>
+                    <h3 class="font-bold text-gray-900">{{ __('profile.account_status') }}</h3>
                 </div>
 
                 <div class="space-y-4">
                     <div class="flex items-center justify-between py-3 border-b border-gray-100">
-                        <span class="text-sm text-gray-500">가입일</span>
-                        <span class="text-sm font-medium text-gray-900">{{ $user->created_at->format('Y년 m월 d일') }}</span>
+                        <span class="text-sm text-gray-500">{{ __('profile.joined_date') }}</span>
+                        <span class="text-sm font-medium text-gray-900">{{ $user->created_at->translatedFormat('Y년 n월 j일') }}</span>
                     </div>
                     <div class="flex items-center justify-between py-3 border-b border-gray-100">
-                        <span class="text-sm text-gray-500">회원 등급</span>
+                        <span class="text-sm text-gray-500">{{ __('profile.membership_tier') }}</span>
                         <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-gradient-to-r from-pink-500 to-rose-500 text-white">
-                            일반 회원
+                            {{ __('profile.regular_member') }}
                         </span>
                     </div>
                     @if($user->no_show_count > 0)
                         <div class="flex items-center justify-between py-3">
-                            <span class="text-sm text-gray-500">노쇼 횟수</span>
+                            <span class="text-sm text-gray-500">{{ __('profile.no_show_count') }}</span>
                             <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold {{ $user->no_show_count >= 2 ? 'bg-red-100 text-red-700' : 'bg-orange-100 text-orange-700' }}">
                                 {{ $user->no_show_count }}/3
                             </span>
@@ -182,15 +182,15 @@
                         @if($user->no_show_count >= 2)
                             <div class="p-3 rounded-xl bg-red-50 border border-red-200">
                                 <p class="text-xs text-red-700">
-                                    <span class="font-medium">주의:</span> 노쇼 3회 누적 시 예약이 제한될 수 있습니다.
+                                    <span class="font-medium">{{ __('profile.warning') }}</span> {{ __('profile.no_show_warning') }}
                                 </p>
                             </div>
                         @endif
                     @else
                         <div class="flex items-center justify-between py-3">
-                            <span class="text-sm text-gray-500">노쇼 횟수</span>
+                            <span class="text-sm text-gray-500">{{ __('profile.no_show_count') }}</span>
                             <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700">
-                                0회
+                                0{{ __('profile.times') }}
                             </span>
                         </div>
                     @endif
@@ -205,7 +205,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
                         </svg>
                     </div>
-                    <h3 class="font-bold text-gray-900">보안</h3>
+                    <h3 class="font-bold text-gray-900">{{ __('profile.security') }}</h3>
                 </div>
 
                 <a href="{{ route('password.request') }}"
@@ -214,7 +214,7 @@
                         <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25a3 3 0 013 3m3 0a6 6 0 01-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1121.75 8.25z" />
                         </svg>
-                        <span class="text-sm font-medium text-gray-700">비밀번호 변경</span>
+                        <span class="text-sm font-medium text-gray-700">{{ __('profile.change_password') }}</span>
                     </div>
                     <svg class="w-5 h-5 text-gray-400 group-hover:text-gray-600 transform group-hover:translate-x-1 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
@@ -230,17 +230,17 @@
                             <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
                         </svg>
                     </div>
-                    <h3 class="font-bold text-red-600">위험 영역</h3>
+                    <h3 class="font-bold text-red-600">{{ __('profile.danger_zone') }}</h3>
                 </div>
 
                 <p class="text-sm text-gray-500 mb-4">
-                    계정을 삭제하면 모든 데이터가 영구적으로 삭제되며 복구할 수 없습니다.
+                    {{ __('profile.delete_account_warning') }}
                 </p>
 
                 <button type="button"
                         onclick="confirmDeleteAccount()"
                         class="w-full py-2.5 px-4 border border-red-200 text-red-600 font-medium rounded-xl hover:bg-red-50 transition-colors cursor-pointer">
-                    계정 삭제
+                    {{ __('profile.delete_account') }}
                 </button>
             </div>
         </div>
@@ -249,9 +249,9 @@
     @push('scripts')
     <script>
         function confirmDeleteAccount() {
-            if (confirm('정말로 계정을 삭제하시겠습니까?\n이 작업은 취소할 수 없습니다.')) {
+            if (confirm(@json(__('profile.delete_confirm')))) {
                 // TODO: Implement account deletion
-                alert('계정 삭제 기능은 준비 중입니다.');
+                alert(@json(__('profile.delete_not_ready')));
             }
         }
     </script>

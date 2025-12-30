@@ -7,6 +7,7 @@ use App\Enums\ProductType;
 use App\Http\Controllers\Traits\FormatsProducts;
 use App\Models\Product;
 use App\Models\Review;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
 class HomeController extends Controller
@@ -46,8 +47,10 @@ class HomeController extends Controller
                 ->where('region', $region)
                 ->first();
 
-            $image = $product?->images->first()?->path
-                ?? 'https://placehold.co/400x400?text=' . urlencode($region->label());
+            $imagePath = $product?->images->first()?->path;
+            $image = $imagePath
+                ? Storage::disk('public')->url($imagePath)
+                : 'https://placehold.co/400x400?text=' . urlencode($region->label());
 
             return [
                 'value' => $region->value,

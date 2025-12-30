@@ -12,7 +12,7 @@ $p = is_array($product) ? (object) $product : $product;
     <a href="{{ route('products.show', ['locale' => app()->getLocale(), 'product' => $p->slug ?? $p->id]) }}"
        class="block cursor-pointer">
         <!-- Image Container -->
-        <div class="relative aspect-[4/3] overflow-hidden">
+        <div class="relative aspect-square overflow-hidden">
             <img src="{{ $p->image ?? 'https://placehold.co/300x300?text=NO+IMAGE' }}"
                  alt="{{ $p->title }}"
                  class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"

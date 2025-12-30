@@ -1,0 +1,24 @@
+<?php
+
+return [
+    'basic_info' => 'Basic Information',
+    'basic_info_desc' => 'You can edit your personal information',
+    'email_readonly' => 'Email cannot be changed',
+    'preferred_language' => 'Preferred Language',
+    'save_changes' => 'Save Changes',
+    'account_status' => 'Account Status',
+    'joined_date' => 'Joined Date',
+    'membership_tier' => 'Membership Tier',
+    'regular_member' => 'Regular Member',
+    'no_show_count' => 'No-show Count',
+    'times' => 'times',
+    'warning' => 'Warning:',
+    'no_show_warning' => 'Reservations may be restricted after 3 no-shows.',
+    'security' => 'Security',
+    'change_password' => 'Change Password',
+    'danger_zone' => 'Danger Zone',
+    'delete_account_warning' => 'Deleting your account will permanently remove all data and cannot be recovered.',
+    'delete_account' => 'Delete Account',
+    'delete_confirm' => 'Are you sure you want to delete your account?\nThis action cannot be undone.',
+    'delete_not_ready' => 'Account deletion feature is coming soon.',
+];

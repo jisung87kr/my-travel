@@ -1,7 +1,7 @@
 <x-layouts.app :title="__('nav.products')">
     <div class="min-h-screen bg-gray-50" x-data="productFilters()">
         <!-- Hero Section -->
-        <div class="bg-white border-b border-slate-200">
+        <div class="bg-white border-b border-slate-200 py-4">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-12">
                 <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 mb-2">{{ __('nav.products') }}</h1>
                 <p class="text-slate-500">현지 가이드와 함께하는 특별한 여행 경험을 찾아보세요</p>
