@@ -336,6 +336,103 @@
         </div>
     </section>
 
+    <!-- Featured Collections / 기획전 -->
+    <section class="py-16 sm:py-24 bg-gradient-to-b from-slate-50 to-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <!-- Section Header -->
+            <div class="text-center mb-12">
+                <h2 class="text-2xl sm:text-3xl font-bold text-slate-900 mb-3">
+                    이번 시즌 <span class="text-pink-500">기획전</span>
+                </h2>
+                <p class="text-slate-500 max-w-2xl mx-auto">특별히 엄선한 테마별 여행 컬렉션을 만나보세요</p>
+            </div>
+
+            <!-- Featured Grid -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                <!-- Main Featured -->
+                <a href="{{ route('products.index', ['locale' => app()->getLocale()]) }}" class="group relative block overflow-hidden rounded-3xl aspect-[4/3] lg:aspect-auto lg:row-span-2">
+                    <img src="https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=1200&q=80"
+                         alt="겨울 서울 여행"
+                         class="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
+                    <div class="absolute bottom-0 left-0 right-0 p-6 sm:p-8">
+                        <span class="inline-block px-3 py-1 bg-pink-500 text-white text-xs font-semibold rounded-full mb-3">NEW</span>
+                        <h3 class="text-2xl sm:text-3xl font-bold text-white mb-2">겨울 서울 완전정복</h3>
+                        <p class="text-white/80 text-sm sm:text-base mb-4">눈 내리는 서울의 낭만을 담은 특별 기획</p>
+                        <span class="inline-flex items-center text-white font-medium group-hover:gap-3 gap-2 transition-all">
+                            컬렉션 보기
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3" />
+                            </svg>
+                        </span>
+                    </div>
+                </a>
+
+                <!-- Sub Featured 1 -->
+                <a href="{{ route('products.index', ['locale' => app()->getLocale()]) }}" class="group relative block overflow-hidden rounded-3xl aspect-[4/3]">
+                    <img src="https://images.unsplash.com/photo-1596178065887-1198b6148b2b?w=800&q=80"
+                         alt="부산 미식 여행"
+                         class="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
+                    <div class="absolute bottom-0 left-0 right-0 p-6">
+                        <span class="inline-block px-3 py-1 bg-amber-500 text-white text-xs font-semibold rounded-full mb-3">HOT</span>
+                        <h3 class="text-xl sm:text-2xl font-bold text-white mb-2">부산 미식 투어</h3>
+                        <p class="text-white/80 text-sm">현지인만 아는 맛집 & 시장 탐방</p>
+                    </div>
+                </a>
+
+                <!-- Sub Featured 2 -->
+                <a href="{{ route('products.index', ['locale' => app()->getLocale()]) }}" class="group relative block overflow-hidden rounded-3xl aspect-[4/3]">
+                    <img src="https://images.unsplash.com/photo-1544377193-33dcf4d68fb5?w=800&q=80"
+                         alt="제주 힐링 여행"
+                         class="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
+                    <div class="absolute bottom-0 left-0 right-0 p-6">
+                        <span class="inline-block px-3 py-1 bg-emerald-500 text-white text-xs font-semibold rounded-full mb-3">BEST</span>
+                        <h3 class="text-xl sm:text-2xl font-bold text-white mb-2">제주 힐링 스테이</h3>
+                        <p class="text-white/80 text-sm">자연 속에서 찾는 진정한 휴식</p>
+                    </div>
+                </a>
+            </div>
+
+            <!-- Bottom Row -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                <a href="{{ route('products.index', ['locale' => app()->getLocale()]) }}" class="group relative block overflow-hidden rounded-2xl aspect-[3/2]">
+                    <img src="https://images.unsplash.com/photo-1517154421773-0529f29ea451?w=600&q=80"
+                         alt="경주 역사 여행"
+                         class="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                    <div class="absolute bottom-0 left-0 right-0 p-5">
+                        <h3 class="text-lg font-bold text-white mb-1">경주 역사 탐방</h3>
+                        <p class="text-white/70 text-sm">천년 고도의 숨결</p>
+                    </div>
+                </a>
+
+                <a href="{{ route('products.index', ['locale' => app()->getLocale()]) }}" class="group relative block overflow-hidden rounded-2xl aspect-[3/2]">
+                    <img src="https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=600&q=80"
+                         alt="강원 겨울 액티비티"
+                         class="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                    <div class="absolute bottom-0 left-0 right-0 p-5">
+                        <h3 class="text-lg font-bold text-white mb-1">강원 스노우 액티비티</h3>
+                        <p class="text-white/70 text-sm">스키 & 스노보드 특가</p>
+                    </div>
+                </a>
+
+                <a href="{{ route('products.index', ['locale' => app()->getLocale()]) }}" class="group relative block overflow-hidden rounded-2xl aspect-[3/2]">
+                    <img src="https://images.unsplash.com/photo-1538485399081-7191377e8241?w=600&q=80"
+                         alt="전주 한옥마을"
+                         class="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                    <div class="absolute bottom-0 left-0 right-0 p-5">
+                        <h3 class="text-lg font-bold text-white mb-1">전주 한옥마을</h3>
+                        <p class="text-white/70 text-sm">전통과 맛의 도시</p>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </section>
+
     <!-- Features - Simple Stats -->
     <section class="py-16 sm:py-20 bg-slate-50 border-y border-slate-200">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
