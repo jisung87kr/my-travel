@@ -10,11 +10,11 @@
         @endif
     @endpush
 
-    <article class="bg-white">
+    <article class="">
         <!-- Hero -->
         <div class="relative">
             @if($post->thumbnail_url)
-                <div class="aspect-[21/9] max-h-[400px] overflow-hidden">
+                <div class="max-h-[400px] overflow-hidden">
                     <img src="{{ $post->thumbnail_url }}" alt="{{ $post->title }}" class="w-full h-full object-cover">
                     <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent"></div>
                 </div>

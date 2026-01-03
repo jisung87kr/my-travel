@@ -1,5 +1,5 @@
 <x-layouts.app title="블로그">
-    <div class="bg-gradient-to-b from-pink-50 to-white py-12">
+    <div class="bg-gradient-to-b py-12">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <!-- Header -->
             <div class="text-center mb-12">
