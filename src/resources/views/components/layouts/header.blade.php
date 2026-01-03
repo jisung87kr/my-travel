@@ -197,26 +197,18 @@
                          class="absolute right-0 mt-2 w-40 bg-white rounded-xl shadow-xl border border-gray-100 py-1 overflow-hidden"
                          role="menu"
                          style="display: none;">
-                        @php
-                            $languages = [
-                                'en' => 'English',
-                                'ko' => '한국어',
-                                'ja' => '日本語',
-                                'zh' => '中文'
-                            ];
-                        @endphp
-                        @foreach($languages as $code => $name)
-                        <a href="{{ route('locale.switch', ['locale' => $code]) }}"
-                           class="flex items-center gap-3 px-4 py-2.5 text-sm transition-colors {{ app()->getLocale() === $code ? 'bg-pink-50 text-pink-600 font-medium' : 'text-gray-700 hover:bg-gray-50' }}"
+                        @foreach(\App\Enums\Language::cases() as $language)
+                        <a href="{{ route('locale.switch', ['locale' => $language->value]) }}"
+                           class="flex items-center gap-3 px-4 py-2.5 text-sm transition-colors {{ app()->getLocale() === $language->value ? 'bg-pink-50 text-pink-600 font-medium' : 'text-gray-700 hover:bg-gray-50' }}"
                            role="menuitem">
-                            @if(app()->getLocale() === $code)
+                            @if(app()->getLocale() === $language->value)
                             <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
                             </svg>
                             @else
                             <span class="w-4"></span>
                             @endif
-                            {{ $name }}
+                            {{ $language->label() }}
                         </a>
                         @endforeach
                     </div>
@@ -369,18 +361,10 @@
             <div class="pt-3 border-t border-gray-100">
                 <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 px-1">{{ __('nav.language') }}</p>
                 <div class="grid grid-cols-4 gap-2">
-                    @php
-                        $mobileLanguages = [
-                            'en' => 'EN',
-                            'ko' => '한',
-                            'ja' => '日',
-                            'zh' => '中'
-                        ];
-                    @endphp
-                    @foreach($mobileLanguages as $code => $label)
-                    <a href="{{ route('locale.switch', ['locale' => $code]) }}"
-                       class="flex items-center justify-center px-3 py-2.5 text-sm font-medium rounded-lg transition-colors {{ app()->getLocale() === $code ? 'bg-pink-500 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200' }}">
-                        {{ $label }}
+                    @foreach(\App\Enums\Language::cases() as $language)
+                    <a href="{{ route('locale.switch', ['locale' => $language->value]) }}"
+                       class="flex items-center justify-center px-3 py-2.5 text-sm font-medium rounded-lg transition-colors {{ app()->getLocale() === $language->value ? 'bg-pink-500 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200' }}">
+                        {{ $language->shortLabel() }}
                     </a>
                     @endforeach
                 </div>

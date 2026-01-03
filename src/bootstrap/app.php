@@ -22,6 +22,11 @@ return Application::configure(basePath: dirname(__DIR__))
             'locale' => SetLocale::class,
         ]);
 
+        // Apply SetLocale to all web routes
+        $middleware->web(append: [
+            SetLocale::class,
+        ]);
+
         // Sanctum stateful middleware for API routes (SPA authentication)
         $middleware->api(prepend: [
             EnsureFrontendRequestsAreStateful::class,

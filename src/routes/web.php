@@ -10,6 +10,7 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\SupportController;
 use App\Http\Controllers\Traveler\MyController;
 use App\Http\Controllers\Traveler\ProductController as TravelerProductController;
+use App\Enums\Language;
 use Illuminate\Support\Facades\Route;
 
 // Home page
@@ -17,7 +18,7 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 
 // Locale switch route
 Route::get('/locale/{locale}', function (string $locale) {
-    if (in_array($locale, ['ko', 'en', 'zh', 'ja'])) {
+    if (in_array($locale, Language::values())) {
         session(['locale' => $locale]);
         app()->setLocale($locale);
     }

@@ -29,6 +29,16 @@ enum Language: string
         };
     }
 
+    public function shortLabel(): string
+    {
+        return match ($this) {
+            self::KO => '한',
+            self::EN => 'EN',
+            self::ZH => '中',
+            self::JA => '日',
+        };
+    }
+
     public static function values(): array
     {
         return array_column(self::cases(), 'value');
