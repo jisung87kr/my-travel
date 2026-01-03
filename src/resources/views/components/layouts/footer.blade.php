@@ -192,25 +192,15 @@
 
                 <!-- Language Links -->
                 <div class="flex flex-wrap items-center justify-center gap-4 text-sm">
-                    <a href="{{ route('locale.switch', ['locale' => 'en']) }}"
-                       class="text-gray-600 hover:text-pink-600 transition-colors {{ app()->getLocale() === 'en' ? 'font-semibold text-pink-600' : '' }}">
-                        English
-                    </a>
-                    <span class="text-gray-300">|</span>
-                    <a href="{{ route('locale.switch', ['locale' => 'ko']) }}"
-                       class="text-gray-600 hover:text-pink-600 transition-colors {{ app()->getLocale() === 'ko' ? 'font-semibold text-pink-600' : '' }}">
-                        한국어
-                    </a>
-                    <span class="text-gray-300">|</span>
-                    <a href="{{ route('locale.switch', ['locale' => 'ja']) }}"
-                       class="text-gray-600 hover:text-pink-600 transition-colors {{ app()->getLocale() === 'ja' ? 'font-semibold text-pink-600' : '' }}">
-                        日本語
-                    </a>
-                    <span class="text-gray-300">|</span>
-                    <a href="{{ route('locale.switch', ['locale' => 'zh']) }}"
-                       class="text-gray-600 hover:text-pink-600 transition-colors {{ app()->getLocale() === 'zh' ? 'font-semibold text-pink-600' : '' }}">
-                        中文
-                    </a>
+                    @foreach(\App\Enums\Language::cases() as $index => $language)
+                        @if($index > 0)
+                            <span class="text-gray-300">|</span>
+                        @endif
+                        <a href="{{ route('locale.switch', ['locale' => $language->value]) }}"
+                           class="text-gray-600 hover:text-pink-600 transition-colors {{ app()->getLocale() === $language->value ? 'font-semibold text-pink-600' : '' }}">
+                            {{ $language->nativeLabel() }}
+                        </a>
+                    @endforeach
                 </div>
 
                 <!-- Currency/Region (Optional) -->
