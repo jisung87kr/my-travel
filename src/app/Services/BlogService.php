@@ -43,7 +43,7 @@ class BlogService
                 $this->syncTags($post, $data['tags']);
             }
 
-            if ($data['status'] === 'published') {
+            if (($data['status'] ?? null) === 'published') {
                 $this->publish($post);
             }
 

@@ -35,7 +35,7 @@ class BlogCommentController extends Controller
                 ],
                 'parent_id' => $comment->parent_id,
             ],
-        ]);
+        ], 201);
     }
 
     public function destroy(BlogComment $comment): JsonResponse
