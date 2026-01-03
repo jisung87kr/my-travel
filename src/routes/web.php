@@ -50,6 +50,15 @@ Route::prefix('support')->name('support.')->group(function () {
     Route::get('/terms', [SupportController::class, 'terms'])->name('terms');
 });
 
+// Blog routes (public)
+Route::prefix('blog')->name('blog.')->group(function () {
+    Route::get('/', [\App\Http\Controllers\Traveler\BlogController::class, 'index'])->name('index');
+    Route::get('/category/{slug}', [\App\Http\Controllers\Traveler\BlogController::class, 'category'])->name('category');
+    Route::get('/series/{slug}', [\App\Http\Controllers\Traveler\BlogController::class, 'series'])->name('series');
+    Route::get('/tag/{slug}', [\App\Http\Controllers\Traveler\BlogController::class, 'tag'])->name('tag');
+    Route::get('/{slug}', [\App\Http\Controllers\Traveler\BlogController::class, 'show'])->name('show');
+});
+
 // Locale-prefixed routes
 Route::prefix('{locale}')->where(['locale' => 'ko|en|zh|ja'])->middleware('locale')->group(function () {
     // Public product routes
@@ -159,6 +168,23 @@ Route::middleware(['auth', 'user.active', 'role:vendor,admin'])->prefix('vendor'
 Route::middleware(['auth', 'user.active', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
     // Dashboard
     Route::get('/', [\App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('dashboard');
+
+    // Blog management
+    Route::prefix('blog')->name('blog.')->group(function () {
+        // Posts
+        Route::resource('posts', \App\Http\Controllers\Admin\BlogPostController::class);
+        Route::patch('posts/{post}/publish', [\App\Http\Controllers\Admin\BlogPostController::class, 'publish'])->name('posts.publish');
+        Route::patch('posts/{post}/unpublish', [\App\Http\Controllers\Admin\BlogPostController::class, 'unpublish'])->name('posts.unpublish');
+        Route::patch('posts/{post}/archive', [\App\Http\Controllers\Admin\BlogPostController::class, 'archive'])->name('posts.archive');
+
+        // Categories
+        Route::resource('categories', \App\Http\Controllers\Admin\BlogCategoryController::class);
+        Route::post('categories/reorder', [\App\Http\Controllers\Admin\BlogCategoryController::class, 'reorder'])->name('categories.reorder');
+
+        // Series
+        Route::resource('series', \App\Http\Controllers\Admin\BlogSeriesController::class);
+        Route::post('series/{series}/reorder-posts', [\App\Http\Controllers\Admin\BlogSeriesController::class, 'reorderPosts'])->name('series.reorder-posts');
+    });
 
     // User management
     Route::get('users', [\App\Http\Controllers\Admin\UserController::class, 'index'])->name('users.index');

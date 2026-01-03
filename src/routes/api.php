@@ -30,6 +30,11 @@ Route::name('api.public.')->group(function () {
 
 // Authenticated user API routes
 Route::middleware(['auth:sanctum', 'user.active'])->name('api.')->group(function () {
+    // Blog API (comments and likes)
+    Route::post('blog/{post}/comments', [\App\Http\Controllers\Api\BlogCommentController::class, 'store'])->name('blog.comments.store');
+    Route::delete('blog/comments/{comment}', [\App\Http\Controllers\Api\BlogCommentController::class, 'destroy'])->name('blog.comments.destroy');
+    Route::post('blog/{post}/like', [\App\Http\Controllers\Api\BlogLikeController::class, 'toggle'])->name('blog.like.toggle');
+
     // Booking API
     Route::get('bookings', [BookingController::class, 'index'])->name('bookings.index');
     Route::post('bookings', [BookingController::class, 'store'])->name('bookings.store');
@@ -124,7 +129,8 @@ Route::middleware(['auth:sanctum', 'user.active', 'role:guide,admin'])->prefix('
         ->name('bookings.no-show');
 });
 
-// Admin API routes (placeholder for future)
+// Admin API routes
 Route::middleware(['auth:sanctum', 'user.active', 'role:admin'])->prefix('admin')->name('api.admin.')->group(function () {
-    // Add admin API endpoints here if needed
+    // Blog image upload (for Tiptap editor)
+    Route::post('blog/upload-image', [\App\Http\Controllers\Api\Admin\BlogImageController::class, 'store'])->name('blog.upload-image');
 });
