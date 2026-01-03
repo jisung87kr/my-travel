@@ -21,4 +21,6 @@ return [
     'delete_account' => 'Delete Account',
     'delete_confirm' => 'Are you sure you want to delete your account?\nThis action cannot be undone.',
     'delete_not_ready' => 'Account deletion feature is coming soon.',
+    'phone_placeholder' => '+1-000-000-0000',
+    'joined_date_format' => 'M j, Y',
 ];

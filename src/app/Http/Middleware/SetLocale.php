@@ -17,20 +17,22 @@ class SetLocale
         if ($locale && in_array($locale, $supportedLocales)) {
             app()->setLocale($locale);
         } else {
-            // Check session or user preference
-            $locale = session('locale', Language::default()->value);
+            // Priority: session > user preference > browser > default
+            $sessionLocale = session('locale');
 
-            // Check Accept-Language header
-            if (!session('locale') && $request->hasHeader('Accept-Language')) {
-                $browserLocale = substr($request->header('Accept-Language'), 0, 2);
-                if (in_array($browserLocale, $supportedLocales)) {
-                    $locale = $browserLocale;
-                }
-            }
-
-            // Check authenticated user's preference
-            if (auth()->check() && auth()->user()->preferred_language) {
+            if ($sessionLocale && in_array($sessionLocale, $supportedLocales)) {
+                // Session locale takes priority (user explicitly selected)
+                $locale = $sessionLocale;
+            } elseif (auth()->check() && auth()->user()->preferred_language) {
+                // Fall back to authenticated user's preference
                 $locale = auth()->user()->preferred_language->value;
+            } elseif ($request->hasHeader('Accept-Language')) {
+                // Fall back to browser Accept-Language header
+                $browserLocale = substr($request->header('Accept-Language'), 0, 2);
+                $locale = in_array($browserLocale, $supportedLocales) ? $browserLocale : Language::default()->value;
+            } else {
+                // Default locale
+                $locale = Language::default()->value;
             }
 
             app()->setLocale($locale);

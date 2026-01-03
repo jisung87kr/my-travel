@@ -6,7 +6,7 @@
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
             </svg>
-            <span class="text-sm font-medium">목록으로</span>
+            <span class="text-sm font-medium">{{ __('booking.back_to_list') }}</span>
         </a>
     </div>
 
@@ -18,7 +18,7 @@
                 <div class="p-6">
                     <div class="flex items-center justify-between mb-4">
                         <div>
-                            <p class="text-sm text-gray-500 mb-1">예약번호</p>
+                            <p class="text-sm text-gray-500 mb-1">{{ __('booking.booking_number') }}</p>
                             <p class="text-lg font-bold text-gray-900">{{ $booking->booking_code }}</p>
                         </div>
                         <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-semibold"
@@ -34,14 +34,14 @@
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
                                 </svg>
-                                <span>예약일: {{ $booking->created_at->format('Y.m.d H:i') }}</span>
+                                <span>{{ __('booking.booked_at') }} {{ $booking->created_at->format('Y.m.d H:i') }}</span>
                             </div>
                             @if($booking->confirmed_at)
                                 <div class="flex items-center gap-2 text-green-600">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                     </svg>
-                                    <span>확정일: {{ $booking->confirmed_at->format('Y.m.d H:i') }}</span>
+                                    <span>{{ __('booking.confirmed_at') }} {{ $booking->confirmed_at->format('Y.m.d H:i') }}</span>
                                 </div>
                             @endif
                             @if($booking->cancelled_at)
@@ -49,7 +49,7 @@
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                     </svg>
-                                    <span>취소일: {{ $booking->cancelled_at->format('Y.m.d H:i') }}</span>
+                                    <span>{{ __('booking.cancelled_at') }} {{ $booking->cancelled_at->format('Y.m.d H:i') }}</span>
                                 </div>
                             @endif
                         </div>
@@ -81,7 +81,7 @@
                         </h2>
                         <a href="{{ route('products.show', ['locale' => app()->getLocale(), 'product' => $booking->product->slug]) }}"
                            class="inline-flex items-center gap-1 text-sm text-pink-600 hover:text-pink-700 font-medium">
-                            상품 상세보기
+                            {{ __('booking.view_product') }}
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
                             </svg>
@@ -99,8 +99,8 @@
                         </svg>
                     </div>
                     <div>
-                        <h3 class="text-lg font-bold text-gray-900">일정 정보</h3>
-                        <p class="text-sm text-gray-500">예약하신 일정입니다</p>
+                        <h3 class="text-lg font-bold text-gray-900">{{ __('booking.schedule_info') }}</h3>
+                        <p class="text-sm text-gray-500">{{ __('booking.schedule_info_desc') }}</p>
                     </div>
                 </div>
 
@@ -112,8 +112,8 @@
                             </svg>
                         </div>
                         <div>
-                            <p class="text-xs text-gray-500 mb-0.5">날짜</p>
-                            <p class="font-semibold text-gray-900">{{ $booking->schedule->date->format('Y년 m월 d일') }}</p>
+                            <p class="text-xs text-gray-500 mb-0.5">{{ __('booking.date_label') }}</p>
+                            <p class="font-semibold text-gray-900">{{ $booking->schedule->date->translatedFormat('Y. m. d (D)') }}</p>
                         </div>
                     </div>
                     <div class="flex items-center gap-3 p-4 bg-gray-50 rounded-xl">
@@ -123,8 +123,8 @@
                             </svg>
                         </div>
                         <div>
-                            <p class="text-xs text-gray-500 mb-0.5">시간</p>
-                            <p class="font-semibold text-gray-900">{{ $booking->schedule->start_time?->format('H:i') ?? '시간 미정' }}</p>
+                            <p class="text-xs text-gray-500 mb-0.5">{{ __('booking.time_label') }}</p>
+                            <p class="font-semibold text-gray-900">{{ $booking->schedule->start_time?->format('H:i') ?? __('booking.time_tbd') }}</p>
                         </div>
                     </div>
                 </div>
@@ -139,8 +139,8 @@
                         </svg>
                     </div>
                     <div>
-                        <h3 class="text-lg font-bold text-gray-900">참여 인원</h3>
-                        <p class="text-sm text-gray-500">총 {{ $booking->total_persons }}명</p>
+                        <h3 class="text-lg font-bold text-gray-900">{{ __('booking.participants') }}</h3>
+                        <p class="text-sm text-gray-500">{{ __('booking.total_persons', ['count' => $booking->total_persons]) }}</p>
                     </div>
                 </div>
 
@@ -169,8 +169,8 @@
                         </svg>
                     </div>
                     <div>
-                        <h3 class="text-lg font-bold text-gray-900">예약자 정보</h3>
-                        <p class="text-sm text-gray-500">예약 시 입력한 정보입니다</p>
+                        <h3 class="text-lg font-bold text-gray-900">{{ __('booking.booker_info_detail') }}</h3>
+                        <p class="text-sm text-gray-500">{{ __('booking.booker_info_detail_desc') }}</p>
                     </div>
                 </div>
 
@@ -180,7 +180,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
                         </svg>
                         <div>
-                            <p class="text-xs text-gray-500">이름</p>
+                            <p class="text-xs text-gray-500">{{ __('booking.name_label') }}</p>
                             <p class="font-medium text-gray-900">{{ $booking->contact_name }}</p>
                         </div>
                     </div>
@@ -189,7 +189,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
                         </svg>
                         <div>
-                            <p class="text-xs text-gray-500">이메일</p>
+                            <p class="text-xs text-gray-500">{{ __('booking.email_label') }}</p>
                             <p class="font-medium text-gray-900">{{ $booking->contact_email }}</p>
                         </div>
                     </div>
@@ -198,7 +198,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 01-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z" />
                         </svg>
                         <div>
-                            <p class="text-xs text-gray-500">연락처</p>
+                            <p class="text-xs text-gray-500">{{ __('booking.phone_label') }}</p>
                             <p class="font-medium text-gray-900">{{ $booking->contact_phone ?? '-' }}</p>
                         </div>
                     </div>
@@ -215,7 +215,7 @@
                             </svg>
                         </div>
                         <div>
-                            <h3 class="text-lg font-bold text-gray-900">특별 요청사항</h3>
+                            <h3 class="text-lg font-bold text-gray-900">{{ __('booking.special_request_title') }}</h3>
                         </div>
                     </div>
                     <p class="text-gray-600 bg-gray-50 p-4 rounded-xl">{{ $booking->special_request }}</p>
@@ -232,7 +232,7 @@
                             </svg>
                         </div>
                         <div>
-                            <h3 class="text-lg font-bold text-red-900">취소 사유</h3>
+                            <h3 class="text-lg font-bold text-red-900">{{ __('booking.cancellation_reason') }}</h3>
                         </div>
                     </div>
                     <p class="text-red-700">{{ $booking->cancellation_reason }}</p>
@@ -245,37 +245,37 @@
             <div class="sticky top-32 space-y-6">
                 <!-- Price Summary -->
                 <div class="bg-white rounded-2xl shadow-sm p-6">
-                    <h3 class="text-lg font-bold text-gray-900 mb-4">결제 정보</h3>
+                    <h3 class="text-lg font-bold text-gray-900 mb-4">{{ __('booking.payment_info') }}</h3>
 
                     <div class="space-y-3 pb-4 border-b border-gray-100">
                         <div class="flex justify-between text-sm">
-                            <span class="text-gray-500">성인 {{ $booking->adult_count }}명</span>
+                            <span class="text-gray-500">{{ __('booking.adults_with_count', ['count' => $booking->adult_count]) }}</span>
                             <span class="text-gray-900">-</span>
                         </div>
                         @if($booking->child_count > 0)
                             <div class="flex justify-between text-sm">
-                                <span class="text-gray-500">아동 {{ $booking->child_count }}명</span>
+                                <span class="text-gray-500">{{ __('booking.children_with_count', ['count' => $booking->child_count]) }}</span>
                                 <span class="text-gray-900">-</span>
                             </div>
                         @endif
                         @if($booking->infant_count > 0)
                             <div class="flex justify-between text-sm">
-                                <span class="text-gray-500">유아 {{ $booking->infant_count }}명</span>
-                                <span class="text-gray-900">무료</span>
+                                <span class="text-gray-500">{{ __('booking.infants_with_count', ['count' => $booking->infant_count]) }}</span>
+                                <span class="text-gray-900">{{ __('booking.free') }}</span>
                             </div>
                         @endif
                     </div>
 
                     <div class="flex justify-between items-center pt-4">
-                        <span class="font-bold text-gray-900">총 결제금액</span>
-                        <span class="text-2xl font-bold text-pink-600">{{ number_format($booking->total_price) }}원</span>
+                        <span class="font-bold text-gray-900">{{ __('booking.total_payment_amount') }}</span>
+                        <span class="text-2xl font-bold text-pink-600">{{ number_format($booking->total_price) }}{{ __('booking.currency_suffix') }}</span>
                     </div>
                 </div>
 
                 <!-- Vendor Info -->
                 @if($booking->product->vendor)
                     <div class="bg-white rounded-2xl shadow-sm p-6">
-                        <h3 class="text-lg font-bold text-gray-900 mb-4">판매자 정보</h3>
+                        <h3 class="text-lg font-bold text-gray-900 mb-4">{{ __('booking.vendor_info') }}</h3>
                         <div class="flex items-center gap-3">
                             <div class="w-12 h-12 rounded-full bg-gradient-to-br from-pink-400 to-rose-500 flex items-center justify-center text-white font-bold">
                                 {{ mb_substr($booking->product->vendor->user->name ?? 'V', 0, 1) }}
@@ -297,7 +297,7 @@
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
                             </svg>
-                            예약 취소
+                            {{ __('booking.cancel_booking') }}
                         </button>
                     @endif
 
@@ -307,7 +307,7 @@
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z" />
                             </svg>
-                            리뷰 작성하기
+                            {{ __('booking.write_review') }}
                         </a>
                     @endif
 
@@ -316,7 +316,7 @@
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 01-2.555-.337A5.972 5.972 0 015.41 20.97a5.969 5.969 0 01-.474-.065 4.48 4.48 0 00.978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25z" />
                         </svg>
-                        문의하기
+                        {{ __('booking.contact_vendor') }}
                     </a>
                 </div>
             </div>
@@ -331,7 +331,7 @@
             <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden" onclick="event.stopPropagation()">
                 {{-- Header --}}
                 <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
-                    <h3 class="text-lg font-bold text-gray-900">예약 취소</h3>
+                    <h3 class="text-lg font-bold text-gray-900">{{ __('booking.cancel_booking') }}</h3>
                     <button type="button" onclick="closeCancelModal()" class="w-8 h-8 rounded-full hover:bg-gray-100 flex items-center justify-center transition-colors">
                         <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -350,35 +350,35 @@
                                 </svg>
                             </div>
                             <div>
-                                <p class="font-semibold text-red-900">정말 취소하시겠습니까?</p>
-                                <p class="text-sm text-red-700">취소 후에는 되돌릴 수 없습니다.</p>
+                                <p class="font-semibold text-red-900">{{ __('booking.cancel_confirm_title') }}</p>
+                                <p class="text-sm text-red-700">{{ __('booking.cancel_confirm_desc') }}</p>
                             </div>
                         </div>
 
                         <div class="mb-4">
                             <label for="cancel-reason" class="block text-sm font-medium text-gray-700 mb-2">
-                                취소 사유 <span class="text-gray-400">(선택)</span>
+                                {{ __('booking.cancel_reason_optional') }}
                             </label>
                             <textarea id="cancel-reason"
                                       name="reason"
                                       rows="3"
-                                      placeholder="취소 사유를 입력해 주세요..."
+                                      placeholder="{{ __('booking.cancel_reason_placeholder') }}"
                                       class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-pink-500/20 focus:border-pink-500 transition-colors resize-none"></textarea>
                         </div>
 
                         {{-- Booking Summary --}}
                         <div class="bg-gray-50 rounded-xl p-4 text-sm">
                             <div class="flex justify-between mb-2">
-                                <span class="text-gray-500">예약번호</span>
+                                <span class="text-gray-500">{{ __('booking.booking_number') }}</span>
                                 <span class="font-medium text-gray-900">{{ $booking->booking_code }}</span>
                             </div>
                             <div class="flex justify-between mb-2">
-                                <span class="text-gray-500">예약일</span>
+                                <span class="text-gray-500">{{ __('booking.date') }}</span>
                                 <span class="font-medium text-gray-900">{{ $booking->schedule->date->format('Y.m.d') }}</span>
                             </div>
                             <div class="flex justify-between">
-                                <span class="text-gray-500">결제금액</span>
-                                <span class="font-medium text-gray-900">{{ number_format($booking->total_price) }}원</span>
+                                <span class="text-gray-500">{{ __('booking.payment_amount') }}</span>
+                                <span class="font-medium text-gray-900">{{ number_format($booking->total_price) }}{{ __('booking.currency_suffix') }}</span>
                             </div>
                         </div>
                     </div>
@@ -388,11 +388,11 @@
                         <button type="button"
                                 onclick="closeCancelModal()"
                                 class="flex-1 px-4 py-3 bg-gray-100 text-gray-700 rounded-xl font-semibold hover:bg-gray-200 transition-colors">
-                            닫기
+                            {{ __('booking.close') }}
                         </button>
                         <button type="submit"
                                 class="flex-1 px-4 py-3 bg-red-600 text-white rounded-xl font-semibold hover:bg-red-700 transition-colors">
-                            예약 취소
+                            {{ __('booking.cancel_booking') }}
                         </button>
                     </div>
                 </form>

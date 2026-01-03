@@ -22,6 +22,20 @@ Route::get('/locale/{locale}', function (string $locale) {
         session(['locale' => $locale]);
         app()->setLocale($locale);
     }
+
+    // Replace locale in previous URL if it exists
+    $previousUrl = url()->previous();
+    $localePattern = '/^(' . implode('|', Language::values()) . ')(\/|$)/';
+
+    $parsedUrl = parse_url($previousUrl);
+    $path = ltrim($parsedUrl['path'] ?? '/', '/');
+
+    if (preg_match($localePattern, $path)) {
+        // Replace old locale with new locale in URL
+        $newPath = preg_replace($localePattern, $locale . '$2', $path);
+        return redirect('/' . $newPath);
+    }
+
     return redirect()->back();
 })->name('locale.switch');
 

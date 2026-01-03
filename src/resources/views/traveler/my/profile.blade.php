@@ -97,7 +97,7 @@
                                    id="phone"
                                    name="phone"
                                    value="{{ old('phone', $user->phone) }}"
-                                   placeholder="010-0000-0000"
+                                   placeholder="{{ __('profile.phone_placeholder') }}"
                                    class="block w-full pl-11 pr-4 py-3 border border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-pink-500/20 focus:border-pink-500 transition-colors">
                         </div>
                         @error('phone')
@@ -164,7 +164,7 @@
                 <div class="space-y-4">
                     <div class="flex items-center justify-between py-3 border-b border-gray-100">
                         <span class="text-sm text-gray-500">{{ __('profile.joined_date') }}</span>
-                        <span class="text-sm font-medium text-gray-900">{{ $user->created_at->translatedFormat('Y년 n월 j일') }}</span>
+                        <span class="text-sm font-medium text-gray-900">{{ $user->created_at->translatedFormat(__('profile.joined_date_format')) }}</span>
                     </div>
                     <div class="flex items-center justify-between py-3 border-b border-gray-100">
                         <span class="text-sm text-gray-500">{{ __('profile.membership_tier') }}</span>

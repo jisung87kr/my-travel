@@ -111,4 +111,7 @@ return [
 
     // Share
     'link_copied' => 'Link copied!',
+
+    // Units
+    'persons_unit' => '',
 ];

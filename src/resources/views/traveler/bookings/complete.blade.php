@@ -1,4 +1,4 @@
-<x-layouts.app title="예약 완료">
+<x-layouts.app :title="__('booking.complete_title')">
     <!-- Progress Bar -->
     <div class="bg-white border-b border-gray-100">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
@@ -10,7 +10,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
                         </svg>
                     </div>
-                    <span class="ml-2 text-sm font-medium text-gray-500 hidden sm:inline">예약정보</span>
+                    <span class="ml-2 text-sm font-medium text-gray-500 hidden sm:inline">{{ __('booking.step_booking_info') }}</span>
                 </div>
 
                 <div class="w-12 sm:w-24 h-0.5 bg-green-500 rounded-full"></div>
@@ -22,7 +22,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
                         </svg>
                     </div>
-                    <span class="ml-2 text-sm font-medium text-gray-900 hidden sm:inline">완료</span>
+                    <span class="ml-2 text-sm font-medium text-gray-900 hidden sm:inline">{{ __('booking.step_complete') }}</span>
                 </div>
             </div>
         </div>
@@ -31,7 +31,6 @@
     <div class="bg-gray-50 min-h-[calc(100vh-200px)]">
         <div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
             @php
-
                 // 상품명 가져오기
                 $locale = app()->getLocale();
                 $productTitle = $booking->product->translations->where('locale', $locale)->first()?->title
@@ -57,10 +56,10 @@
             <!-- Success Message -->
             <div class="text-center mb-8">
                 <h1 class="text-3xl font-bold text-gray-900 mb-2">
-                    예약이 완료되었습니다!
+                    {{ __('booking.complete_success') }}
                 </h1>
                 <p class="text-gray-500">
-                    예약 확인 메일을 {{ auth()->user()->email ?? 'email@example.com' }}로 발송했습니다.
+                    {{ __('booking.confirmation_email_sent', ['email' => auth()->user()->email ?? 'email@example.com']) }}
                 </p>
             </div>
 
@@ -70,7 +69,7 @@
                 <div class="bg-gradient-to-r from-pink-500 to-rose-500 px-6 py-4">
                     <div class="flex items-center justify-between">
                         <div class="text-white">
-                            <p class="text-sm opacity-90">예약번호</p>
+                            <p class="text-sm opacity-90">{{ __('booking.booking_number') }}</p>
                             <p class="text-xl font-bold">{{ $booking->booking_code }}</p>
                         </div>
                         @if($booking->status->value === 'confirmed')
@@ -101,7 +100,7 @@
                             </svg>
                         </div>
                         <div class="flex-1">
-                            <p class="text-sm text-gray-500 mb-1">상품</p>
+                            <p class="text-sm text-gray-500 mb-1">{{ __('booking.product') }}</p>
                             <p class="font-semibold text-gray-900">{{ $productTitle }}</p>
                         </div>
                     </div>
@@ -114,7 +113,7 @@
                             </svg>
                         </div>
                         <div class="flex-1">
-                            <p class="text-sm text-gray-500 mb-1">날짜</p>
+                            <p class="text-sm text-gray-500 mb-1">{{ __('booking.date') }}</p>
                             <p class="font-semibold text-gray-900">
                                 {{ $booking->schedule->starts_at_human }}
                             </p>
@@ -129,9 +128,9 @@
                             </svg>
                         </div>
                         <div class="flex-1">
-                            <p class="text-sm text-gray-500 mb-1">인원</p>
+                            <p class="text-sm text-gray-500 mb-1">{{ __('booking.guests') }}</p>
                             <p class="font-semibold text-gray-900">
-                                성인 {{ $booking->adult_count }}명@if($booking->child_count > 0), 아동 {{ $booking->child_count }}명@endif
+                                {{ __('booking.adults_count', ['count' => $booking->adult_count]) }}@if($booking->child_count > 0), {{ __('booking.children_count', ['count' => $booking->child_count]) }}@endif
                             </p>
                         </div>
                     </div>
@@ -139,7 +138,7 @@
                     <!-- Total Price -->
                     <div class="pt-4 mt-4 border-t border-gray-100">
                         <div class="flex items-center justify-between">
-                            <span class="text-base font-medium text-gray-700">총 결제 금액</span>
+                            <span class="text-base font-medium text-gray-700">{{ __('booking.total_payment') }}</span>
                             <span class="text-2xl font-bold bg-gradient-to-r from-pink-600 to-rose-600 bg-clip-text text-transparent">
                                 ₩{{ number_format($booking->total_price) }}
                             </span>
@@ -158,9 +157,9 @@
                             </svg>
                         </div>
                         <div>
-                            <h3 class="font-semibold text-amber-800 mb-1">승인 대기 중</h3>
+                            <h3 class="font-semibold text-amber-800 mb-1">{{ __('booking.pending_waiting') }}</h3>
                             <p class="text-sm text-amber-700">
-                                가이드가 예약을 확인하는 중입니다. 승인 완료 시 알림을 보내드립니다.
+                                {{ __('booking.pending_message') }}
                             </p>
                         </div>
                     </div>
@@ -174,15 +173,15 @@
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25zM6.75 12h.008v.008H6.75V12zm0 3h.008v.008H6.75V15zm0 3h.008v.008H6.75V18z" />
                     </svg>
-                    예약 내역 보기
+                    {{ __('booking.view_booking_details') }}
                 </a>
 
-                <a href="{{ route('home', ['locale' => app()->getLocale()]) }}"
+                <a href="{{ route('home') }}"
                    class="flex-1 inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-white border border-gray-200 text-gray-700 font-semibold rounded-xl hover:bg-gray-50 transition-colors cursor-pointer">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
                     </svg>
-                    홈으로
+                    {{ __('booking.go_home') }}
                 </a>
             </div>
 
@@ -192,26 +191,26 @@
                     <svg class="w-5 h-5 text-pink-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
-                    다음 단계
+                    {{ __('booking.next_steps') }}
                 </h3>
                 <ul class="space-y-3">
                     <li class="flex items-start gap-3">
                         <div class="flex-shrink-0 w-6 h-6 rounded-full bg-pink-100 flex items-center justify-center mt-0.5">
                             <span class="text-xs font-semibold text-pink-600">1</span>
                         </div>
-                        <span class="text-gray-700">예약 확인 이메일을 확인해주세요</span>
+                        <span class="text-gray-700">{{ __('booking.next_step_1') }}</span>
                     </li>
                     <li class="flex items-start gap-3">
                         <div class="flex-shrink-0 w-6 h-6 rounded-full bg-pink-100 flex items-center justify-center mt-0.5">
                             <span class="text-xs font-semibold text-pink-600">2</span>
                         </div>
-                        <span class="text-gray-700">체험 당일 예약 상세 정보를 다시 확인해주세요</span>
+                        <span class="text-gray-700">{{ __('booking.next_step_2') }}</span>
                     </li>
                     <li class="flex items-start gap-3">
                         <div class="flex-shrink-0 w-6 h-6 rounded-full bg-pink-100 flex items-center justify-center mt-0.5">
                             <span class="text-xs font-semibold text-pink-600">3</span>
                         </div>
-                        <span class="text-gray-700">문의사항이 있으시면 언제든지 가이드에게 메시지를 보내주세요</span>
+                        <span class="text-gray-700">{{ __('booking.next_step_3') }}</span>
                     </li>
                 </ul>
             </div>

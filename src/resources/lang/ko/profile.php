@@ -21,4 +21,6 @@ return [
     'delete_account' => '계정 삭제',
     'delete_confirm' => '정말로 계정을 삭제하시겠습니까?\n이 작업은 취소할 수 없습니다.',
     'delete_not_ready' => '계정 삭제 기능은 준비 중입니다.',
+    'phone_placeholder' => '010-0000-0000',
+    'joined_date_format' => 'Y년 n월 j일',
 ];
