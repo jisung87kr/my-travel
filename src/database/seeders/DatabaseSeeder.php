@@ -51,12 +51,13 @@ class DatabaseSeeder extends Seeder
             $user->assignRole(UserRole::TRAVELER->value);
         }
 
-        // Call vendor, product, booking, and review seeders
+        // Call vendor, product, booking, review, and blog seeders
         $this->call([
             VendorSeeder::class,
             ProductSeeder::class,
             BookingSeeder::class,
             ReviewSeeder::class,
+            BlogSeeder::class,
         ]);
     }
 }
