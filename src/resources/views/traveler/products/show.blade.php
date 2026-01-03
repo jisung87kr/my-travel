@@ -78,7 +78,7 @@
                                     <svg class="w-16 h-16 text-gray-300 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
                                     </svg>
-                                    <p class="text-gray-400 text-sm">이미지가 없습니다</p>
+                                    <p class="text-gray-400 text-sm">{{ __('product.no_image') }}</p>
                                 </div>
                             </div>
                         @endif
@@ -227,7 +227,7 @@
                                                             onclick="openReviewImageModal('{{ $image->path }}')"
                                                             class="relative group overflow-hidden rounded-xl w-20 h-20 sm:w-24 sm:h-24 cursor-pointer focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-offset-2">
                                                         <img src="{{ $image->path }}"
-                                                             alt="리뷰 이미지"
+                                                             alt="{{ __('product.review_image') }}"
                                                              class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
                                                              loading="lazy">
                                                         <div class="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300 flex items-center justify-center">
@@ -242,7 +242,7 @@
 
                                         @if($review->reply)
                                             <div class="mt-4 ml-4 pl-4 border-l-2 border-pink-200 bg-pink-50/50 rounded-r-lg p-4">
-                                                <p class="text-sm font-medium text-pink-700 mb-1">판매자 답변</p>
+                                                <p class="text-sm font-medium text-pink-700 mb-1">{{ __('product.seller_reply') }}</p>
                                                 <p class="text-gray-600 text-sm">{{ $review->reply }}</p>
                                             </div>
                                         @endif
@@ -271,7 +271,7 @@
                                 </div>
                                 @if($childPrice)
                                     <p class="text-sm text-gray-500 mt-1">
-                                        어린이: ₩{{ number_format($childPrice->price) }}
+                                        {{ __('product.child_price') }}: ₩{{ number_format($childPrice->price) }}
                                     </p>
                                 @endif
                             </div>
@@ -324,8 +324,8 @@
                                             </svg>
                                         </div>
                                         <div class="flex-1 min-w-0">
-                                            <span class="block text-[10px] font-bold text-cyan-600 uppercase tracking-wider">일정</span>
-                                            <span class="block text-sm font-medium truncate" :class="selectedDate ? 'text-gray-900' : 'text-gray-400'" x-text="selectedSchedule?.starts_at_human ?? '날짜를 선택하세요'"></span>
+                                            <span class="block text-[10px] font-bold text-cyan-600 uppercase tracking-wider">{{ __('product.schedule') }}</span>
+                                            <span class="block text-sm font-medium truncate" :class="selectedDate ? 'text-gray-900' : 'text-gray-400'" x-text="selectedSchedule?.starts_at_human ?? '{{ __('product.select_date') }}'"></span>
                                         </div>
                                         <svg class="w-5 h-5 text-gray-400 transition-transform" :class="showDatePicker ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
@@ -343,7 +343,7 @@
                                          class="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-2xl border border-gray-100 py-2 z-50 max-h-64 overflow-y-auto"
                                          style="display: none;">
                                         <template x-if="schedules.filter(s => s.is_active && s.available_count > 0).length === 0">
-                                            <p class="px-4 py-3 text-sm text-gray-500 text-center">예약 가능한 날짜가 없습니다</p>
+                                            <p class="px-4 py-3 text-sm text-gray-500 text-center">{{ __('product.no_available_dates') }}</p>
                                         </template>
                                         <template x-for="schedule in schedules.filter(s => s.is_active && s.available_count > 0)" :key="schedule.id">
                                             <button type="button"
@@ -351,7 +351,7 @@
                                                     class="w-full flex items-center justify-between px-4 py-3 text-sm hover:bg-gray-50 transition-colors"
                                                     :class="selectedScheduleId === schedule.id ? 'bg-pink-50 text-pink-600' : 'text-gray-700'">
                                                 <span class="font-medium" x-text="schedule.starts_at_human"></span>
-                                                <span class="text-xs px-2 py-1 rounded-full" :class="schedule.available_count <= 5 ? 'bg-orange-100 text-orange-600' : 'bg-green-100 text-green-600'" x-text="schedule.available_count + '명 가능'"></span>
+                                                <span class="text-xs px-2 py-1 rounded-full" :class="schedule.available_count <= 5 ? 'bg-orange-100 text-orange-600' : 'bg-green-100 text-green-600'" x-text="schedule.available_count + ' {{ __('product.persons_available', ['count' => '']) }}'.replace(':count ', '')"></span>
                                             </button>
                                         </template>
                                     </div>
@@ -369,8 +369,8 @@
                                             </svg>
                                         </div>
                                         <div class="flex-1 min-w-0">
-                                            <span class="block text-[10px] font-bold text-orange-500 uppercase tracking-wider">인원</span>
-                                            <span class="block text-sm font-medium text-gray-900" x-text="'성인 ' + adults + '명' + (children > 0 ? ', 아동 ' + children + '명' : '')"></span>
+                                            <span class="block text-[10px] font-bold text-orange-500 uppercase tracking-wider">{{ __('product.guests') }}</span>
+                                            <span class="block text-sm font-medium text-gray-900" x-text="children > 0 ? '{{ __('product.guest_summary_with_children', ['adults' => '']) }}'.replace(':adults', adults).replace(':children', children) : '{{ __('product.guest_summary', ['adults' => '']) }}'.replace(':adults', adults)"></span>
                                         </div>
                                         <svg class="w-5 h-5 text-gray-400 transition-transform" :class="showGuestPicker ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
@@ -390,8 +390,8 @@
                                         <!-- Adults -->
                                         <div class="flex items-center justify-between pb-4 border-b border-gray-100">
                                             <div>
-                                                <span class="block text-sm font-medium text-gray-900">성인</span>
-                                                <span class="block text-xs text-gray-500">만 13세 이상</span>
+                                                <span class="block text-sm font-medium text-gray-900">{{ __('product.adults') }}</span>
+                                                <span class="block text-xs text-gray-500">{{ __('product.adults_age') }}</span>
                                             </div>
                                             <div class="flex items-center gap-4">
                                                 <button type="button"
@@ -416,8 +416,8 @@
                                         <!-- Children -->
                                         <div class="flex items-center justify-between pt-4">
                                             <div>
-                                                <span class="block text-sm font-medium text-gray-900">아동</span>
-                                                <span class="block text-xs text-gray-500">만 2~12세</span>
+                                                <span class="block text-sm font-medium text-gray-900">{{ __('product.children') }}</span>
+                                                <span class="block text-xs text-gray-500">{{ __('product.children_age') }}</span>
                                             </div>
                                             <div class="flex items-center gap-4">
                                                 <button type="button"
@@ -442,7 +442,7 @@
                                         <!-- Max persons warning -->
                                         <template x-if="selectedDate && totalPersons >= maxPersons">
                                             <p class="mt-4 text-xs text-orange-600 bg-orange-50 px-3 py-2 rounded-lg">
-                                                선택한 날짜의 최대 예약 인원에 도달했습니다.
+                                                {{ __('product.max_capacity_reached') }}
                                             </p>
                                         </template>
                                     </div>
@@ -451,17 +451,17 @@
                                 <!-- Price Summary -->
                                 <div class="bg-gray-50 rounded-xl p-4 space-y-2">
                                     <div class="flex justify-between text-sm">
-                                        <span class="text-gray-600">성인 <span x-text="adults"></span>명 × ₩<span x-text="formatPrice(adultPrice)"></span></span>
+                                        <span class="text-gray-600">{{ __('product.adults') }} <span x-text="adults"></span> × ₩<span x-text="formatPrice(adultPrice)"></span></span>
                                         <span class="font-medium text-gray-900">₩<span x-text="formatPrice(adults * adultPrice)"></span></span>
                                     </div>
                                     <template x-if="children > 0">
                                         <div class="flex justify-between text-sm">
-                                            <span class="text-gray-600">아동 <span x-text="children"></span>명 × ₩<span x-text="formatPrice(childPrice)"></span></span>
+                                            <span class="text-gray-600">{{ __('product.children') }} <span x-text="children"></span> × ₩<span x-text="formatPrice(childPrice)"></span></span>
                                             <span class="font-medium text-gray-900">₩<span x-text="formatPrice(children * childPrice)"></span></span>
                                         </div>
                                     </template>
                                     <div class="flex justify-between pt-2 border-t border-gray-200">
-                                        <span class="font-semibold text-gray-900">총 금액</span>
+                                        <span class="font-semibold text-gray-900">{{ __('product.total_amount') }}</span>
                                         <span class="text-lg font-bold text-pink-600">₩<span x-text="formatPrice(totalPrice)"></span></span>
                                     </div>
                                 </div>
@@ -470,18 +470,18 @@
                                 @auth
                                 <a :href="`{{ route('bookings.create', ['product' => $product->id]) }}?schedule_id=${selectedScheduleId || ''}&adults=${adults}&children=${children}`"
                                    class="block w-full py-4 bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white font-semibold rounded-xl shadow-lg shadow-pink-500/30 hover:shadow-xl hover:shadow-pink-500/40 transition-all duration-300 text-center cursor-pointer">
-                                    예약하기
+                                    {{ __('product.book_now') }}
                                 </a>
                                 @else
                                 <a :href="`{{ route('login') }}?redirect={{ urlencode(route('bookings.create', ['product' => $product->id])) }}%3Fschedule_id=${selectedScheduleId || ''}&adults=${adults}&children=${children}`"
                                    class="block w-full py-4 bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white font-semibold rounded-xl shadow-lg shadow-pink-500/30 hover:shadow-xl hover:shadow-pink-500/40 transition-all duration-300 text-center">
-                                    로그인 후 예약하기
+                                    {{ __('product.login_to_book') }}
                                 </a>
                                 @endauth
 
                                 @if($product->booking_type->value === 'request')
                                 <p class="text-xs text-gray-500 text-center mt-2">
-                                    이 상품은 판매자 승인 후 예약이 확정됩니다.
+                                    {{ __('product.booking_requires_approval') }}
                                 </p>
                                 @endif
                             </div>
@@ -501,7 +501,7 @@
                                             <svg id="wishlist-icon" class="w-5 h-5 transition-transform duration-200" fill="{{ $isWishlisted ? 'currentColor' : 'none' }}" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
                                             </svg>
-                                            <span id="wishlist-text" class="hidden sm:inline">{{ $isWishlisted ? '위시리스트에 추가됨' : __('product.add_to_wishlist') }}</span>
+                                            <span id="wishlist-text" class="hidden sm:inline">{{ $isWishlisted ? __('product.wishlisted') : __('product.add_to_wishlist') }}</span>
                                         </button>
                                     @else
                                         <a href="{{ route('login') }}"
@@ -532,7 +532,7 @@
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                         </svg>
                                     </div>
-                                    <p class="text-xs text-gray-600">즉시확정</p>
+                                    <p class="text-xs text-gray-600">{{ __('product.instant_confirm') }}</p>
                                 </div>
                                 <div>
                                     <div class="w-10 h-10 mx-auto mb-2 rounded-full bg-blue-100 flex items-center justify-center">
@@ -540,7 +540,7 @@
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25zM6.75 12h.008v.008H6.75V12zm0 3h.008v.008H6.75V15zm0 3h.008v.008H6.75V18z" />
                                         </svg>
                                     </div>
-                                    <p class="text-xs text-gray-600">모바일티켓</p>
+                                    <p class="text-xs text-gray-600">{{ __('product.mobile_ticket') }}</p>
                                 </div>
                                 <div>
                                     <div class="w-10 h-10 mx-auto mb-2 rounded-full bg-purple-100 flex items-center justify-center">
@@ -548,7 +548,7 @@
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 21l5.25-11.25L21 21m-9-3h7.5M3 5.621a48.474 48.474 0 016-.371m0 0c1.12 0 2.233.038 3.334.114M9 5.25V3m3.334 2.364C11.176 10.658 7.69 15.08 3 17.502m9.334-12.138c.896.061 1.785.147 2.666.257m-4.589 8.495a18.023 18.023 0 01-3.827-5.802" />
                                         </svg>
                                     </div>
-                                    <p class="text-xs text-gray-600">한국어지원</p>
+                                    <p class="text-xs text-gray-600">{{ __('product.korean_support') }}</p>
                                 </div>
                             </div>
                         </div>
@@ -560,10 +560,10 @@
             @if($relatedProducts->count() > 0)
                 <section class="mt-16">
                     <div class="flex items-center justify-between mb-6">
-                        <h2 class="text-xl font-bold text-gray-900">비슷한 체험</h2>
+                        <h2 class="text-xl font-bold text-gray-900">{{ __('product.similar_experiences') }}</h2>
                         <a href="{{ route('products.index', ['locale' => app()->getLocale(), 'region' => $product->region->value]) }}"
                            class="text-sm font-medium text-pink-600 hover:text-pink-500 transition-colors">
-                            더보기
+                            {{ __('product.view_more') }}
                         </a>
                     </div>
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -589,7 +589,7 @@
         </button>
         <img id="review-image-modal-img"
              src=""
-             alt="리뷰 이미지"
+             alt="{{ __('product.review_image') }}"
              class="max-w-[90vw] max-h-[90vh] object-contain rounded-lg shadow-2xl"
              onclick="event.stopPropagation()">
     </div>
@@ -629,7 +629,7 @@
                 });
             } else {
                 navigator.clipboard.writeText(window.location.href);
-                alert('링크가 복사되었습니다!');
+                alert('{{ __('product.link_copied') }}');
             }
         }
 

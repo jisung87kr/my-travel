@@ -4,7 +4,7 @@
         <div class="bg-white border-b border-slate-200 py-4">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-12">
                 <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 mb-2">{{ __('nav.products') }}</h1>
-                <p class="text-slate-500">현지 가이드와 함께하는 특별한 여행 경험을 찾아보세요</p>
+                <p class="text-slate-500">{{ __('product.list_subtitle') }}</p>
             </div>
         </div>
 
@@ -19,13 +19,13 @@
                                 <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
                                 </svg>
-                                검색
+                                {{ __('product.search') }}
                             </h3>
                             <div class="relative">
                                 <input type="text"
                                        x-model="filters.keyword"
                                        @keydown.enter="applyFilters()"
-                                       placeholder="검색어를 입력하세요"
+                                       placeholder="{{ __('product.search_placeholder') }}"
                                        class="w-full pl-4 pr-10 py-3 rounded-xl border border-gray-200 focus:border-pink-300 focus:ring focus:ring-pink-200/50 text-sm">
                                 <button type="button" @click="applyFilters()" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-pink-500">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
@@ -41,7 +41,7 @@
                                 <svg class="w-5 h-5 text-cyan-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
                                 </svg>
-                                일정
+                                {{ __('product.date') }}
                             </h3>
                             <input type="date"
                                    x-model="filters.date"
@@ -51,7 +51,7 @@
                             <button x-show="filters.date"
                                     @click="filters.date = ''; applyFilters()"
                                     class="mt-2 text-xs text-gray-500 hover:text-pink-500 transition-colors">
-                                날짜 초기화
+                                {{ __('product.clear_date') }}
                             </button>
                         </div>
 
@@ -61,14 +61,14 @@
                                 <svg class="w-5 h-5 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
                                 </svg>
-                                인원
+                                {{ __('product.guests') }}
                             </h3>
                             <div class="space-y-3">
                                 <!-- Adults -->
                                 <div class="flex items-center justify-between">
                                     <div>
-                                        <span class="text-sm font-medium text-gray-700">성인</span>
-                                        <span class="text-xs text-gray-500 block">만 13세 이상</span>
+                                        <span class="text-sm font-medium text-gray-700">{{ __('product.adults') }}</span>
+                                        <span class="text-xs text-gray-500 block">{{ __('product.adults_age') }}</span>
                                     </div>
                                     <div class="flex items-center gap-3">
                                         <button type="button"
@@ -92,8 +92,8 @@
                                 <!-- Children -->
                                 <div class="flex items-center justify-between">
                                     <div>
-                                        <span class="text-sm font-medium text-gray-700">아동</span>
-                                        <span class="text-xs text-gray-500 block">만 2~12세</span>
+                                        <span class="text-sm font-medium text-gray-700">{{ __('product.children') }}</span>
+                                        <span class="text-xs text-gray-500 block">{{ __('product.children_age') }}</span>
                                     </div>
                                     <div class="flex items-center gap-3">
                                         <button type="button"
@@ -124,12 +124,12 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
                                 </svg>
-                                지역
+                                {{ __('product.region') }}
                             </h3>
                             <div class="space-y-2">
                                 <label class="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors">
                                     <input type="radio" name="region_filter" value="" x-model="filters.region" @change="applyFilters()" class="w-4 h-4 text-pink-500 border-gray-300 focus:ring-pink-500">
-                                    <span class="text-sm text-gray-700">전체</span>
+                                    <span class="text-sm text-gray-700">{{ __('product.all') }}</span>
                                 </label>
                                 @foreach($regions as $region)
                                 <label class="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors">
@@ -146,12 +146,12 @@
                                 <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M9.568 3H5.25A2.25 2.25 0 003 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 005.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 009.568 3z" />
                                 </svg>
-                                카테고리
+                                {{ __('product.category') }}
                             </h3>
                             <div class="space-y-2">
                                 <label class="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors">
                                     <input type="radio" name="type_filter" value="" x-model="filters.type" @change="applyFilters()" class="w-4 h-4 text-pink-500 border-gray-300 focus:ring-pink-500">
-                                    <span class="text-sm text-gray-700">전체</span>
+                                    <span class="text-sm text-gray-700">{{ __('product.all') }}</span>
                                 </label>
                                 @foreach($types as $type)
                                 <label class="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors">
@@ -164,7 +164,7 @@
 
                         <!-- Reset Filters -->
                         <button @click="resetFilters()" class="w-full py-3 px-4 rounded-xl border border-gray-200 text-gray-600 hover:bg-gray-50 hover:border-gray-300 transition-colors text-sm font-medium">
-                            필터 초기화
+                            {{ __('product.reset_filters') }}
                         </button>
                     </div>
                 </aside>
@@ -178,13 +178,13 @@
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-9.75 0h9.75" />
                             </svg>
-                            필터
+                            {{ __('product.filter') }}
                             <span x-show="activeFilterCount > 0" x-text="activeFilterCount" class="ml-1 w-5 h-5 rounded-full bg-pink-500 text-white text-xs flex items-center justify-center"></span>
                         </button>
 
                         <!-- Results Count -->
                         <p class="text-sm text-gray-500">
-                            총 <span class="font-semibold text-gray-900">{{ $products->total() }}</span>개의 상품
+                            {{ __('product.total_products', ['count' => $products->total()]) }}
                         </p>
 
                         <!-- Sort Dropdown -->
@@ -207,7 +207,7 @@
                     <div x-show="activeFilterCount > 0" class="flex flex-wrap gap-2 mb-6">
                         <template x-if="filters.keyword">
                             <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-pink-50 text-pink-700 text-sm">
-                                <span x-text="'검색: ' + filters.keyword"></span>
+                                <span x-text="'{{ __('product.search_tag') }}: ' + filters.keyword"></span>
                                 <button @click="filters.keyword = ''; applyFilters()" class="hover:text-pink-900">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -217,7 +217,7 @@
                         </template>
                         <template x-if="filters.region">
                             <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-cyan-50 text-cyan-700 text-sm">
-                                <span x-text="'지역: ' + getRegionLabel(filters.region)"></span>
+                                <span x-text="'{{ __('product.region_tag') }}: ' + getRegionLabel(filters.region)"></span>
                                 <button @click="filters.region = ''; applyFilters()" class="hover:text-cyan-900">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -227,7 +227,7 @@
                         </template>
                         <template x-if="filters.type">
                             <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-orange-50 text-orange-700 text-sm">
-                                <span x-text="'카테고리: ' + getTypeLabel(filters.type)"></span>
+                                <span x-text="'{{ __('product.category_tag') }}: ' + getTypeLabel(filters.type)"></span>
                                 <button @click="filters.type = ''; applyFilters()" class="hover:text-orange-900">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -259,10 +259,10 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
                                 </svg>
                             </div>
-                            <h3 class="text-xl font-semibold text-gray-900 mb-2">검색 결과가 없습니다</h3>
-                            <p class="text-gray-500 mb-6">다른 검색어나 필터를 시도해보세요</p>
+                            <h3 class="text-xl font-semibold text-gray-900 mb-2">{{ __('product.no_results') }}</h3>
+                            <p class="text-gray-500 mb-6">{{ __('product.try_different') }}</p>
                             <button @click="resetFilters()" class="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-pink-500 text-white font-medium hover:bg-pink-600 transition-colors">
-                                필터 초기화
+                                {{ __('product.reset_filters') }}
                             </button>
                         </div>
                     @endif
@@ -276,7 +276,7 @@
         <div x-show="showMobileFilters" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="translate-x-full" x-transition:enter-end="translate-x-0" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="translate-x-0" x-transition:leave-end="translate-x-full" class="fixed right-0 top-0 bottom-0 w-full max-w-sm bg-white z-50 lg:hidden overflow-y-auto">
             <!-- Header -->
             <div class="sticky top-0 bg-white border-b border-gray-100 px-5 py-4 flex items-center justify-between">
-                <h2 class="text-lg font-semibold text-gray-900">필터</h2>
+                <h2 class="text-lg font-semibold text-gray-900">{{ __('product.filter') }}</h2>
                 <button @click="showMobileFilters = false" class="w-10 h-10 rounded-full hover:bg-gray-100 flex items-center justify-center">
                     <svg class="w-6 h-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -287,13 +287,13 @@
             <div class="p-5 space-y-6">
                 <!-- Search -->
                 <div>
-                    <h3 class="font-semibold text-gray-900 mb-3">검색</h3>
-                    <input type="text" x-model="filters.keyword" placeholder="검색어를 입력하세요" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-pink-300 focus:ring focus:ring-pink-200/50 text-sm">
+                    <h3 class="font-semibold text-gray-900 mb-3">{{ __('product.search') }}</h3>
+                    <input type="text" x-model="filters.keyword" placeholder="{{ __('product.search_placeholder') }}" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-pink-300 focus:ring focus:ring-pink-200/50 text-sm">
                 </div>
 
                 <!-- Date -->
                 <div>
-                    <h3 class="font-semibold text-gray-900 mb-3">일정</h3>
+                    <h3 class="font-semibold text-gray-900 mb-3">{{ __('product.date') }}</h3>
                     <input type="date"
                            x-model="filters.date"
                            min="{{ date('Y-m-d') }}"
@@ -302,13 +302,13 @@
 
                 <!-- Guests -->
                 <div>
-                    <h3 class="font-semibold text-gray-900 mb-3">인원</h3>
+                    <h3 class="font-semibold text-gray-900 mb-3">{{ __('product.guests') }}</h3>
                     <div class="space-y-3">
                         <!-- Adults -->
                         <div class="flex items-center justify-between">
                             <div>
-                                <span class="text-sm font-medium text-gray-700">성인</span>
-                                <span class="text-xs text-gray-500 block">만 13세 이상</span>
+                                <span class="text-sm font-medium text-gray-700">{{ __('product.adults') }}</span>
+                                <span class="text-xs text-gray-500 block">{{ __('product.adults_age') }}</span>
                             </div>
                             <div class="flex items-center gap-3">
                                 <button type="button"
@@ -332,8 +332,8 @@
                         <!-- Children -->
                         <div class="flex items-center justify-between">
                             <div>
-                                <span class="text-sm font-medium text-gray-700">아동</span>
-                                <span class="text-xs text-gray-500 block">만 2~12세</span>
+                                <span class="text-sm font-medium text-gray-700">{{ __('product.children') }}</span>
+                                <span class="text-xs text-gray-500 block">{{ __('product.children_age') }}</span>
                             </div>
                             <div class="flex items-center gap-3">
                                 <button type="button"
@@ -359,11 +359,11 @@
 
                 <!-- Region -->
                 <div>
-                    <h3 class="font-semibold text-gray-900 mb-3">지역</h3>
+                    <h3 class="font-semibold text-gray-900 mb-3">{{ __('product.region') }}</h3>
                     <div class="space-y-2">
                         <label class="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 cursor-pointer">
                             <input type="radio" name="mobile_region" value="" x-model="filters.region" class="w-4 h-4 text-pink-500 border-gray-300 focus:ring-pink-500">
-                            <span class="text-sm text-gray-700">전체</span>
+                            <span class="text-sm text-gray-700">{{ __('product.all') }}</span>
                         </label>
                         @foreach($regions as $region)
                         <label class="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 cursor-pointer">
@@ -376,11 +376,11 @@
 
                 <!-- Type -->
                 <div>
-                    <h3 class="font-semibold text-gray-900 mb-3">카테고리</h3>
+                    <h3 class="font-semibold text-gray-900 mb-3">{{ __('product.category') }}</h3>
                     <div class="space-y-2">
                         <label class="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 cursor-pointer">
                             <input type="radio" name="mobile_type" value="" x-model="filters.type" class="w-4 h-4 text-pink-500 border-gray-300 focus:ring-pink-500">
-                            <span class="text-sm text-gray-700">전체</span>
+                            <span class="text-sm text-gray-700">{{ __('product.all') }}</span>
                         </label>
                         @foreach($types as $type)
                         <label class="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 cursor-pointer">
@@ -395,10 +395,10 @@
             <!-- Footer -->
             <div class="sticky bottom-0 bg-white border-t border-gray-100 p-5 flex gap-3">
                 <button @click="resetFilters(); showMobileFilters = false" class="flex-1 py-3 rounded-xl border border-gray-200 text-gray-700 font-medium hover:bg-gray-50 transition-colors">
-                    초기화
+                    {{ __('product.reset') }}
                 </button>
                 <button @click="applyFilters(); showMobileFilters = false" class="flex-1 py-3 rounded-xl bg-pink-500 text-white font-medium hover:bg-pink-600 transition-colors">
-                    적용하기
+                    {{ __('product.apply') }}
                 </button>
             </div>
         </div>
@@ -421,11 +421,11 @@
                 regions: @json($regions),
                 types: @json($types),
                 sortLabels: {
-                    'newest': '최신순',
-                    'popular': '인기순',
-                    'rating': '평점순',
-                    'price_low': '가격 낮은순',
-                    'price_high': '가격 높은순'
+                    'newest': @json(__('product.sort_newest')),
+                    'popular': @json(__('product.sort_popular')),
+                    'rating': @json(__('product.sort_rating')),
+                    'price_low': @json(__('product.sort_price_low')),
+                    'price_high': @json(__('product.sort_price_high'))
                 },
                 get activeFilterCount() {
                     let count = 0;
@@ -447,8 +447,9 @@
                 formatDate(dateStr) {
                     if (!dateStr) return '';
                     const date = new Date(dateStr);
-                    const days = ['일', '월', '화', '수', '목', '금', '토'];
-                    return `${date.getMonth() + 1}월 ${date.getDate()}일 (${days[date.getDay()]})`;
+                    const days = [@json(__('product.day_sun')), @json(__('product.day_mon')), @json(__('product.day_tue')), @json(__('product.day_wed')), @json(__('product.day_thu')), @json(__('product.day_fri')), @json(__('product.day_sat'))];
+                    const format = @json(__('product.date_format'));
+                    return format.replace(':month', date.getMonth() + 1).replace(':day', date.getDate()).replace(':weekday', days[date.getDay()]);
                 },
                 applyFilters() {
                     const params = new URLSearchParams();

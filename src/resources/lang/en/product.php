@@ -1,8 +1,37 @@
 <?php
 
 return [
+    // Page
     'list_title' => 'Products',
+    'list_subtitle' => 'Discover unique travel experiences with local guides',
+    'total_products' => ':count products found',
+
+    // Filter Labels
     'filter' => 'Filter',
+    'search' => 'Search',
+    'search_placeholder' => 'Enter your search',
+    'date' => 'Date',
+    'clear_date' => 'Clear date',
+    'guests' => 'Guests',
+    'adults' => 'Adults',
+    'adults_age' => 'Ages 13+',
+    'children' => 'Children',
+    'children_age' => 'Ages 2-12',
+    'region' => 'Region',
+    'category' => 'Category',
+    'type' => 'Type',
+    'all' => 'All',
+    'reset_filters' => 'Reset Filters',
+    'reset' => 'Reset',
+    'apply' => 'Apply',
+    'price_range' => 'Price Range',
+
+    // Active Filter Tags
+    'search_tag' => 'Search',
+    'region_tag' => 'Region',
+    'category_tag' => 'Category',
+
+    // Sort
     'sort' => 'Sort',
     'sort_newest' => 'Newest',
     'sort_popular' => 'Most Popular',
@@ -10,18 +39,15 @@ return [
     'sort_price_high' => 'Price: High to Low',
     'sort_rating' => 'Highest Rated',
 
-    'region' => 'Region',
-    'type' => 'Type',
-    'price_range' => 'Price Range',
-
+    // Empty State
     'no_results' => 'No results found',
     'try_different' => 'Try different keywords or filters',
 
+    // Product Details
     'rating' => 'Rating',
     'reviews' => 'Reviews',
     'reviews_count' => ':count reviews',
     'no_reviews' => 'No reviews yet',
-
     'description' => 'Description',
     'includes' => 'What\'s Included',
     'excludes' => 'What\'s Not Included',
@@ -29,12 +55,60 @@ return [
     'duration' => 'Duration',
     'max_persons' => 'Max Persons',
 
+    // Actions
     'book_now' => 'Book Now',
     'add_to_wishlist' => 'Add to Wishlist',
     'remove_from_wishlist' => 'Remove from Wishlist',
     'share' => 'Share',
 
+    // Gallery
     'gallery' => 'Gallery',
     'prev' => 'Previous',
     'next' => 'Next',
+    'no_image' => 'No image available',
+    'review_image' => 'Review image',
+
+    // Date Format (for JavaScript)
+    'day_sun' => 'Sun',
+    'day_mon' => 'Mon',
+    'day_tue' => 'Tue',
+    'day_wed' => 'Wed',
+    'day_thu' => 'Thu',
+    'day_fri' => 'Fri',
+    'day_sat' => 'Sat',
+    'date_format' => ':month/:day (:weekday)',
+
+    // Booking Section
+    'per_adult' => '/ adult',
+    'child_price' => 'Child',
+    'schedule' => 'Schedule',
+    'select_date' => 'Select a date',
+    'no_available_dates' => 'No available dates',
+    'persons_available' => ':count available',
+    'adults_count' => ':count adults',
+    'children_count' => ':count children',
+    'guest_summary' => ':adults adults',
+    'guest_summary_with_children' => ':adults adults, :children children',
+    'max_capacity_reached' => 'Maximum capacity reached for selected date.',
+    'price_adult_calc' => ':count adults × ₩:price',
+    'price_child_calc' => ':count children × ₩:price',
+    'total_amount' => 'Total',
+    'login_to_book' => 'Login to Book',
+    'booking_requires_approval' => 'This product requires seller approval before confirmation.',
+    'wishlisted' => 'Added to Wishlist',
+
+    // Reviews
+    'seller_reply' => 'Seller Reply',
+
+    // Trust Badges
+    'instant_confirm' => 'Instant Confirm',
+    'mobile_ticket' => 'Mobile Ticket',
+    'korean_support' => 'Korean Support',
+
+    // Related Products
+    'similar_experiences' => 'Similar Experiences',
+    'view_more' => 'View More',
+
+    // Share
+    'link_copied' => 'Link copied!',
 ];

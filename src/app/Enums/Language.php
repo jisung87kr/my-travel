@@ -6,16 +6,16 @@ enum Language: string
 {
     case KO = 'ko';
     case EN = 'en';
-    case ZH = 'zh';
-    case JA = 'ja';
+//    case ZH = 'zh';
+//    case JA = 'ja';
 
     public function label(): string
     {
         return match ($this) {
             self::KO => '한국어',
             self::EN => 'English',
-            self::ZH => '中文',
-            self::JA => '日本語',
+//            self::ZH => '中文',
+//            self::JA => '日本語',
         };
     }
 
@@ -24,8 +24,8 @@ enum Language: string
         return match ($this) {
             self::KO => '한국어',
             self::EN => 'English',
-            self::ZH => '中文',
-            self::JA => '日本語',
+//            self::ZH => '中文',
+//            self::JA => '日本語',
         };
     }
 
@@ -34,8 +34,8 @@ enum Language: string
         return match ($this) {
             self::KO => '한',
             self::EN => 'EN',
-            self::ZH => '中',
-            self::JA => '日',
+//            self::ZH => '中',
+//            self::JA => '日',
         };
     }
 

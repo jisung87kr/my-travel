@@ -87,11 +87,10 @@
                 <!-- Center Content -->
                 <div class="flex-1 flex flex-col justify-center max-w-lg animate-fade-in-up animation-delay-100">
                     <h1 class="text-4xl xl:text-5xl font-bold text-white leading-tight mb-6">
-                        특별한 여행 경험을<br>시작하세요
+                        {!! __('auth.guest_hero_title') !!}
                     </h1>
                     <p class="text-lg text-rose-100 leading-relaxed mb-8">
-                        전 세계의 현지 가이드와 함께하는 프리미엄 투어.
-                        당신만의 여행 스토리를 만들어 보세요.
+                        {{ __('auth.guest_hero_subtitle') }}
                     </p>
 
                     <!-- Feature List -->
@@ -102,7 +101,7 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
                                 </svg>
                             </div>
-                            <span class="text-rose-50">검증된 현지 전문 가이드</span>
+                            <span class="text-rose-50">{{ __('auth.guest_feature_guides') }}</span>
                         </div>
                         <div class="flex items-center gap-3">
                             <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center flex-shrink-0">
@@ -110,7 +109,7 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
                                 </svg>
                             </div>
-                            <span class="text-rose-50">안전하고 신뢰할 수 있는 결제</span>
+                            <span class="text-rose-50">{{ __('auth.guest_feature_payment') }}</span>
                         </div>
                         <div class="flex items-center gap-3">
                             <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center flex-shrink-0">
@@ -118,7 +117,7 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
                                 </svg>
                             </div>
-                            <span class="text-rose-50">24시간 고객 지원 서비스</span>
+                            <span class="text-rose-50">{{ __('auth.guest_feature_support') }}</span>
                         </div>
                     </div>
                 </div>
@@ -127,15 +126,15 @@
                 <div class="grid grid-cols-3 gap-6 pt-8 border-t border-white/20 animate-fade-in-up animation-delay-200">
                     <div>
                         <div class="text-3xl font-bold text-white">500+</div>
-                        <div class="text-sm text-rose-200 mt-1">투어 상품</div>
+                        <div class="text-sm text-rose-200 mt-1">{{ __('auth.guest_stat_tours') }}</div>
                     </div>
                     <div>
                         <div class="text-3xl font-bold text-white">10K+</div>
-                        <div class="text-sm text-rose-200 mt-1">만족 고객</div>
+                        <div class="text-sm text-rose-200 mt-1">{{ __('auth.guest_stat_customers') }}</div>
                     </div>
                     <div>
                         <div class="text-3xl font-bold text-white">4.9</div>
-                        <div class="text-sm text-rose-200 mt-1">평균 평점</div>
+                        <div class="text-sm text-rose-200 mt-1">{{ __('auth.guest_stat_rating') }}</div>
                     </div>
                 </div>
             </div>
@@ -171,10 +170,12 @@
                             <path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 017.843 4.582M12 3a8.997 8.997 0 00-7.843 4.582m15.686 0A11.953 11.953 0 0112 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0121 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0112 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 013 12c0-1.605.42-3.113 1.157-4.418" />
                         </svg>
                         <div class="flex items-center gap-1 text-sm">
-                            <a href="?lang=ko" class="px-2 py-1 rounded transition-colors cursor-pointer {{ app()->getLocale() === 'ko' ? 'text-rose-600 font-medium bg-rose-50' : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100' }}">한국어</a>
-                            <a href="?lang=en" class="px-2 py-1 rounded transition-colors cursor-pointer {{ app()->getLocale() === 'en' ? 'text-rose-600 font-medium bg-rose-50' : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100' }}">EN</a>
-                            <a href="?lang=zh" class="px-2 py-1 rounded transition-colors cursor-pointer {{ app()->getLocale() === 'zh' ? 'text-rose-600 font-medium bg-rose-50' : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100' }}">中文</a>
-                            <a href="?lang=ja" class="px-2 py-1 rounded transition-colors cursor-pointer {{ app()->getLocale() === 'ja' ? 'text-rose-600 font-medium bg-rose-50' : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100' }}">日本語</a>
+                            @foreach(\App\Enums\Language::cases() as $lang)
+                                <a href="?lang={{ $lang->value }}"
+                                   class="px-2 py-1 rounded transition-colors cursor-pointer {{ app()->getLocale() === $lang->value ? 'text-rose-600 font-medium bg-rose-50' : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100' }}">
+                                    {{ $lang->nativeLabel() }}
+                                </a>
+                            @endforeach
                         </div>
                     </div>
 

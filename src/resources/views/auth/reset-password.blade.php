@@ -1,4 +1,4 @@
-<x-layouts.guest title="비밀번호 재설정">
+<x-layouts.guest :title="__('auth.reset_password')">
     <!-- Header -->
     <div class="text-center mb-8">
         <div class="mx-auto w-14 h-14 rounded-2xl bg-gradient-to-br from-pink-100 to-rose-100 flex items-center justify-center mb-4">
@@ -6,8 +6,8 @@
                 <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
             </svg>
         </div>
-        <h1 class="text-2xl font-bold text-gray-900">새 비밀번호 설정</h1>
-        <p class="mt-2 text-sm text-gray-600">안전한 비밀번호로 계정을 보호하세요</p>
+        <h1 class="text-2xl font-bold text-gray-900">{{ __('auth.reset_password_title') }}</h1>
+        <p class="mt-2 text-sm text-gray-600">{{ __('auth.reset_password_subtitle') }}</p>
     </div>
 
     <!-- Error Messages -->
@@ -34,7 +34,7 @@
 
         <!-- Email Input -->
         <div>
-            <label for="email" class="block text-sm font-medium text-gray-700 mb-1.5">이메일</label>
+            <label for="email" class="block text-sm font-medium text-gray-700 mb-1.5">{{ __('auth.email') }}</label>
             <div class="relative">
                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
@@ -54,7 +54,7 @@
 
         <!-- New Password -->
         <div>
-            <label for="password" class="block text-sm font-medium text-gray-700 mb-1.5">새 비밀번호</label>
+            <label for="password" class="block text-sm font-medium text-gray-700 mb-1.5">{{ __('auth.new_password') }}</label>
             <div class="relative" x-data="{ show: false }">
                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
@@ -66,7 +66,7 @@
                        name="password"
                        required
                        autocomplete="new-password"
-                       placeholder="8자 이상 입력하세요"
+                       placeholder="{{ __('auth.password_min_length') }}"
                        class="block w-full pl-10 pr-12 py-3 border border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-pink-500/20 focus:border-pink-500 transition-colors">
                 <button type="button"
                         @click="show = !show"
@@ -84,7 +84,7 @@
 
         <!-- Confirm Password -->
         <div>
-            <label for="password_confirmation" class="block text-sm font-medium text-gray-700 mb-1.5">새 비밀번호 확인</label>
+            <label for="password_confirmation" class="block text-sm font-medium text-gray-700 mb-1.5">{{ __('auth.confirm_new_password') }}</label>
             <div class="relative" x-data="{ show: false }">
                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
@@ -96,7 +96,7 @@
                        name="password_confirmation"
                        required
                        autocomplete="new-password"
-                       placeholder="비밀번호를 다시 입력하세요"
+                       placeholder="{{ __('auth.confirm_password_placeholder') }}"
                        class="block w-full pl-10 pr-12 py-3 border border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-pink-500/20 focus:border-pink-500 transition-colors">
                 <button type="button"
                         @click="show = !show"
@@ -114,19 +114,19 @@
 
         <!-- Password Requirements -->
         <div class="p-4 rounded-xl bg-gray-50 border border-gray-100">
-            <p class="text-xs font-medium text-gray-700 mb-2">비밀번호 요구사항</p>
+            <p class="text-xs font-medium text-gray-700 mb-2">{{ __('auth.password_requirements') }}</p>
             <ul class="space-y-1">
                 <li class="flex items-center gap-2 text-xs text-gray-500">
                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
                     </svg>
-                    최소 8자 이상
+                    {{ __('auth.password_req_min_length') }}
                 </li>
                 <li class="flex items-center gap-2 text-xs text-gray-500">
                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
                     </svg>
-                    영문, 숫자 포함 권장
+                    {{ __('auth.password_req_alphanumeric') }}
                 </li>
             </ul>
         </div>
@@ -134,7 +134,7 @@
         <!-- Submit Button -->
         <button type="submit"
                 class="w-full py-3 px-4 bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white font-semibold rounded-xl shadow-lg shadow-pink-500/25 hover:shadow-xl hover:shadow-pink-500/30 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-pink-500/50">
-            비밀번호 재설정
+            {{ __('auth.reset_password') }}
         </button>
     </form>
 </x-layouts.guest>

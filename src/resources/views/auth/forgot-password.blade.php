@@ -1,4 +1,4 @@
-<x-layouts.guest title="비밀번호 찾기">
+<x-layouts.guest :title="__('auth.forgot_password')">
     <!-- Header -->
     <div class="text-center mb-8">
         <div class="mx-auto w-14 h-14 rounded-2xl bg-gradient-to-br from-pink-100 to-rose-100 flex items-center justify-center mb-4">
@@ -6,8 +6,8 @@
                 <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25a3 3 0 013 3m3 0a6 6 0 01-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1121.75 8.25z" />
             </svg>
         </div>
-        <h1 class="text-2xl font-bold text-gray-900">비밀번호를 잊으셨나요?</h1>
-        <p class="mt-2 text-sm text-gray-600">이메일 주소를 입력하시면 비밀번호 재설정 링크를 보내드립니다</p>
+        <h1 class="text-2xl font-bold text-gray-900">{{ __('auth.forgot_password_title') }}</h1>
+        <p class="mt-2 text-sm text-gray-600">{{ __('auth.forgot_password_subtitle') }}</p>
     </div>
 
     <!-- Status Message -->
@@ -20,7 +20,7 @@
                     </svg>
                 </div>
                 <div>
-                    <p class="text-sm font-medium text-green-800">이메일이 전송되었습니다</p>
+                    <p class="text-sm font-medium text-green-800">{{ __('auth.email_sent') }}</p>
                     <p class="text-sm text-green-700">{{ session('status') }}</p>
                 </div>
             </div>
@@ -49,7 +49,7 @@
 
         <!-- Email Input -->
         <div>
-            <label for="email" class="block text-sm font-medium text-gray-700 mb-1.5">이메일</label>
+            <label for="email" class="block text-sm font-medium text-gray-700 mb-1.5">{{ __('auth.email') }}</label>
             <div class="relative">
                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
@@ -70,7 +70,7 @@
         <!-- Submit Button -->
         <button type="submit"
                 class="w-full py-3 px-4 bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white font-semibold rounded-xl shadow-lg shadow-pink-500/25 hover:shadow-xl hover:shadow-pink-500/30 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-pink-500/50">
-            재설정 링크 보내기
+            {{ __('auth.send_reset_link') }}
         </button>
     </form>
 
@@ -80,7 +80,7 @@
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
             </svg>
-            로그인으로 돌아가기
+            {{ __('auth.back_to_login') }}
         </a>
     </div>
 </x-layouts.guest>
