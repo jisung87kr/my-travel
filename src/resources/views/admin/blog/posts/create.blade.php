@@ -205,19 +205,69 @@
             theme: 'snow',
             placeholder: '내용을 입력하세요...',
             modules: {
-                toolbar: [
-                    [{'header': [1, 2, 3, false]}],
-                    ['bold', 'italic', 'underline', 'strike'],
-                    [{'color': []}, {'background': []}],
-                    [{'list': 'ordered'}, {'list': 'bullet'}],
-                    [{'indent': '-1'}, {'indent': '+1'}],
-                    ['blockquote', 'code-block'],
-                    ['link', 'image', 'video'],
-                    [{'align': []}],
-                    ['clean']
-                ]
+                toolbar: {
+                    container: [
+                        [{'header': [1, 2, 3, false]}],
+                        ['bold', 'italic', 'underline', 'strike'],
+                        [{'color': []}, {'background': []}],
+                        [{'list': 'ordered'}, {'list': 'bullet'}],
+                        [{'indent': '-1'}, {'indent': '+1'}],
+                        ['blockquote', 'code-block'],
+                        ['link', 'image', 'video'],
+                        [{'align': []}],
+                        ['clean']
+                    ],
+                    handlers: {
+                        image: imageHandler
+                    }
+                }
             }
         });
+
+        // Custom image upload handler
+        function imageHandler() {
+            const input = document.createElement('input');
+            input.setAttribute('type', 'file');
+            input.setAttribute('accept', 'image/*');
+            input.click();
+
+            input.onchange = async () => {
+                const file = input.files[0];
+                if (!file) return;
+
+                // Validate file size (5MB max)
+                if (file.size > 5 * 1024 * 1024) {
+                    alert('이미지 크기는 5MB를 초과할 수 없습니다.');
+                    return;
+                }
+
+                const formData = new FormData();
+                formData.append('file', file);
+
+                try {
+                    const response = await fetch('/api/admin/attachments', {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                            'Accept': 'application/json',
+                        },
+                    });
+
+                    if (!response.ok) {
+                        throw new Error('업로드 실패');
+                    }
+
+                    const result = await response.json();
+                    const range = quill.getSelection(true);
+                    quill.insertEmbed(range.index, 'image', result.url);
+                    quill.setSelection(range.index + 1);
+                } catch (error) {
+                    console.error('Image upload error:', error);
+                    alert('이미지 업로드에 실패했습니다.');
+                }
+            };
+        }
 
         // Form submit - save content to hidden input
         document.getElementById('postForm').addEventListener('submit', function() {

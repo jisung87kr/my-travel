@@ -131,6 +131,7 @@ Route::middleware(['auth:sanctum', 'user.active', 'role:guide,admin'])->prefix('
 
 // Admin API routes
 Route::middleware(['auth:sanctum', 'user.active', 'role:admin'])->prefix('admin')->name('api.admin.')->group(function () {
-    // Blog image upload (for Tiptap editor)
-    Route::post('blog/upload-image', [\App\Http\Controllers\Api\Admin\BlogImageController::class, 'store'])->name('blog.upload-image');
+    // Attachment upload (for Quill editor)
+    Route::post('attachments', [\App\Http\Controllers\Api\Admin\AttachmentController::class, 'store'])->name('attachments.store');
+    Route::delete('attachments/{attachment}', [\App\Http\Controllers\Api\Admin\AttachmentController::class, 'destroy'])->name('attachments.destroy');
 });
