@@ -22,7 +22,7 @@
                     <!-- Content Editor -->
                     <div class="bg-white rounded-2xl border border-slate-200/60 p-6">
                         <label class="block text-sm font-medium text-slate-700 mb-2">내용 <span class="text-red-500">*</span></label>
-                        <div id="editor" class="min-h-[400px] border border-slate-200 rounded-xl overflow-hidden"></div>
+                        <div id="editor" class="min-h-[400px] border border-slate-200 overflow-hidden bg-white"></div>
                         <input type="hidden" name="content" id="contentInput">
                         @error('content')
                             <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
@@ -171,28 +171,57 @@
         </form>
     </div>
 
-    @push('scripts')
-    <script src="https://cdn.jsdelivr.net/npm/@tiptap/core@2.1.12/dist/index.umd.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@tiptap/starter-kit@2.1.12/dist/index.umd.min.js"></script>
-    <script>
-        // Tiptap Editor
-        const { Editor } = window.tiptapCore;
-        const StarterKit = window.tiptapStarterKit.StarterKit;
+    @push('styles')
+    <link href="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.snow.css" rel="stylesheet">
+    <style>
+        #editor {
+            height: 400px;
+        }
+        #editor .ql-editor {
+            min-height: 350px;
+            font-size: 1rem;
+            line-height: 1.75;
+        }
+        .ql-toolbar.ql-snow {
+            /*border-top-left-radius: 0.75rem;*/
+            /*border-top-right-radius: 0.75rem;*/
+            border-color: #e2e8f0;
+            background: #f8fafc;
+        }
+        .ql-container.ql-snow {
+            /*border-bottom-left-radius: 0.75rem;*/
+            /*border-bottom-right-radius: 0.75rem;*/
+            border-color: #e2e8f0;
+        }
+    </style>
+    @endpush
 
-        const editor = new Editor({
-            element: document.querySelector('#editor'),
-            extensions: [StarterKit],
-            content: '',
-            editorProps: {
-                attributes: {
-                    class: 'prose prose-slate max-w-none p-4 min-h-[400px] focus:outline-none',
-                },
-            },
+    @push('scripts')
+    <script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css" rel="stylesheet">
+    <script>
+        // Quill Editor
+        const quill = new Quill('#editor', {
+            theme: 'snow',
+            placeholder: '내용을 입력하세요...',
+            modules: {
+                toolbar: [
+                    [{'header': [1, 2, 3, false]}],
+                    ['bold', 'italic', 'underline', 'strike'],
+                    [{'color': []}, {'background': []}],
+                    [{'list': 'ordered'}, {'list': 'bullet'}],
+                    [{'indent': '-1'}, {'indent': '+1'}],
+                    ['blockquote', 'code-block'],
+                    ['link', 'image', 'video'],
+                    [{'align': []}],
+                    ['clean']
+                ]
+            }
         });
 
-        // Form submit
+        // Form submit - save content to hidden input
         document.getElementById('postForm').addEventListener('submit', function() {
-            document.getElementById('contentInput').value = editor.getHTML();
+            document.getElementById('contentInput').value = quill.root.innerHTML;
         });
 
         // Thumbnail preview
@@ -245,23 +274,5 @@
             }
         });
     </script>
-    @endpush
-
-    @push('styles')
-    <style>
-        .ProseMirror {
-            min-height: 400px;
-        }
-        .ProseMirror:focus {
-            outline: none;
-        }
-        .ProseMirror p {
-            margin: 0.5em 0;
-        }
-        .ProseMirror h1, .ProseMirror h2, .ProseMirror h3 {
-            margin-top: 1em;
-            margin-bottom: 0.5em;
-        }
-    </style>
     @endpush
 </x-layouts.admin>
