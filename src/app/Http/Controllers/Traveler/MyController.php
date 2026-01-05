@@ -115,7 +115,7 @@ class MyController extends Controller
         $locale = app()->getLocale();
 
         $wishlists = $user->wishlists()
-            ->with(['product.translations', 'product.images', 'product.prices'])
+            ->with(['product.translations', 'product.images', 'product.prices', 'product.regionRelation.translations'])
             ->latest()
             ->paginate(12);
 
@@ -131,7 +131,7 @@ class MyController extends Controller
                 'slug' => $product->slug,
                 'title' => $translation?->title ?? $product->getTranslation('ko')?->title ?? '',
                 'image' => $product->images->first()?->url ?? 'https://placehold.co/300x300?text=NO+IMAGE',
-                'region' => $product->region->label(),
+                'region' => $product->regionRelation?->getShortName() ?? '',
                 'type' => $product->type->label(),
                 'price' => $lowestPrice,
                 'formatted_price' => $lowestPrice ? number_format($lowestPrice) : null,

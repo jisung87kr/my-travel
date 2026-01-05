@@ -20,13 +20,9 @@ trait FormatsProducts
                 ->exists();
         }
 
-        // Get region name from new Region model or fallback to legacy enum
-        $regionName = $product->regionRelation?->getShortName($locale)
-            ?? $product->region?->label()
-            ?? '';
-        $regionCode = $product->regionRelation?->code
-            ?? $product->region?->value
-            ?? '';
+        // Get region name from Region model
+        $regionName = $product->regionRelation?->getShortName($locale) ?? '';
+        $regionCode = $product->regionRelation?->code ?? '';
 
         return [
             'id' => $product->id,

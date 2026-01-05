@@ -6,7 +6,6 @@ use App\Enums\BookingType;
 use App\Enums\Language;
 use App\Enums\ProductStatus;
 use App\Enums\ProductType;
-use App\Enums\Region;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -22,7 +21,6 @@ class Product extends Model
         'vendor_id',
         'slug',
         'type',
-        'region',
         'region_id',
         'duration',
         'min_persons',
@@ -40,7 +38,6 @@ class Product extends Model
     {
         return [
             'type' => ProductType::class,
-            'region' => Region::class,
             'booking_type' => BookingType::class,
             'status' => ProductStatus::class,
             'average_rating' => 'decimal:1',
@@ -160,9 +157,9 @@ class Product extends Model
         return $query->where('status', ProductStatus::ACTIVE);
     }
 
-    public function scopeByRegion($query, string|int|Region|\App\Models\Region $region)
+    public function scopeByRegion($query, string|int|\App\Models\Region $region)
     {
-        // Support new Region model (by id)
+        // Support Region model instance
         if ($region instanceof \App\Models\Region) {
             return $query->where('region_id', $region->id);
         }
@@ -172,16 +169,13 @@ class Product extends Model
             return $query->where('region_id', $region);
         }
 
-        // Support legacy Region enum
-        $regionValue = $region instanceof Region ? $region->value : $region;
-
-        // Try region_id first (via code lookup), fallback to legacy region field
-        $regionModel = \App\Models\Region::where('code', $regionValue)->first();
+        // Support string (region code lookup)
+        $regionModel = \App\Models\Region::where('code', $region)->first();
         if ($regionModel) {
             return $query->where('region_id', $regionModel->id);
         }
 
-        return $query->where('region', $regionValue);
+        return $query->whereNull('region_id');
     }
 
     public function scopeByType($query, string|ProductType $type)
