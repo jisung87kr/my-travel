@@ -188,13 +188,15 @@
     </div>
 
     <script>
+        const baseUpdateUrl = '{{ url("admin/regions/{$region->id}/images") }}';
+
         function openEditModal(imageId, type, isPrimary) {
             const modal = document.getElementById('editModal');
             const form = document.getElementById('editForm');
             const typeSelect = document.getElementById('editType');
             const primaryCheck = document.getElementById('editPrimary');
 
-            form.action = '{{ route("admin.regions.images.update", [$region, ""]) }}/' + imageId;
+            form.action = baseUpdateUrl + '/' + imageId;
             typeSelect.value = type;
             primaryCheck.checked = isPrimary;
 
