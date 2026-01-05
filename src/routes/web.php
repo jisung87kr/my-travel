@@ -232,6 +232,12 @@ Route::middleware(['auth', 'user.active', 'role:admin'])->prefix('admin')->name(
     Route::get('no-shows', [\App\Http\Controllers\Admin\NoShowController::class, 'index'])->name('no-shows.index');
     Route::patch('no-shows/{user}/unblock', [\App\Http\Controllers\Admin\NoShowController::class, 'unblock'])->name('no-shows.unblock');
     Route::patch('no-shows/{user}/reset', [\App\Http\Controllers\Admin\NoShowController::class, 'resetNoShowCount'])->name('no-shows.reset');
+
+    // Region management
+    Route::resource('regions', \App\Http\Controllers\Admin\RegionController::class);
+    Route::patch('regions/{region}/toggle-active', [\App\Http\Controllers\Admin\RegionController::class, 'toggleActive'])->name('regions.toggle-active');
+    Route::patch('regions/{region}/toggle-featured', [\App\Http\Controllers\Admin\RegionController::class, 'toggleFeatured'])->name('regions.toggle-featured');
+    Route::post('regions/reorder', [\App\Http\Controllers\Admin\RegionController::class, 'reorder'])->name('regions.reorder');
 });
 
 // Guide routes (Web UI only)

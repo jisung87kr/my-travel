@@ -84,6 +84,18 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/>
                 </x-slot:icon>
             </x-layouts.partials.nav-item>
+
+            <x-layouts.partials.nav-item
+                route="admin.regions.index"
+                active-pattern="admin.regions.*"
+                label="지역 관리"
+                theme="blue"
+            >
+                <x-slot:icon>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                </x-slot:icon>
+            </x-layouts.partials.nav-item>
         </div>
 
         <div class="mt-8 space-y-1">
