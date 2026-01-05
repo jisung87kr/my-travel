@@ -132,8 +132,8 @@
                                     <span class="text-sm text-gray-700">{{ __('product.all') }}</span>
                                 </label>
                                 @foreach($regions as $region)
-                                <label class="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors">
-                                    <input type="radio" name="region_filter" value="{{ $region['value'] }}" x-model="filters.region" @change="applyFilters()" class="w-4 h-4 text-pink-500 border-gray-300 focus:ring-pink-500">
+                               <label class="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors">
+                                    <input type="radio" name="region_filter" value="{{ $region['label'] }}" x-model="filters.region" @change="applyFilters()" class="w-4 h-4 text-pink-500 border-gray-300 focus:ring-pink-500">
                                     <span class="text-sm text-gray-700">{{ $region['label'] }}</span>
                                 </label>
                                 @endforeach
@@ -437,7 +437,7 @@
                     return count;
                 },
                 getRegionLabel(value) {
-                    const region = this.regions.find(r => r.value === value);
+                    const region = this.regions.find(r => r.label === value);
                     return region ? region.label : value;
                 },
                 getTypeLabel(value) {

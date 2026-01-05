@@ -25,10 +25,12 @@
                      x-data="{
                          destination: '',
                          date: '',
-                         guests: 1,
+                         adults: 1,
+                         children: 0,
                          showDestination: false,
                          showDate: false,
-                         showGuests: false
+                         showGuests: false,
+                         get totalGuests() { return this.adults + this.children }
                      }">
                     <form action="{{ route('products.index', ['locale' => app()->getLocale()]) }}" method="GET">
                         <div class="flex flex-col md:flex-row md:items-center">
@@ -54,7 +56,7 @@
                                      style="display: none;">
                                     <div class="px-3 pb-2">
                                         <input type="text"
-                                               name="search"
+                                               name="keyword"
                                                x-model="destination"
                                                placeholder="{{ __('home.search_placeholder') }}"
                                                class="w-full px-3 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500/20 focus:border-pink-500"
@@ -63,23 +65,17 @@
                                     <div class="border-t border-slate-100 pt-2">
                                         <p class="px-3 py-1.5 text-xs font-medium text-slate-400">{{ __('home.popular_destinations') }}</p>
                                         @php
-                                            $searchRegions = [
-                                                ['name' => __('home.region_seoul'), 'icon' => 'text-pink-500'],
-                                                ['name' => __('home.region_busan'), 'icon' => 'text-blue-500'],
-                                                ['name' => __('home.region_jeju'), 'icon' => 'text-orange-500'],
-                                                ['name' => __('home.region_gyeonggi'), 'icon' => 'text-emerald-500'],
-                                                ['name' => __('home.region_gangwon'), 'icon' => 'text-violet-500'],
-                                            ];
+                                            $iconColors = ['text-pink-500', 'text-blue-500', 'text-orange-500', 'text-emerald-500', 'text-violet-500', 'text-cyan-500', 'text-rose-500'];
                                         @endphp
-                                        @foreach($searchRegions as $searchRegion)
+                                        @foreach($regions->take(5) as $index => $region)
                                         <button type="button"
-                                                @click="destination = '{{ $searchRegion['name'] }}'; showDestination = false"
+                                                @click="destination = '{{ $region['name'] }}'; showDestination = false"
                                                 class="w-full flex items-center gap-3 px-3 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors cursor-pointer">
-                                            <svg class="w-4 h-4 {{ $searchRegion['icon'] }}" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+                                            <svg class="w-4 h-4 {{ $iconColors[$index % count($iconColors)] }}" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
                                             </svg>
-                                            <span class="font-medium">{{ $searchRegion['name'] }}</span>
+                                            <span class="font-medium">{{ $region['name'] }}</span>
                                         </button>
                                         @endforeach
                                     </div>
@@ -132,33 +128,60 @@
                                     </svg>
                                     <div class="flex flex-col flex-1 min-w-0">
                                         <span class="text-xs font-medium text-slate-400">{{ __('home.travelers') }}</span>
-                                        <span class="text-sm font-medium" :class="guests > 1 ? 'text-slate-900' : 'text-slate-400'" x-text="guests > 1 ? guests + '{{ __('home.guests_count') }}' : '{{ __('home.add_guests') }}'"></span>
+                                        <span class="text-sm font-medium" :class="totalGuests > 1 ? 'text-slate-900' : 'text-slate-400'" x-text="totalGuests > 1 ? '성인 ' + adults + (children > 0 ? ', 아동 ' + children : '') : '{{ __('home.add_guests') }}'"></span>
                                     </div>
                                 </button>
                                 <!-- Guests Dropdown -->
                                 <div x-show="showGuests"
                                      @click.away="showGuests = false"
                                      x-transition
-                                     class="absolute top-full right-0 mt-2 w-56 bg-white rounded-xl shadow-xl border border-slate-200 p-4 z-50"
+                                     class="absolute top-full right-0 mt-2 w-64 bg-white rounded-xl shadow-xl border border-slate-200 p-4 z-50"
                                      style="display: none;">
-                                    <input type="hidden" name="guests" :value="guests">
-                                    <div class="flex items-center justify-between">
+                                    <input type="hidden" name="adults" :value="adults">
+                                    <input type="hidden" name="children" :value="children">
+                                    <!-- Adults -->
+                                    <div class="flex items-center justify-between pb-3 border-b border-slate-100">
                                         <div>
-                                            <span class="text-sm font-medium text-slate-900">{{ __('home.travelers') }}</span>
-                                            <p class="text-xs text-slate-500 mt-0.5">{{ __('home.travelers_age_info') }}</p>
+                                            <span class="text-sm font-medium text-slate-900">성인</span>
+                                            <p class="text-xs text-slate-500 mt-0.5">만 13세 이상</p>
                                         </div>
                                         <div class="flex items-center gap-3">
                                             <button type="button"
-                                                    @click="guests = Math.max(1, guests - 1)"
+                                                    @click="adults = Math.max(1, adults - 1)"
                                                     class="w-8 h-8 rounded-full border border-slate-300 flex items-center justify-center text-slate-500 hover:border-slate-400 transition-colors disabled:opacity-40 cursor-pointer"
-                                                    :disabled="guests <= 1">
+                                                    :disabled="adults <= 1">
                                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                                                     <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 12h-15" />
                                                 </svg>
                                             </button>
-                                            <span class="text-sm font-semibold w-5 text-center" x-text="guests"></span>
+                                            <span class="text-sm font-semibold w-5 text-center" x-text="adults"></span>
                                             <button type="button"
-                                                    @click="guests = Math.min(20, guests + 1)"
+                                                    @click="adults = Math.min(20, adults + 1)"
+                                                    class="w-8 h-8 rounded-full border border-slate-300 flex items-center justify-center text-slate-500 hover:border-slate-400 transition-colors cursor-pointer">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <!-- Children -->
+                                    <div class="flex items-center justify-between pt-3">
+                                        <div>
+                                            <span class="text-sm font-medium text-slate-900">아동</span>
+                                            <p class="text-xs text-slate-500 mt-0.5">만 3~12세</p>
+                                        </div>
+                                        <div class="flex items-center gap-3">
+                                            <button type="button"
+                                                    @click="children = Math.max(0, children - 1)"
+                                                    class="w-8 h-8 rounded-full border border-slate-300 flex items-center justify-center text-slate-500 hover:border-slate-400 transition-colors disabled:opacity-40 cursor-pointer"
+                                                    :disabled="children <= 0">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 12h-15" />
+                                                </svg>
+                                            </button>
+                                            <span class="text-sm font-semibold w-5 text-center" x-text="children"></span>
+                                            <button type="button"
+                                                    @click="children = Math.min(20, children + 1)"
                                                     class="w-8 h-8 rounded-full border border-slate-300 flex items-center justify-center text-slate-500 hover:border-slate-400 transition-colors cursor-pointer">
                                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                                                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
