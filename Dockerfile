@@ -9,6 +9,9 @@ RUN apt-get update && apt-get install -y \
     git \
     curl \
     libpng-dev \
+    libjpeg62-turbo-dev \
+    libfreetype6-dev \
+    libwebp-dev \
     libonig-dev \
     libxml2-dev \
     libzip-dev \
@@ -18,6 +21,9 @@ RUN apt-get update && apt-get install -y \
     unzip \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
+
+# Configure GD extension with JPEG, PNG, WebP, and Freetype support
+RUN docker-php-ext-configure gd --with-jpeg --with-freetype --with-webp
 
 # Install PHP extensions
 RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip
