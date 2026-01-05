@@ -246,6 +246,12 @@ Route::middleware(['auth', 'user.active', 'role:admin'])->prefix('admin')->name(
     Route::delete('regions/{region}/images/{image}', [\App\Http\Controllers\Admin\RegionController::class, 'destroyImage'])->name('regions.images.destroy');
     Route::post('regions/{region}/images/reorder', [\App\Http\Controllers\Admin\RegionController::class, 'reorderImages'])->name('regions.images.reorder');
     Route::patch('regions/{region}/images/{image}/primary', [\App\Http\Controllers\Admin\RegionController::class, 'setPrimaryImage'])->name('regions.images.primary');
+
+    // Product category management
+    Route::resource('product-categories', \App\Http\Controllers\Admin\ProductCategoryController::class);
+    Route::patch('product-categories/{productCategory}/toggle-active', [\App\Http\Controllers\Admin\ProductCategoryController::class, 'toggleActive'])->name('product-categories.toggle-active');
+    Route::patch('product-categories/{productCategory}/toggle-featured', [\App\Http\Controllers\Admin\ProductCategoryController::class, 'toggleFeatured'])->name('product-categories.toggle-featured');
+    Route::post('product-categories/reorder', [\App\Http\Controllers\Admin\ProductCategoryController::class, 'reorder'])->name('product-categories.reorder');
 });
 
 // Guide routes (Web UI only)

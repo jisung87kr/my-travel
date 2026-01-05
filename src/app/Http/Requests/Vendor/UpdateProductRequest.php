@@ -26,6 +26,7 @@ class UpdateProductRequest extends FormRequest
             $this->priceRules(),
             $this->imageRules(),
             $this->scheduleRules(),
+            $this->categoryRules(),
             [
                 'delete_images' => ['nullable', 'array'],
                 'delete_images.*' => ['integer', 'exists:product_images,id'],

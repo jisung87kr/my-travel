@@ -4,6 +4,7 @@
     'product' => null,
     'vendors' => null,
     'regions',
+    'categories' => [],
     'types',
     'bookingTypes' => [
         ['value' => 'instant', 'label' => '자동 확정 (Instant Booking)'],
@@ -119,6 +120,69 @@
                     </select>
                     <x-form-error field="region_id" />
                 </div>
+
+                @if(count($categories) > 0)
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-medium text-slate-700 mb-2">
+                        카테고리
+                        <span class="text-slate-400 text-xs font-normal ml-1">(여러 개 선택 가능)</span>
+                    </label>
+                    @php
+                        $selectedCategories = old('categories', $product?->categories?->pluck('id')->toArray() ?? []);
+                    @endphp
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        @foreach($categories as $mainCategory)
+                            <div class="bg-slate-50 rounded-xl border border-slate-200 overflow-hidden">
+                                <div class="px-4 py-3 border-b border-slate-200 bg-gradient-to-r from-indigo-50 to-purple-50">
+                                    <label class="flex items-center gap-2 cursor-pointer group">
+                                        <input type="checkbox" name="categories[]" value="{{ $mainCategory['id'] }}"
+                                               class="category-checkbox main-category w-4 h-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+                                               data-parent-id=""
+                                               {{ in_array($mainCategory['id'], $selectedCategories) ? 'checked' : '' }}>
+                                        <span class="font-medium text-slate-800 group-hover:text-indigo-600 transition-colors">{{ $mainCategory['name'] }}</span>
+                                    </label>
+                                </div>
+                                @if(!empty($mainCategory['children']))
+                                    <div class="p-3 space-y-2">
+                                        @foreach($mainCategory['children'] as $subCategory)
+                                            <div class="space-y-1">
+                                                <label class="flex items-center gap-2 cursor-pointer group px-2 py-1.5 rounded-lg hover:bg-white transition-colors">
+                                                    <input type="checkbox" name="categories[]" value="{{ $subCategory['id'] }}"
+                                                           class="category-checkbox sub-category w-4 h-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+                                                           data-parent-id="{{ $mainCategory['id'] }}"
+                                                           {{ in_array($subCategory['id'], $selectedCategories) ? 'checked' : '' }}>
+                                                    <span class="text-sm text-slate-700 group-hover:text-indigo-600 transition-colors">{{ $subCategory['name'] }}</span>
+                                                </label>
+                                                @if(!empty($subCategory['children']))
+                                                    <div class="pl-6 space-y-1">
+                                                        @foreach($subCategory['children'] as $detailCategory)
+                                                            <label class="flex items-center gap-2 cursor-pointer group px-2 py-1 rounded-lg hover:bg-white transition-colors">
+                                                                <input type="checkbox" name="categories[]" value="{{ $detailCategory['id'] }}"
+                                                                       class="category-checkbox detail-category w-3.5 h-3.5 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+                                                                       data-parent-id="{{ $subCategory['id'] }}"
+                                                                       {{ in_array($detailCategory['id'], $selectedCategories) ? 'checked' : '' }}>
+                                                                <span class="text-xs text-slate-600 group-hover:text-indigo-600 transition-colors">{{ $detailCategory['name'] }}</span>
+                                                            </label>
+                                                        @endforeach
+                                                    </div>
+                                                @endif
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                @endif
+                            </div>
+                        @endforeach
+                    </div>
+                    <p class="mt-2 text-xs text-slate-500 flex items-center gap-1">
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        상품에 해당하는 카테고리를 모두 선택해주세요
+                    </p>
+                    <x-form-error field="categories" />
+                    <x-form-error field="categories.*" />
+                </div>
+                @endif
 
                 <div>
                     <label for="duration" class="block text-sm font-medium text-slate-700 mb-2">

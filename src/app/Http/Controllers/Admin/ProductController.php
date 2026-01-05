@@ -9,6 +9,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreProductRequest;
 use App\Http\Requests\Admin\UpdateProductRequest;
 use App\Models\Product;
+use App\Models\ProductCategory;
 use App\Models\Region;
 use App\Models\Vendor;
 use App\Services\ProductService;
@@ -98,8 +99,9 @@ class ProductController extends Controller
             ->map(fn ($r) => ['value' => $r->id, 'label' => $r->getShortName($locale)]);
         $types = collect(ProductType::cases())->map(fn ($t) => ['value' => $t->value, 'label' => $t->label()]);
         $bookingTypes = collect(BookingType::cases())->map(fn ($b) => ['value' => $b->value, 'label' => $b->label()]);
+        $categories = $this->getHierarchicalCategories($locale);
 
-        return view('admin.products.create', compact('vendors', 'regions', 'types', 'bookingTypes'));
+        return view('admin.products.create', compact('vendors', 'regions', 'types', 'bookingTypes', 'categories'));
     }
 
     public function store(StoreProductRequest $request): RedirectResponse
@@ -116,7 +118,7 @@ class ProductController extends Controller
 
     public function edit(Product $product): View
     {
-        $product->load(['vendor.user', 'translations', 'prices', 'images', 'schedules']);
+        $product->load(['vendor.user', 'translations', 'prices', 'images', 'schedules', 'categories']);
 
         $locale = app()->getLocale();
         $vendors = Vendor::with('user')->where('status', 'approved')->get();
@@ -128,8 +130,9 @@ class ProductController extends Controller
             ->map(fn ($r) => ['value' => $r->id, 'label' => $r->getShortName($locale)]);
         $types = collect(ProductType::cases())->map(fn ($t) => ['value' => $t->value, 'label' => $t->label()]);
         $bookingTypes = collect(BookingType::cases())->map(fn ($b) => ['value' => $b->value, 'label' => $b->label()]);
+        $categories = $this->getHierarchicalCategories($locale);
 
-        return view('admin.products.edit', compact('product', 'vendors', 'regions', 'types', 'bookingTypes'));
+        return view('admin.products.edit', compact('product', 'vendors', 'regions', 'types', 'bookingTypes', 'categories'));
     }
 
     public function update(UpdateProductRequest $request, Product $product): RedirectResponse
@@ -168,5 +171,36 @@ class ProductController extends Controller
 
         return redirect()->route('admin.products.index')
             ->with('success', '상품이 삭제되었습니다.');
+    }
+
+    /**
+     * Get hierarchical categories array for form display
+     */
+    private function getHierarchicalCategories(string $locale): array
+    {
+        $mainCategories = ProductCategory::with(['translations', 'children.translations', 'children.children.translations'])
+            ->main()
+            ->active()
+            ->ordered()
+            ->get();
+
+        return $mainCategories->map(function ($main) use ($locale) {
+            return [
+                'id' => $main->id,
+                'name' => $main->getName($locale),
+                'children' => $main->children->filter(fn ($c) => $c->is_active)->sortBy('sort_order')->map(function ($sub) use ($locale) {
+                    return [
+                        'id' => $sub->id,
+                        'name' => $sub->getName($locale),
+                        'children' => $sub->children->filter(fn ($c) => $c->is_active)->sortBy('sort_order')->map(function ($detail) use ($locale) {
+                            return [
+                                'id' => $detail->id,
+                                'name' => $detail->getName($locale),
+                            ];
+                        })->values()->all(),
+                    ];
+                })->values()->all(),
+            ];
+        })->toArray();
     }
 }

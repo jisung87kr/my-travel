@@ -28,6 +28,7 @@ class StoreProductRequest extends FormRequest
             $this->priceRules(),
             $this->imageRules(),
             $this->scheduleRules(),
+            $this->categoryRules(),
         );
     }
 

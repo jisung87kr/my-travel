@@ -96,6 +96,17 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
                 </x-slot:icon>
             </x-layouts.partials.nav-item>
+
+            <x-layouts.partials.nav-item
+                route="admin.product-categories.index"
+                active-pattern="admin.product-categories.*"
+                label="상품 카테고리"
+                theme="blue"
+            >
+                <x-slot:icon>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+                </x-slot:icon>
+            </x-layouts.partials.nav-item>
         </div>
 
         <div class="mt-8 space-y-1">

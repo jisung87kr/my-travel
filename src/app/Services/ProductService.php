@@ -58,7 +58,11 @@ class ProductService
                 $this->syncSchedules($product, $data['schedules']);
             }
 
-            return $product->load(['translations', 'prices', 'vendor', 'images', 'schedules']);
+            if (isset($data['categories'])) {
+                $this->syncCategories($product, $data['categories']);
+            }
+
+            return $product->load(['translations', 'prices', 'vendor', 'images', 'schedules', 'categories']);
         });
     }
 
@@ -114,7 +118,11 @@ class ProductService
                 $this->syncSchedules($product, $data['schedules']);
             }
 
-            return $product->fresh(['translations', 'prices', 'vendor', 'images', 'schedules']);
+            if (array_key_exists('categories', $data)) {
+                $this->syncCategories($product, $data['categories'] ?? []);
+            }
+
+            return $product->fresh(['translations', 'prices', 'vendor', 'images', 'schedules', 'categories']);
         });
     }
 
@@ -418,5 +426,13 @@ class ProductService
     private function deleteSchedulesByIds(Product $product, array $scheduleIds): void
     {
         $product->schedules()->whereIn('id', $scheduleIds)->delete();
+    }
+
+    /**
+     * 카테고리 동기화
+     */
+    private function syncCategories(Product $product, array $categoryIds): void
+    {
+        $product->categories()->sync($categoryIds);
     }
 }

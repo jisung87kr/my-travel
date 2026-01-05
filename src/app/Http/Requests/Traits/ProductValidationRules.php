@@ -69,6 +69,14 @@ trait ProductValidationRules
         ];
     }
 
+    protected function categoryRules(): array
+    {
+        return [
+            'categories' => ['nullable', 'array'],
+            'categories.*' => ['integer', 'exists:product_categories,id'],
+        ];
+    }
+
     protected function productValidationMessages(): array
     {
         return [
@@ -93,6 +101,9 @@ trait ProductValidationRules
             'schedules.*.total_count.required_with' => '정원을 입력해주세요.',
             'schedules.*.total_count.integer' => '정원은 숫자여야 합니다.',
             'schedules.*.total_count.min' => '정원은 최소 1명이어야 합니다.',
+            'categories.array' => '카테고리는 배열 형식이어야 합니다.',
+            'categories.*.integer' => '유효하지 않은 카테고리입니다.',
+            'categories.*.exists' => '존재하지 않는 카테고리입니다.',
         ];
     }
 }
