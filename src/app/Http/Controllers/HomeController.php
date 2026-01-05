@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Enums\Region;
 use App\Enums\ProductType;
 use App\Http\Controllers\Traits\FormatsProducts;
 use App\Models\Product;
+use App\Models\Region;
 use App\Models\Review;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
@@ -13,6 +13,7 @@ use Illuminate\View\View;
 class HomeController extends Controller
 {
     use FormatsProducts;
+
     public function index(): View
     {
         $locale = app()->getLocale();
@@ -33,32 +34,33 @@ class HomeController extends Controller
             ->get()
             ->map(fn ($product) => $this->formatProduct($product, $locale));
 
-        // Regions with product counts and images
-        $regions = collect([
-            Region::SEOUL,
-            Region::BUSAN,
-            Region::JEJU,
-            Region::JEONBUK,
-            Region::GYEONGBUK,
-            Region::GANGWON,
-        ])->map(function ($region) {
-            $product = Product::with('images')
-                ->active()
-                ->where('region', $region)
-                ->first();
+        // Regions with product counts and images (featured provinces)
+        $regions = Region::with(['translations', 'images'])
+            ->provinces()
+            ->featured()
+            ->active()
+            ->ordered()
+            ->withProductCount()
+            ->get()
+            ->map(function ($region) use ($locale) {
+                $product = Product::with('images')
+                    ->active()
+                    ->where('region_id', $region->id)
+                    ->first();
 
-            $imagePath = $product?->images->first()?->path;
-            $image = $imagePath
-                ? Storage::disk('public')->url($imagePath)
-                : 'https://placehold.co/400x400?text=' . urlencode($region->label());
+                $imagePath = $region->getPrimaryImage()?->path ?? $product?->images->first()?->path;
+                $image = $imagePath
+                    ? Storage::disk('public')->url($imagePath)
+                    : 'https://placehold.co/400x400?text=' . urlencode($region->getShortName($locale));
 
-            return [
-                'value' => $region->value,
-                'name' => $region->label(),
-                'count' => Product::active()->where('region', $region)->count(),
-                'image' => $image,
-            ];
-        });
+                return [
+                    'id' => $region->id,
+                    'value' => $region->code,
+                    'name' => $region->getShortName($locale),
+                    'count' => $region->products_count ?? 0,
+                    'image' => $image,
+                ];
+            });
 
         // Product types with counts
         $productTypes = collect(ProductType::cases())

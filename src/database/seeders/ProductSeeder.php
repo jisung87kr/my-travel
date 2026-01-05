@@ -5,12 +5,12 @@ namespace Database\Seeders;
 use App\Enums\BookingType;
 use App\Enums\ProductStatus;
 use App\Enums\ProductType;
-use App\Enums\Region;
 use App\Models\Product;
 use App\Models\ProductImage;
 use App\Models\ProductPrice;
 use App\Models\ProductSchedule;
 use App\Models\ProductTranslation;
+use App\Models\Region;
 use App\Models\Vendor;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Http;
@@ -21,20 +21,26 @@ class ProductSeeder extends Seeder
 {
     public function run(): void
     {
+        // Cache region ids by code
+        $regionIds = Region::provinces()->pluck('id', 'code');
+
         $products = $this->getProductData();
 
         foreach ($products as $data) {
             $vendor = Vendor::where('company_name', 'like', "%{$data['vendor_keyword']}%")->first();
-            if (!$vendor) {
+            if (! $vendor) {
                 $vendor = Vendor::first();
             }
+
+            // Get region_id from code
+            $regionId = $regionIds[$data['region_code']] ?? null;
 
             // Create product
             $product = Product::create([
                 'vendor_id' => $vendor->id,
                 'slug' => Str::slug($data['translations']['en']['title']) ?: 'product-' . uniqid(),
                 'type' => $data['type'],
-                'region' => $data['region'],
+                'region_id' => $regionId,
                 'duration' => $data['duration'],
                 'min_persons' => $data['min_persons'],
                 'max_persons' => $data['max_persons'],
@@ -204,7 +210,7 @@ class ProductSeeder extends Seeder
             [
                 'vendor_keyword' => '서울',
                 'type' => ProductType::DAY_TOUR,
-                'region' => Region::SEOUL,
+                'region_code' => 'seoul',
                 'duration' => 480,
                 'min_persons' => 1,
                 'max_persons' => 15,
@@ -247,7 +253,7 @@ class ProductSeeder extends Seeder
             [
                 'vendor_keyword' => '서울',
                 'type' => ProductType::DAY_TOUR,
-                'region' => Region::SEOUL,
+                'region_code' => 'seoul',
                 'duration' => 300,
                 'min_persons' => 1,
                 'max_persons' => 10,
@@ -285,7 +291,7 @@ class ProductSeeder extends Seeder
             [
                 'vendor_keyword' => '서울',
                 'type' => ProductType::ACTIVITY,
-                'region' => Region::SEOUL,
+                'region_code' => 'seoul',
                 'duration' => 180,
                 'min_persons' => 2,
                 'max_persons' => 8,
@@ -324,7 +330,7 @@ class ProductSeeder extends Seeder
             [
                 'vendor_keyword' => '부산',
                 'type' => ProductType::DAY_TOUR,
-                'region' => Region::BUSAN,
+                'region_code' => 'busan',
                 'duration' => 540,
                 'min_persons' => 1,
                 'max_persons' => 20,
@@ -363,7 +369,7 @@ class ProductSeeder extends Seeder
             [
                 'vendor_keyword' => '부산',
                 'type' => ProductType::DAY_TOUR,
-                'region' => Region::BUSAN,
+                'region_code' => 'busan',
                 'duration' => 420,
                 'min_persons' => 1,
                 'max_persons' => 15,
@@ -402,7 +408,7 @@ class ProductSeeder extends Seeder
             [
                 'vendor_keyword' => '제주',
                 'type' => ProductType::DAY_TOUR,
-                'region' => Region::JEJU,
+                'region_code' => 'jeju',
                 'duration' => 600,
                 'min_persons' => 1,
                 'max_persons' => 12,
@@ -441,7 +447,7 @@ class ProductSeeder extends Seeder
             [
                 'vendor_keyword' => '제주',
                 'type' => ProductType::ACTIVITY,
-                'region' => Region::JEJU,
+                'region_code' => 'jeju',
                 'duration' => 240,
                 'min_persons' => 2,
                 'max_persons' => 6,
@@ -480,7 +486,7 @@ class ProductSeeder extends Seeder
             [
                 'vendor_keyword' => '서울',
                 'type' => ProductType::DAY_TOUR,
-                'region' => Region::GYEONGGI,
+                'region_code' => 'gyeonggi',
                 'duration' => 480,
                 'min_persons' => 1,
                 'max_persons' => 20,
@@ -520,7 +526,7 @@ class ProductSeeder extends Seeder
             [
                 'vendor_keyword' => '서울',
                 'type' => ProductType::PACKAGE,
-                'region' => Region::GANGWON,
+                'region_code' => 'gangwon',
                 'duration' => 1440,
                 'min_persons' => 2,
                 'max_persons' => 10,
@@ -559,7 +565,7 @@ class ProductSeeder extends Seeder
             [
                 'vendor_keyword' => '서울',
                 'type' => ProductType::DAY_TOUR,
-                'region' => Region::JEONBUK,
+                'region_code' => 'jeonbuk',
                 'duration' => 540,
                 'min_persons' => 1,
                 'max_persons' => 15,
@@ -598,7 +604,7 @@ class ProductSeeder extends Seeder
             [
                 'vendor_keyword' => '서울',
                 'type' => ProductType::DAY_TOUR,
-                'region' => Region::GYEONGBUK,
+                'region_code' => 'gyeongbuk',
                 'duration' => 600,
                 'min_persons' => 1,
                 'max_persons' => 20,
@@ -638,7 +644,7 @@ class ProductSeeder extends Seeder
             [
                 'vendor_keyword' => '서울',
                 'type' => ProductType::ACTIVITY,
-                'region' => Region::SEOUL,
+                'region_code' => 'seoul',
                 'duration' => 120,
                 'min_persons' => 1,
                 'max_persons' => 20,

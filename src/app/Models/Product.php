@@ -23,6 +23,7 @@ class Product extends Model
         'slug',
         'type',
         'region',
+        'region_id',
         'duration',
         'min_persons',
         'max_persons',
@@ -74,6 +75,11 @@ class Product extends Model
     public function vendor(): BelongsTo
     {
         return $this->belongsTo(Vendor::class);
+    }
+
+    public function regionRelation(): BelongsTo
+    {
+        return $this->belongsTo(\App\Models\Region::class, 'region_id');
     }
 
     public function translations(): HasMany
@@ -154,11 +160,28 @@ class Product extends Model
         return $query->where('status', ProductStatus::ACTIVE);
     }
 
-    public function scopeByRegion($query, string|Region $region)
+    public function scopeByRegion($query, string|int|Region|\App\Models\Region $region)
     {
-        $region = $region instanceof Region ? $region->value : $region;
+        // Support new Region model (by id)
+        if ($region instanceof \App\Models\Region) {
+            return $query->where('region_id', $region->id);
+        }
 
-        return $query->where('region', $region);
+        // Support integer (region_id)
+        if (is_int($region)) {
+            return $query->where('region_id', $region);
+        }
+
+        // Support legacy Region enum
+        $regionValue = $region instanceof Region ? $region->value : $region;
+
+        // Try region_id first (via code lookup), fallback to legacy region field
+        $regionModel = \App\Models\Region::where('code', $regionValue)->first();
+        if ($regionModel) {
+            return $query->where('region_id', $regionModel->id);
+        }
+
+        return $query->where('region', $regionValue);
     }
 
     public function scopeByType($query, string|ProductType $type)

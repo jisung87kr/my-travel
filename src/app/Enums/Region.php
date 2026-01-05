@@ -2,6 +2,11 @@
 
 namespace App\Enums;
 
+/**
+ * @deprecated Use App\Models\Region instead. This enum is kept for backward compatibility
+ *             during migration but will be removed in a future version.
+ *             Use region_id (foreign key) to reference regions from the regions table.
+ */
 enum Region: string
 {
     case SEOUL = 'seoul';

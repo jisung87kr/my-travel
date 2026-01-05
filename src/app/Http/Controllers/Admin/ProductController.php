@@ -5,11 +5,11 @@ namespace App\Http\Controllers\Admin;
 use App\Enums\BookingType;
 use App\Enums\ProductStatus;
 use App\Enums\ProductType;
-use App\Enums\Region;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreProductRequest;
 use App\Http\Requests\Admin\UpdateProductRequest;
 use App\Models\Product;
+use App\Models\Region;
 use App\Models\Vendor;
 use App\Services\ProductService;
 use Illuminate\Http\RedirectResponse;
@@ -32,8 +32,8 @@ class ProductController extends Controller
             $query->where('status', $request->status);
         }
 
-        if ($request->filled('region')) {
-            $query->where('region', $request->region);
+        if ($request->filled('region_id')) {
+            $query->where('region_id', $request->region_id);
         }
 
         if ($request->filled('search')) {
@@ -88,8 +88,14 @@ class ProductController extends Controller
 
     public function create(): View
     {
+        $locale = app()->getLocale();
         $vendors = Vendor::with('user')->where('status', 'approved')->get();
-        $regions = collect(Region::cases())->map(fn ($r) => ['value' => $r->value, 'label' => $r->label()]);
+        $regions = Region::with('translations')
+            ->provinces()
+            ->active()
+            ->ordered()
+            ->get()
+            ->map(fn ($r) => ['value' => $r->id, 'label' => $r->getShortName($locale)]);
         $types = collect(ProductType::cases())->map(fn ($t) => ['value' => $t->value, 'label' => $t->label()]);
         $bookingTypes = collect(BookingType::cases())->map(fn ($b) => ['value' => $b->value, 'label' => $b->label()]);
 
@@ -112,8 +118,14 @@ class ProductController extends Controller
     {
         $product->load(['vendor.user', 'translations', 'prices', 'images', 'schedules']);
 
+        $locale = app()->getLocale();
         $vendors = Vendor::with('user')->where('status', 'approved')->get();
-        $regions = collect(Region::cases())->map(fn ($r) => ['value' => $r->value, 'label' => $r->label()]);
+        $regions = Region::with('translations')
+            ->provinces()
+            ->active()
+            ->ordered()
+            ->get()
+            ->map(fn ($r) => ['value' => $r->id, 'label' => $r->getShortName($locale)]);
         $types = collect(ProductType::cases())->map(fn ($t) => ['value' => $t->value, 'label' => $t->label()]);
         $bookingTypes = collect(BookingType::cases())->map(fn ($b) => ['value' => $b->value, 'label' => $b->label()]);
 

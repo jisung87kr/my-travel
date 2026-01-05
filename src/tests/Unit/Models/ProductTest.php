@@ -6,8 +6,8 @@ use App\Enums\BookingType;
 use App\Enums\Language;
 use App\Enums\ProductStatus;
 use App\Enums\ProductType;
-use App\Enums\Region;
 use App\Models\Product;
+use App\Models\Region;
 use App\Models\ProductSchedule;
 use App\Models\ProductTranslation;
 use App\Models\Vendor;
@@ -17,6 +17,12 @@ use Tests\TestCase;
 class ProductTest extends TestCase
 {
     use RefreshDatabase;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->seed(\Database\Seeders\RegionSeeder::class);
+    }
 
     public function test_product_can_be_created(): void
     {
@@ -35,14 +41,15 @@ class ProductTest extends TestCase
         $this->assertEquals(ProductType::DAY_TOUR, $product->type);
     }
 
-    public function test_product_region_is_cast_to_enum(): void
+    public function test_product_has_region_relationship(): void
     {
+        $jejuRegion = Region::where('code', 'jeju')->first();
         $product = Product::factory()->create([
-            'region' => Region::JEJU,
+            'region_id' => $jejuRegion->id,
         ]);
 
-        $this->assertInstanceOf(Region::class, $product->region);
-        $this->assertEquals(Region::JEJU, $product->region);
+        $this->assertInstanceOf(Region::class, $product->regionRelation);
+        $this->assertEquals($jejuRegion->id, $product->region_id);
     }
 
     public function test_product_belongs_to_vendor(): void
@@ -137,11 +144,14 @@ class ProductTest extends TestCase
 
     public function test_product_scope_by_region(): void
     {
-        Product::factory()->create(['region' => Region::JEJU]);
-        Product::factory()->create(['region' => Region::JEJU]);
-        Product::factory()->create(['region' => Region::SEOUL]);
+        $jejuRegion = Region::where('code', 'jeju')->first();
+        $seoulRegion = Region::where('code', 'seoul')->first();
 
-        $jejuProducts = Product::byRegion(Region::JEJU)->get();
+        Product::factory()->create(['region_id' => $jejuRegion->id]);
+        Product::factory()->create(['region_id' => $jejuRegion->id]);
+        Product::factory()->create(['region_id' => $seoulRegion->id]);
+
+        $jejuProducts = Product::byRegion($jejuRegion->id)->get();
 
         $this->assertCount(2, $jejuProducts);
     }

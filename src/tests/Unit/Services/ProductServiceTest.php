@@ -6,8 +6,8 @@ use App\Enums\BookingType;
 use App\Enums\Language;
 use App\Enums\ProductStatus;
 use App\Enums\ProductType;
-use App\Enums\Region;
 use App\Models\Product;
+use App\Models\Region;
 use App\Models\ProductImage;
 use App\Models\ProductPrice;
 use App\Models\ProductTranslation;
@@ -31,6 +31,7 @@ class ProductServiceTest extends TestCase
     {
         parent::setUp();
         $this->seed(\Database\Seeders\RoleSeeder::class);
+        $this->seed(\Database\Seeders\RegionSeeder::class);
         $this->service = new ProductService();
 
         $this->vendorUser = User::factory()->create();
@@ -40,9 +41,11 @@ class ProductServiceTest extends TestCase
 
     public function test_create_product_with_translations_and_prices(): void
     {
+        $seoulRegion = Region::where('code', 'seoul')->first();
+
         $data = [
             'type' => ProductType::DAY_TOUR->value,
-            'region' => Region::SEOUL->value,
+            'region_id' => $seoulRegion->id,
             'duration' => 480,
             'min_persons' => 2,
             'max_persons' => 10,
@@ -83,7 +86,7 @@ class ProductServiceTest extends TestCase
             'id' => $product->id,
             'vendor_id' => $this->vendor->id,
             'type' => ProductType::DAY_TOUR->value,
-            'region' => Region::SEOUL->value,
+            'region_id' => $seoulRegion->id,
             'status' => ProductStatus::DRAFT->value,
         ]);
 
@@ -96,15 +99,16 @@ class ProductServiceTest extends TestCase
         $product = Product::factory()->create([
             'vendor_id' => $this->vendor->id,
         ]);
+        $jejuRegion = Region::where('code', 'jeju')->first();
 
         $data = [
-            'region' => Region::JEJU->value,
+            'region_id' => $jejuRegion->id,
             'duration' => 600,
         ];
 
         $updatedProduct = $this->service->update($product, $data);
 
-        $this->assertEquals(Region::JEJU, $updatedProduct->region);
+        $this->assertEquals($jejuRegion->id, $updatedProduct->region_id);
         $this->assertEquals(600, $updatedProduct->duration);
     }
 
@@ -243,17 +247,20 @@ class ProductServiceTest extends TestCase
 
     public function test_search_products(): void
     {
+        $seoulRegion = Region::where('code', 'seoul')->first();
+        $jejuRegion = Region::where('code', 'jeju')->first();
+
         Product::factory()->active()->count(5)->create([
-            'region' => Region::SEOUL,
+            'region_id' => $seoulRegion->id,
         ]);
         Product::factory()->active()->count(3)->create([
-            'region' => Region::JEJU,
+            'region_id' => $jejuRegion->id,
         ]);
         Product::factory()->count(2)->create([
-            'region' => Region::SEOUL,
+            'region_id' => $seoulRegion->id,
         ]); // draft
 
-        $results = $this->service->search(['region' => Region::SEOUL->value]);
+        $results = $this->service->search(['region' => $seoulRegion->id]);
 
         $this->assertEquals(5, $results->total());
     }

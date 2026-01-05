@@ -30,7 +30,7 @@ class ProductService
             $product = new Product([
                 'vendor_id' => $vendor?->vendor->id ?? $data['vendor_id'],
                 'type' => $data['type'],
-                'region' => $data['region'],
+                'region_id' => $data['region_id'] ?? null,
                 'duration' => $data['duration'] ?? null,
                 'min_persons' => $data['min_persons'] ?? 1,
                 'max_persons' => $data['max_persons'] ?? 100,
@@ -75,14 +75,14 @@ class ProductService
             $updateData = array_filter([
                 'vendor_id' => $data['vendor_id'] ?? null,
                 'type' => $data['type'] ?? null,
-                'region' => $data['region'] ?? null,
+                'region_id' => $data['region_id'] ?? null,
                 'duration' => $data['duration'] ?? null,
                 'min_persons' => $data['min_persons'] ?? null,
                 'max_persons' => $data['max_persons'] ?? null,
                 'booking_type' => $data['booking_type'] ?? null,
                 'latitude' => $data['latitude'] ?? null,
                 'longitude' => $data['longitude'] ?? null,
-            ], fn($value) => $value !== null);
+            ], fn ($value) => $value !== null);
 
             if (isset($data['status'])) {
                 $updateData['status'] = $data['status'];

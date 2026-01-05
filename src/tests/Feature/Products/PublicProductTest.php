@@ -5,8 +5,8 @@ namespace Tests\Feature\Products;
 use App\Enums\Language;
 use App\Enums\ProductStatus;
 use App\Enums\ProductType;
-use App\Enums\Region;
 use App\Models\Product;
+use App\Models\Region;
 use App\Models\ProductPrice;
 use App\Models\ProductTranslation;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -20,6 +20,7 @@ class PublicProductTest extends TestCase
     {
         parent::setUp();
         $this->seed(\Database\Seeders\RoleSeeder::class);
+        $this->seed(\Database\Seeders\RegionSeeder::class);
     }
 
     public function test_can_list_active_products(): void
@@ -36,10 +37,13 @@ class PublicProductTest extends TestCase
 
     public function test_can_filter_products_by_region(): void
     {
-        Product::factory()->active()->count(2)->create(['region' => Region::SEOUL]);
-        Product::factory()->active()->count(3)->create(['region' => Region::JEJU]);
+        $seoulRegion = Region::where('code', 'seoul')->first();
+        $jejuRegion = Region::where('code', 'jeju')->first();
 
-        $response = $this->getJson('/products?region=seoul');
+        Product::factory()->active()->count(2)->create(['region_id' => $seoulRegion->id]);
+        Product::factory()->active()->count(3)->create(['region_id' => $jejuRegion->id]);
+
+        $response = $this->getJson('/products?region=' . $seoulRegion->id);
 
         $response->assertStatus(200)
             ->assertJsonCount(2, 'data');

@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers\Traveler;
 
-use App\Enums\Region;
 use App\Enums\ProductType;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Traits\FormatsProducts;
 use App\Models\Product;
 use App\Models\ProductSchedule;
+use App\Models\Region;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
@@ -31,7 +31,16 @@ class ProductController extends Controller
         }
 
         if ($request->filled('region')) {
-            $query->where('region', $request->region);
+            // Support both region code and region_id
+            $regionParam = $request->region;
+            if (is_numeric($regionParam)) {
+                $query->where('region_id', $regionParam);
+            } else {
+                $regionModel = Region::where('code', $regionParam)->first();
+                if ($regionModel) {
+                    $query->where('region_id', $regionModel->id);
+                }
+            }
         }
 
         if ($request->filled('type')) {
@@ -77,10 +86,15 @@ class ProductController extends Controller
         });
 
         // Get filter options
-        $regions = collect(Region::cases())->map(fn ($r) => [
-            'value' => $r->value,
-            'label' => $r->label(),
-        ]);
+        $regions = Region::with('translations')
+            ->provinces()
+            ->active()
+            ->ordered()
+            ->get()
+            ->map(fn ($r) => [
+                'value' => $r->code,
+                'label' => $r->getShortName($locale),
+            ]);
 
         $types = collect(ProductType::cases())->map(fn ($t) => [
             'value' => $t->value,
@@ -128,7 +142,7 @@ class ProductController extends Controller
             ->where('id', '!=', $product->id)
             ->where(function ($q) use ($product) {
                 $q->where('type', $product->type)
-                    ->orWhere('region', $product->region);
+                    ->orWhere('region_id', $product->region_id);
             })
             ->take(4)
             ->get()

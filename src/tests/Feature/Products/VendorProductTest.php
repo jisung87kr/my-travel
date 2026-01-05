@@ -6,8 +6,8 @@ use App\Enums\BookingType;
 use App\Enums\Language;
 use App\Enums\ProductStatus;
 use App\Enums\ProductType;
-use App\Enums\Region;
 use App\Models\Product;
+use App\Models\Region;
 use App\Models\ProductImage;
 use App\Models\ProductTranslation;
 use App\Models\User;
@@ -28,6 +28,7 @@ class VendorProductTest extends TestCase
     {
         parent::setUp();
         $this->seed(\Database\Seeders\RoleSeeder::class);
+        $this->seed(\Database\Seeders\RegionSeeder::class);
 
         $this->vendorUser = User::factory()->create();
         $this->vendorUser->assignRole('vendor');
@@ -48,9 +49,11 @@ class VendorProductTest extends TestCase
 
     public function test_vendor_can_create_product(): void
     {
+        $seoulRegion = Region::where('code', 'seoul')->first();
+
         $data = [
             'type' => ProductType::DAY_TOUR->value,
-            'region' => Region::SEOUL->value,
+            'region_id' => $seoulRegion->id,
             'duration' => 480,
             'min_persons' => 2,
             'max_persons' => 10,
@@ -110,10 +113,11 @@ class VendorProductTest extends TestCase
     public function test_vendor_can_update_own_product(): void
     {
         $product = Product::factory()->create(['vendor_id' => $this->vendor->id]);
+        $jejuRegion = Region::where('code', 'jeju')->first();
 
         $response = $this->actingAs($this->vendorUser)
             ->putJson("/vendor/products/{$product->id}", [
-                'region' => Region::JEJU->value,
+                'region_id' => $jejuRegion->id,
             ]);
 
         $response->assertStatus(200)
@@ -121,7 +125,7 @@ class VendorProductTest extends TestCase
 
         $this->assertDatabaseHas('products', [
             'id' => $product->id,
-            'region' => Region::JEJU->value,
+            'region_id' => $jejuRegion->id,
         ]);
     }
 
@@ -129,10 +133,11 @@ class VendorProductTest extends TestCase
     {
         $otherVendor = Vendor::factory()->create();
         $product = Product::factory()->create(['vendor_id' => $otherVendor->id]);
+        $jejuRegion = Region::where('code', 'jeju')->first();
 
         $response = $this->actingAs($this->vendorUser)
             ->putJson("/vendor/products/{$product->id}", [
-                'region' => Region::JEJU->value,
+                'region_id' => $jejuRegion->id,
             ]);
 
         $response->assertStatus(403);
@@ -281,6 +286,6 @@ class VendorProductTest extends TestCase
             ]);
 
         $response->assertStatus(422)
-            ->assertJsonValidationErrors(['type', 'region', 'min_persons', 'max_persons', 'booking_type', 'translations', 'prices']);
+            ->assertJsonValidationErrors(['type', 'region_id', 'min_persons', 'max_persons', 'booking_type', 'translations', 'prices']);
     }
 }

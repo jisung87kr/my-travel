@@ -4,7 +4,6 @@ namespace App\Http\Requests\Traits;
 
 use App\Enums\BookingType;
 use App\Enums\ProductType;
-use App\Enums\Region;
 use Illuminate\Validation\Rule;
 
 trait ProductValidationRules
@@ -13,7 +12,7 @@ trait ProductValidationRules
     {
         return [
             'type' => ['required', 'string', Rule::in(ProductType::values())],
-            'region' => ['required', 'string', Rule::in(Region::values())],
+            'region_id' => ['required', 'integer', Rule::exists('regions', 'id')],
             'duration' => ['nullable', 'integer', 'min:0', 'max:10080'],
             'min_persons' => ['nullable', 'integer', 'min:1', 'max:100'],
             'max_persons' => ['nullable', 'integer', 'min:1', 'max:100'],
@@ -75,8 +74,8 @@ trait ProductValidationRules
         return [
             'type.required' => '상품 유형을 선택해주세요.',
             'type.in' => '유효하지 않은 상품 유형입니다.',
-            'region.required' => '지역을 선택해주세요.',
-            'region.in' => '유효하지 않은 지역입니다.',
+            'region_id.required' => '지역을 선택해주세요.',
+            'region_id.exists' => '유효하지 않은 지역입니다.',
             'booking_type.required' => '예약 유형을 선택해주세요.',
             'translations.required' => '상품 정보를 입력해주세요.',
             'translations.ko.required' => '한국어 상품 정보를 입력해주세요.',

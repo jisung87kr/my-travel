@@ -3,11 +3,11 @@
 namespace App\Http\Controllers\Vendor;
 
 use App\Enums\ProductType;
-use App\Enums\Region;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Vendor\StoreProductRequest;
 use App\Http\Requests\Vendor\UpdateProductRequest;
 use App\Models\Product;
+use App\Models\Region;
 use App\Services\ProductService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -30,7 +30,13 @@ class ProductController extends Controller
 
     public function create(): View
     {
-        $regions = collect(Region::cases())->map(fn ($r) => ['value' => $r->value, 'label' => $r->label()]);
+        $locale = app()->getLocale();
+        $regions = Region::with('translations')
+            ->provinces()
+            ->active()
+            ->ordered()
+            ->get()
+            ->map(fn ($r) => ['value' => $r->id, 'label' => $r->getShortName($locale)]);
         $types = collect(ProductType::cases())->map(fn ($t) => ['value' => $t->value, 'label' => $t->label()]);
 
         return view('vendor.products.create', compact('regions', 'types'));
@@ -53,12 +59,18 @@ class ProductController extends Controller
 
         $product->load(['translations', 'prices', 'images', 'schedules']);
 
-        $regions = collect(Region::cases())->map(fn ($r) => ['value' => $r->value, 'label' => $r->label()]);
+        $locale = app()->getLocale();
+        $regions = Region::with('translations')
+            ->provinces()
+            ->active()
+            ->ordered()
+            ->get()
+            ->map(fn ($r) => ['value' => $r->id, 'label' => $r->getShortName($locale)]);
         $types = collect(ProductType::cases())->map(fn ($t) => ['value' => $t->value, 'label' => $t->label()]);
 
         $productData = [
             'type' => $product->type->value,
-            'region' => $product->region->value,
+            'region_id' => $product->region_id,
             'duration' => $product->duration,
             'max_persons' => $product->max_persons,
             'booking_type' => $product->booking_type,

@@ -5,8 +5,8 @@ namespace Database\Factories;
 use App\Enums\BookingType;
 use App\Enums\ProductStatus;
 use App\Enums\ProductType;
-use App\Enums\Region;
 use App\Models\Product;
+use App\Models\Region;
 use App\Models\Vendor;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -22,7 +22,7 @@ class ProductFactory extends Factory
         return [
             'vendor_id' => Vendor::factory(),
             'type' => fake()->randomElement(ProductType::cases()),
-            'region' => fake()->randomElement(Region::cases()),
+            'region_id' => Region::provinces()->inRandomOrder()->value('id'),
             'duration' => fake()->numberBetween(60, 480),
             'booking_type' => fake()->randomElement(BookingType::cases()),
             'status' => ProductStatus::DRAFT,

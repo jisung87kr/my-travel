@@ -106,18 +106,18 @@
                 </div>
 
                 <div>
-                    <label for="region" class="block text-sm font-medium text-slate-700 mb-2">
+                    <label for="region_id" class="block text-sm font-medium text-slate-700 mb-2">
                         지역 <span class="text-red-500">*</span>
                     </label>
-                    <select id="region" name="region" required
-                            class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl {{ $scheme['focus'] }} focus:bg-white transition-all @error('region') border-red-500 bg-red-50 @enderror">
+                    <select id="region_id" name="region_id" required
+                            class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl {{ $scheme['focus'] }} focus:bg-white transition-all @error('region_id') border-red-500 bg-red-50 @enderror">
                         @foreach($regions as $region)
-                            <option value="{{ $region['value'] }}" {{ old('region', $product?->region?->value ?? $product?->region) === $region['value'] ? 'selected' : '' }}>
+                            <option value="{{ $region['value'] }}" {{ old('region_id', $product?->region_id) == $region['value'] ? 'selected' : '' }}>
                                 {{ $region['label'] }}
                             </option>
                         @endforeach
                     </select>
-                    <x-form-error field="region" />
+                    <x-form-error field="region_id" />
                 </div>
 
                 <div>

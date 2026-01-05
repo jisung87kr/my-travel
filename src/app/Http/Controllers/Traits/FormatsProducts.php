@@ -20,16 +20,25 @@ trait FormatsProducts
                 ->exists();
         }
 
+        // Get region name from new Region model or fallback to legacy enum
+        $regionName = $product->regionRelation?->getShortName($locale)
+            ?? $product->region?->label()
+            ?? '';
+        $regionCode = $product->regionRelation?->code
+            ?? $product->region?->value
+            ?? '';
+
         return [
             'id' => $product->id,
             'slug' => $product->slug,
             'title' => $translation?->title ?? $koTranslation?->title ?? '',
             'shortDescription' => $translation?->short_description ?? $koTranslation?->short_description ?? '',
             'description' => $translation?->description ?? '',
-            'location' => $product->region->label() . ', 대한민국',
+            'location' => $regionName ? $regionName . ', 대한민국' : '대한민국',
             'image' => $primaryImage?->url ?? $primaryImage?->path ?? 'https://placehold.co/800x600?text=NO+IMAGE',
-            'region' => $product->region->label(),
-            'region_value' => $product->region->value,
+            'region' => $regionName,
+            'region_value' => $regionCode,
+            'region_id' => $product->region_id,
             'type' => $product->type->label(),
             'type_value' => $product->type->value,
             'price' => $lowestPrice,
