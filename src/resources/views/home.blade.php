@@ -1,6 +1,6 @@
 <x-layouts.app :title="__('home.page_title')">
     <!-- Hero Section -->
-    <section class="mt-6 bg-gradient-to-b from-pink-50/80 via-white to-white pt-12 pb-16 sm:pt-16 sm:pb-24">
+    <section class="bg-gradient-to-b from-pink-50/80 via-white to-white pt-12 pb-16 sm:pt-16 sm:pb-24">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <!-- Hero Content -->
             <div class="text-center max-w-4xl mx-auto mb-12">
