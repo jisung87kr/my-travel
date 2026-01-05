@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Region;
+use App\Models\RegionImage;
 use App\Models\RegionTranslation;
+use App\Services\ImageService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -246,5 +248,97 @@ class RegionController extends Controller
         }
 
         return redirect()->back()->with('success', '순서가 변경되었습니다.');
+    }
+
+    // Image Management Methods
+
+    public function images(Region $region): View
+    {
+        $region->load('translations', 'images');
+
+        return view('admin.regions.images', compact('region'));
+    }
+
+    public function storeImage(Request $request, Region $region, ImageService $imageService): RedirectResponse
+    {
+        $validated = $request->validate([
+            'image' => 'required|image|mimes:jpeg,png,jpg,webp|max:5120',
+            'type' => 'required|in:hero,thumbnail,gallery',
+            'is_primary' => 'boolean',
+        ]);
+
+        $result = $imageService->storeWithThumbnail($request->file('image'), 'regions/' . $region->id);
+
+        // If setting as primary, unset other primary images
+        if ($validated['is_primary'] ?? false) {
+            $region->images()->update(['is_primary' => false]);
+        }
+
+        $region->images()->create([
+            'path' => $result['path'],
+            'thumbnail_path' => $result['thumb_path'],
+            'type' => $validated['type'],
+            'is_primary' => $validated['is_primary'] ?? false,
+            'sort_order' => $region->images()->max('sort_order') + 1,
+        ]);
+
+        return redirect()->back()->with('success', '이미지가 업로드되었습니다.');
+    }
+
+    public function updateImage(Request $request, Region $region, RegionImage $image): RedirectResponse
+    {
+        $validated = $request->validate([
+            'type' => 'required|in:hero,thumbnail,gallery',
+            'is_primary' => 'boolean',
+        ]);
+
+        // If setting as primary, unset other primary images
+        if ($validated['is_primary'] ?? false) {
+            $region->images()->where('id', '!=', $image->id)->update(['is_primary' => false]);
+        }
+
+        $image->update([
+            'type' => $validated['type'],
+            'is_primary' => $validated['is_primary'] ?? false,
+        ]);
+
+        return redirect()->back()->with('success', '이미지 정보가 수정되었습니다.');
+    }
+
+    public function destroyImage(Region $region, RegionImage $image, ImageService $imageService): RedirectResponse
+    {
+        // Delete files from storage
+        $imageService->delete($image->path);
+
+        $image->delete();
+
+        return redirect()->back()->with('success', '이미지가 삭제되었습니다.');
+    }
+
+    public function reorderImages(Request $request, Region $region): RedirectResponse
+    {
+        $validated = $request->validate([
+            'order' => 'required|array',
+            'order.*' => 'integer|exists:region_images,id',
+        ]);
+
+        foreach ($validated['order'] as $index => $imageId) {
+            RegionImage::where('id', $imageId)
+                ->where('region_id', $region->id)
+                ->update(['sort_order' => $index]);
+        }
+
+        return redirect()->back()->with('success', '이미지 순서가 변경되었습니다.');
+    }
+
+    public function setPrimaryImage(Region $region, RegionImage $image): RedirectResponse
+    {
+        // Unset all primary images for this region
+        $region->images()->update(['is_primary' => false]);
+
+        // Set this image as primary
+        $image->update(['is_primary' => true]);
+
+        return redirect()->back()->with('success', '대표 이미지가 설정되었습니다.');
     }
 }

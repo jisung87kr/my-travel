@@ -238,6 +238,14 @@ Route::middleware(['auth', 'user.active', 'role:admin'])->prefix('admin')->name(
     Route::patch('regions/{region}/toggle-active', [\App\Http\Controllers\Admin\RegionController::class, 'toggleActive'])->name('regions.toggle-active');
     Route::patch('regions/{region}/toggle-featured', [\App\Http\Controllers\Admin\RegionController::class, 'toggleFeatured'])->name('regions.toggle-featured');
     Route::post('regions/reorder', [\App\Http\Controllers\Admin\RegionController::class, 'reorder'])->name('regions.reorder');
+
+    // Region images
+    Route::get('regions/{region}/images', [\App\Http\Controllers\Admin\RegionController::class, 'images'])->name('regions.images');
+    Route::post('regions/{region}/images', [\App\Http\Controllers\Admin\RegionController::class, 'storeImage'])->name('regions.images.store');
+    Route::put('regions/{region}/images/{image}', [\App\Http\Controllers\Admin\RegionController::class, 'updateImage'])->name('regions.images.update');
+    Route::delete('regions/{region}/images/{image}', [\App\Http\Controllers\Admin\RegionController::class, 'destroyImage'])->name('regions.images.destroy');
+    Route::post('regions/{region}/images/reorder', [\App\Http\Controllers\Admin\RegionController::class, 'reorderImages'])->name('regions.images.reorder');
+    Route::patch('regions/{region}/images/{image}/primary', [\App\Http\Controllers\Admin\RegionController::class, 'setPrimaryImage'])->name('regions.images.primary');
 });
 
 // Guide routes (Web UI only)

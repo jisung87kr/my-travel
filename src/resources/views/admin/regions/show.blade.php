@@ -33,6 +33,10 @@
                 @endif
             </div>
             <div class="flex gap-2">
+                <a href="{{ route('admin.regions.images', $region) }}"
+                   class="px-4 py-2 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition-colors font-medium">
+                    이미지 관리
+                </a>
                 <a href="{{ route('admin.regions.edit', $region) }}"
                    class="px-4 py-2 bg-amber-50 text-amber-700 rounded-lg hover:bg-amber-100 transition-colors font-medium">
                     수정
@@ -153,6 +157,48 @@
                     <div class="text-sm text-slate-500 mt-1">이미지</div>
                 </div>
             </div>
+        </div>
+
+        <!-- Images -->
+        <div class="bg-white rounded-2xl border border-slate-200/60 p-6">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-sm font-semibold text-slate-800">이미지</h3>
+                <a href="{{ route('admin.regions.images', $region) }}"
+                   class="text-sm text-blue-600 hover:underline">
+                    이미지 관리
+                </a>
+            </div>
+            @if($region->images->count() > 0)
+                <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
+                    @foreach($region->images->take(6) as $image)
+                        <div class="relative aspect-[4/3] rounded-xl overflow-hidden bg-slate-100">
+                            <img src="{{ $image->url }}" alt="Region image" class="w-full h-full object-cover">
+                            @if($image->is_primary)
+                                <span class="absolute top-1 left-1 px-1.5 py-0.5 text-[10px] font-medium rounded bg-amber-500 text-white">
+                                    대표
+                                </span>
+                            @endif
+                        </div>
+                    @endforeach
+                </div>
+                @if($region->images->count() > 6)
+                    <p class="text-sm text-slate-500 mt-3">
+                        +{{ $region->images->count() - 6 }}개 더 보기
+                    </p>
+                @endif
+            @else
+                <div class="text-center py-8">
+                    <div class="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center mx-auto mb-3">
+                        <svg class="w-6 h-6 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                        </svg>
+                    </div>
+                    <p class="text-slate-500 text-sm">등록된 이미지가 없습니다.</p>
+                    <a href="{{ route('admin.regions.images', $region) }}" class="text-sm text-blue-600 hover:underline mt-1 inline-block">
+                        이미지 추가하기
+                    </a>
+                </div>
+            @endif
         </div>
 
         <!-- Children -->
