@@ -23,8 +23,9 @@
             <h3 class="text-sm font-semibold text-slate-800 mb-4">새 이미지 업로드</h3>
             <form method="POST" action="{{ route('admin.regions.images.store', $region) }}" enctype="multipart/form-data">
                 @csrf
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
-                    <div class="md:col-span-2">
+                <div class="space-y-4">
+                    <!-- File Input -->
+                    <div>
                         <label class="block text-sm font-medium text-slate-700 mb-2">이미지 파일 <span class="text-red-500">*</span></label>
                         <input type="file" name="image" accept="image/jpeg,image/png,image/jpg,image/webp" required
                                class="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
@@ -33,22 +34,27 @@
                             <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                         @enderror
                     </div>
-                    <div>
-                        <label class="block text-sm font-medium text-slate-700 mb-2">유형 <span class="text-red-500">*</span></label>
-                        <select name="type" required
-                                class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors">
-                            <option value="gallery">갤러리</option>
-                            <option value="hero">히어로</option>
-                            <option value="thumbnail">썸네일</option>
-                        </select>
-                    </div>
-                    <div class="flex items-center gap-4">
-                        <label class="flex items-center">
+
+                    <!-- Type & Options -->
+                    <div class="flex flex-wrap items-end gap-4">
+                        <div class="w-40">
+                            <label class="block text-sm font-medium text-slate-700 mb-2">유형 <span class="text-red-500">*</span></label>
+                            <select name="type" required
+                                    class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors">
+                                <option value="gallery">갤러리</option>
+                                <option value="hero">히어로</option>
+                                <option value="thumbnail">썸네일</option>
+                            </select>
+                        </div>
+                        <label class="flex items-center h-[42px]">
                             <input type="checkbox" name="is_primary" value="1"
                                    class="rounded border-slate-300 text-blue-600 focus:ring-blue-500">
                             <span class="ml-2 text-sm text-slate-700">대표 이미지</span>
                         </label>
-                        <button type="submit" class="px-5 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all shadow-lg shadow-blue-500/25 font-medium">
+                        <button type="submit" class="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all shadow-lg shadow-blue-500/25 font-medium">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
+                            </svg>
                             업로드
                         </button>
                     </div>
