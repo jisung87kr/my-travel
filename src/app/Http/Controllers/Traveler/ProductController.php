@@ -6,6 +6,7 @@ use App\Enums\ProductType;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Traits\FormatsProducts;
 use App\Models\Product;
+use App\Models\ProductCategory;
 use App\Models\ProductSchedule;
 use App\Models\Region;
 use Illuminate\Http\Request;
@@ -45,6 +46,19 @@ class ProductController extends Controller
 
         if ($request->filled('type')) {
             $query->where('type', $request->type);
+        }
+
+        if ($request->filled('category')) {
+            $categorySlug = $request->category;
+            $category = ProductCategory::where('slug', $categorySlug)->first();
+            if ($category) {
+                $query->whereHas('categories', function ($q) use ($category) {
+                    // Include the category and all its descendants
+                    $categoryIds = collect([$category->id]);
+                    $categoryIds = $categoryIds->merge($category->descendants->pluck('id'));
+                    $q->whereIn('product_categories.id', $categoryIds);
+                });
+            }
         }
 
         if ($request->filled('min_price')) {
@@ -101,7 +115,18 @@ class ProductController extends Controller
             'label' => $t->label(),
         ]);
 
-        return view('traveler.products.index', compact('products', 'regions', 'types'));
+        // Get product categories for filter
+        $categories = ProductCategory::with('translations')
+            ->whereNull('parent_id')
+            ->where('is_active', true)
+            ->orderBy('sort_order')
+            ->get()
+            ->map(fn ($c) => [
+                'value' => $c->slug,
+                'label' => $c->getName($locale),
+            ]);
+
+        return view('traveler.products.index', compact('products', 'regions', 'types', 'categories'));
     }
 
     public function show(string $locale, string $product): View

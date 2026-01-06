@@ -140,7 +140,7 @@
                             </div>
                         </div>
 
-                        <!-- Type Filter -->
+                        <!-- Category Filter -->
                         <div class="bg-white rounded-2xl shadow-sm p-5 border border-gray-100">
                             <h3 class="font-semibold text-gray-900 mb-4 flex items-center gap-2">
                                 <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
@@ -150,13 +150,13 @@
                             </h3>
                             <div class="space-y-2">
                                 <label class="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors">
-                                    <input type="radio" name="type_filter" value="" x-model="filters.type" @change="applyFilters()" class="w-4 h-4 text-pink-500 border-gray-300 focus:ring-pink-500">
+                                    <input type="radio" name="category_filter" value="" x-model="filters.category" @change="applyFilters()" class="w-4 h-4 text-pink-500 border-gray-300 focus:ring-pink-500">
                                     <span class="text-sm text-gray-700">{{ __('product.all') }}</span>
                                 </label>
-                                @foreach($types as $type)
+                                @foreach($categories as $category)
                                 <label class="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors">
-                                    <input type="radio" name="type_filter" value="{{ $type['value'] }}" x-model="filters.type" @change="applyFilters()" class="w-4 h-4 text-pink-500 border-gray-300 focus:ring-pink-500">
-                                    <span class="text-sm text-gray-700">{{ $type['label'] }}</span>
+                                    <input type="radio" name="category_filter" value="{{ $category['value'] }}" x-model="filters.category" @change="applyFilters()" class="w-4 h-4 text-pink-500 border-gray-300 focus:ring-pink-500">
+                                    <span class="text-sm text-gray-700">{{ $category['label'] }}</span>
                                 </label>
                                 @endforeach
                             </div>
@@ -374,18 +374,18 @@
                     </div>
                 </div>
 
-                <!-- Type -->
+                <!-- Category -->
                 <div>
                     <h3 class="font-semibold text-gray-900 mb-3">{{ __('product.category') }}</h3>
                     <div class="space-y-2">
                         <label class="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 cursor-pointer">
-                            <input type="radio" name="mobile_type" value="" x-model="filters.type" class="w-4 h-4 text-pink-500 border-gray-300 focus:ring-pink-500">
+                            <input type="radio" name="mobile_category" value="" x-model="filters.category" class="w-4 h-4 text-pink-500 border-gray-300 focus:ring-pink-500">
                             <span class="text-sm text-gray-700">{{ __('product.all') }}</span>
                         </label>
-                        @foreach($types as $type)
+                        @foreach($categories as $category)
                         <label class="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 cursor-pointer">
-                            <input type="radio" name="mobile_type" value="{{ $type['value'] }}" x-model="filters.type" class="w-4 h-4 text-pink-500 border-gray-300 focus:ring-pink-500">
-                            <span class="text-sm text-gray-700">{{ $type['label'] }}</span>
+                            <input type="radio" name="mobile_category" value="{{ $category['value'] }}" x-model="filters.category" class="w-4 h-4 text-pink-500 border-gray-300 focus:ring-pink-500">
+                            <span class="text-sm text-gray-700">{{ $category['label'] }}</span>
                         </label>
                         @endforeach
                     </div>
@@ -415,11 +415,11 @@
                     adults: parseInt(@json(request('adults', '1'))) || 1,
                     children: parseInt(@json(request('children', '0'))) || 0,
                     region: @json(request('region', '')),
-                    type: @json(request('type', '')),
+                    category: @json(request('category', '')),
                     sort: @json(request('sort', 'newest'))
                 },
                 regions: @json($regions),
-                types: @json($types),
+                categories: @json($categories),
                 sortLabels: {
                     'newest': @json(__('product.sort_newest')),
                     'popular': @json(__('product.sort_popular')),
@@ -433,16 +433,16 @@
                     if (this.filters.date) count++;
                     if (this.filters.adults > 1 || this.filters.children > 0) count++;
                     if (this.filters.region) count++;
-                    if (this.filters.type) count++;
+                    if (this.filters.category) count++;
                     return count;
                 },
                 getRegionLabel(value) {
                     const region = this.regions.find(r => r.label === value);
                     return region ? region.label : value;
                 },
-                getTypeLabel(value) {
-                    const type = this.types.find(t => t.value === value);
-                    return type ? type.label : value;
+                getCategoryLabel(value) {
+                    const category = this.categories.find(c => c.value === value);
+                    return category ? category.label : value;
                 },
                 formatDate(dateStr) {
                     if (!dateStr) return '';
@@ -458,7 +458,7 @@
                     if (this.filters.adults > 1) params.set('adults', this.filters.adults);
                     if (this.filters.children > 0) params.set('children', this.filters.children);
                     if (this.filters.region) params.set('region', this.filters.region);
-                    if (this.filters.type) params.set('type', this.filters.type);
+                    if (this.filters.category) params.set('category', this.filters.category);
                     if (this.filters.sort && this.filters.sort !== 'newest') params.set('sort', this.filters.sort);
 
                     const baseUrl = '{{ route('products.index', ['locale' => app()->getLocale()]) }}';
