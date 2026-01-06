@@ -30,6 +30,7 @@ return [
     'search_tag' => '검색',
     'region_tag' => '지역',
     'category_tag' => '카테고리',
+    'clear_all' => '전체 해제',
 
     // Sort
     'sort' => '정렬',

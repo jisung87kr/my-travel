@@ -1,17 +1,17 @@
 <x-layouts.app :title="__('nav.products')">
     <div class="min-h-screen bg-white" x-data="productFilters()">
-        
+
         <!-- Sticky Header & Search -->
-        <div class="sticky top-0 z-40 bg-white border-b border-gray-100 shadow-sm">
+        <div class="sticky top-[-20px] z-40 bg-white border-b border-gray-100 shadow-sm">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="flex flex-col gap-4 py-4">
-                    
+
                     <!-- Top Row: Search Bar -->
                     <x-search-widget :regions="$regions" :compact="true" />
 
                     <!-- Bottom Row: Categories Filter (Horizontal Scroll) -->
-                    <div class="flex items-center gap-4 overflow-x-auto no-scrollbar pb-2 mask-linear-fade relative">
-                        <button @click="filters.category = ''; filters.region = ''; applyFilters()" 
+                    <div class="w-full flex items-center justify-center gap-4 overflow-x-auto no-scrollbar pb-2 mask-linear-fade relative mt-4">
+                        <button @click="filters.category = ''; filters.region = ''; applyFilters()"
                                 class="flex flex-col items-center gap-2 min-w-[64px] cursor-pointer group transition-all"
                                 :class="(!filters.category && !filters.region) ? 'opacity-100 border-b-2 border-slate-900 pb-2' : 'opacity-60 hover:opacity-100 hover:bg-gray-50 pb-2.5'">
                             <div class="w-6 h-6 text-slate-900">
@@ -21,7 +21,7 @@
                         </button>
 
                         @foreach($categories as $category)
-                        <button @click="filters.category = '{{ $category['value'] }}'; applyFilters()" 
+                        <button @click="filters.category = '{{ $category['value'] }}'; applyFilters()"
                                 class="flex flex-col items-center gap-2 min-w-[64px] cursor-pointer group transition-all"
                                 :class="filters.category === '{{ $category['value'] }}' ? 'opacity-100 border-b-2 border-slate-900 pb-2' : 'opacity-60 hover:opacity-100 hover:bg-gray-50 pb-2.5'">
                             <div class="w-6 h-6 text-slate-900">
@@ -31,19 +31,6 @@
                             <span class="text-xs font-bold whitespace-nowrap">{{ $category['label'] }}</span>
                         </button>
                         @endforeach
-                        
-                        <div class="w-px h-8 bg-gray-200 mx-2 flex-shrink-0"></div>
-
-                        @foreach($regions as $region)
-                        <button @click="filters.region = '{{ $region['label'] }}'; applyFilters()" 
-                                class="flex flex-col items-center gap-2 min-w-[64px] cursor-pointer group transition-all"
-                                :class="filters.region === '{{ $region['label'] }}' ? 'opacity-100 border-b-2 border-slate-900 pb-2' : 'opacity-60 hover:opacity-100 hover:bg-gray-50 pb-2.5'">
-                            <div class="w-6 h-6 text-slate-900">
-                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" /></svg>
-                            </div>
-                            <span class="text-xs font-bold whitespace-nowrap">{{ $region['label'] }}</span>
-                        </button>
-                        @endforeach
                     </div>
                 </div>
             </div>
@@ -51,7 +38,7 @@
 
         <!-- Main Content -->
         <main class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            
+
             <!-- Active Filters Summary -->
             <div x-show="activeFilterCount > 0" class="flex flex-wrap items-center gap-2 mb-6" x-transition>
                 <template x-if="filters.keyword">
@@ -95,12 +82,12 @@
         </main>
 
         <!-- Floating Map Toggle (Visual Only for now) -->
-        <div class="fixed bottom-10 left-1/2 -translate-x-1/2 z-30">
-            <button class="bg-slate-900 text-white px-5 py-3 rounded-full shadow-xl hover:scale-105 active:scale-95 transition-transform flex items-center gap-2 font-semibold">
-                <span>{{ __('product.show_map') }}</span>
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 6.75V15m6-6v8.25m.503 3.498l4.875-2.437c.381-.19.622-.58.622-1.006V4.82c0-.836-.88-1.38-1.628-1.006l-3.869 1.934c-.317.19-.69.19-1.006 0L9.503 3.252a1.125 1.125 0 00-1.006 0L3.622 5.689C3.24 5.88 3 6.07 3 6.533v12.708c0 .835.88 1.38 1.628 1.006l3.869-1.934c.317-.19.69-.19 1.006 0l4.994 2.495z" /></svg>
-            </button>
-        </div>
+{{--        <div class="fixed bottom-10 left-1/2 -translate-x-1/2 z-30">--}}
+{{--            <button class="bg-slate-900 text-white px-5 py-3 rounded-full shadow-xl hover:scale-105 active:scale-95 transition-transform flex items-center gap-2 font-semibold">--}}
+{{--                <span>{{ __('product.show_map') }}</span>--}}
+{{--                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 6.75V15m6-6v8.25m.503 3.498l4.875-2.437c.381-.19.622-.58.622-1.006V4.82c0-.836-.88-1.38-1.628-1.006l-3.869 1.934c-.317.19-.69.19-1.006 0L9.503 3.252a1.125 1.125 0 00-1.006 0L3.622 5.689C3.24 5.88 3 6.07 3 6.533v12.708c0 .835.88 1.38 1.628 1.006l3.869-1.934c.317-.19.69-.19 1.006 0l4.994 2.495z" /></svg>--}}
+{{--            </button>--}}
+{{--        </div>--}}
 
     </div>
 

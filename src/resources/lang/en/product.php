@@ -30,6 +30,7 @@ return [
     'search_tag' => 'Search',
     'region_tag' => 'Region',
     'category_tag' => 'Category',
+    'clear_all' => 'Clear All',
 
     // Sort
     'sort' => 'Sort',
