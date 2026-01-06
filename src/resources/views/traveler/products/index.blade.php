@@ -6,79 +6,8 @@
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="flex flex-col gap-4 py-4">
                     
-                    <!-- Top Row: Search Bar (Airbnb Style) -->
-                    <div class="flex justify-center">
-                        <div class="bg-white border border-gray-200 rounded-full shadow-md hover:shadow-lg transition-shadow duration-200 flex items-center divide-x divide-gray-200 w-full max-w-3xl h-14 relative">
-                            
-                            <!-- Destination / Keyword -->
-                            <div class="flex-1 px-6 py-2 cursor-pointer hover:bg-gray-50 rounded-l-full transition-colors group relative">
-                                <label class="block text-[10px] font-extrabold text-slate-800 uppercase tracking-wider">{{ __('product.search') }}</label>
-                                <input type="text" 
-                                       x-model="filters.keyword" 
-                                       @keydown.enter="applyFilters()"
-                                       class="w-full bg-transparent border-none p-0 text-sm font-medium text-slate-700 placeholder-slate-400 focus:ring-0 truncate"
-                                       placeholder="{{ __('product.search_placeholder') }}">
-                            </div>
-
-                            <!-- Date Picker -->
-                            <div class="px-6 py-2 cursor-pointer hover:bg-gray-50 transition-colors group relative min-w-[140px]" 
-                                 @click="$refs.dateInput.showPicker()">
-                                <label class="block text-[10px] font-extrabold text-slate-800 uppercase tracking-wider">{{ __('product.date') }}</label>
-                                <div class="text-sm font-medium text-slate-600 truncate">
-                                    <span x-text="filters.date ? formatDate(filters.date) : '{{ __('product.add_dates') }}'" :class="filters.date ? 'text-slate-900' : 'text-slate-400'"></span>
-                                </div>
-                                <input type="date" 
-                                       x-ref="dateInput"
-                                       x-model="filters.date" 
-                                       @change="applyFilters()"
-                                       class="absolute inset-0 opacity-0 cursor-pointer w-full h-full">
-                            </div>
-
-                            <!-- Guests -->
-                            <div class="pl-6 pr-2 py-2 cursor-pointer hover:bg-gray-50 rounded-r-full transition-colors group relative min-w-[180px] flex items-center justify-between"
-                                 @click="openGuestPicker = !openGuestPicker"
-                                 @click.outside="openGuestPicker = false">
-                                <div class="flex-1 min-w-0">
-                                    <label class="block text-[10px] font-extrabold text-slate-800 uppercase tracking-wider">{{ __('product.guests') }}</label>
-                                    <div class="text-sm font-medium text-slate-600 truncate">
-                                        <span x-text="filters.adults + ' {{ __('product.adults') }}'" :class="filters.adults > 1 ? 'text-slate-900' : 'text-slate-600'"></span>
-                                        <span x-show="filters.children > 0" x-text="', ' + filters.children + ' {{ __('product.children') }}'"></span>
-                                    </div>
-                                </div>
-                                <button @click.stop="applyFilters()" class="w-10 h-10 rounded-full bg-pink-500 hover:bg-pink-600 text-white flex items-center justify-center transition-colors shadow-sm ml-2">
-                                    <svg class="w-4 h-4 font-bold" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" /></svg>
-                                </button>
-
-                                <!-- Guests Popover -->
-                                <div x-show="openGuestPicker" 
-                                     x-transition
-                                     class="absolute top-full right-0 mt-4 w-80 bg-white rounded-2xl shadow-xl border border-gray-100 p-6 z-50 cursor-auto">
-                                    <div class="flex items-center justify-between mb-4">
-                                        <div>
-                                            <span class="block text-sm font-bold text-slate-900">{{ __('product.adults') }}</span>
-                                            <span class="block text-xs text-slate-500">{{ __('product.adults_age') }}</span>
-                                        </div>
-                                        <div class="flex items-center gap-3">
-                                            <button @click.stop="if(filters.adults > 1) filters.adults--" :disabled="filters.adults <= 1" class="w-8 h-8 rounded-full border border-gray-200 flex items-center justify-center hover:bg-gray-50 disabled:opacity-50">-</button>
-                                            <span class="w-4 text-center font-bold" x-text="filters.adults"></span>
-                                            <button @click.stop="filters.adults++" class="w-8 h-8 rounded-full border border-gray-200 flex items-center justify-center hover:bg-gray-50">+</button>
-                                        </div>
-                                    </div>
-                                    <div class="flex items-center justify-between">
-                                        <div>
-                                            <span class="block text-sm font-bold text-slate-900">{{ __('product.children') }}</span>
-                                            <span class="block text-xs text-slate-500">{{ __('product.children_age') }}</span>
-                                        </div>
-                                        <div class="flex items-center gap-3">
-                                            <button @click.stop="if(filters.children > 0) filters.children--" :disabled="filters.children <= 0" class="w-8 h-8 rounded-full border border-gray-200 flex items-center justify-center hover:bg-gray-50 disabled:opacity-50">-</button>
-                                            <span class="w-4 text-center font-bold" x-text="filters.children"></span>
-                                            <button @click.stop="filters.children++" class="w-8 h-8 rounded-full border border-gray-200 flex items-center justify-center hover:bg-gray-50">+</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    <!-- Top Row: Search Bar -->
+                    <x-search-widget :regions="$regions" :compact="true" />
 
                     <!-- Bottom Row: Categories Filter (Horizontal Scroll) -->
                     <div class="flex items-center gap-4 overflow-x-auto no-scrollbar pb-2 mask-linear-fade relative">
