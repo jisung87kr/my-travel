@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Enums\ProductType;
 use App\Http\Controllers\Traits\FormatsProducts;
 use App\Models\Product;
+use App\Models\ProductCategory;
 use App\Models\Region;
 use App\Models\Review;
 use Illuminate\Support\Facades\Storage;
@@ -80,6 +81,13 @@ class HomeController extends Controller
             ->take(3)
             ->get();
 
-        return view('home', compact('recommendedProducts', 'popularProducts', 'regions', 'productTypes', 'reviews'));
+        // Top-level product categories for navigation
+        $categories = ProductCategory::with('translations')
+            ->whereNull('parent_id')
+            ->where('is_active', true)
+            ->orderBy('sort_order')
+            ->get();
+
+        return view('home', compact('recommendedProducts', 'popularProducts', 'regions', 'productTypes', 'reviews', 'categories'));
     }
 }
