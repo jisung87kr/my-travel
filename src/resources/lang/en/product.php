@@ -103,16 +103,34 @@ return [
 
     // Trust Badges
     'instant_confirm' => 'Instant Confirm',
+    'instant_confirm_desc' => 'Book without waiting for approval',
     'mobile_ticket' => 'Mobile Ticket',
+    'mobile_ticket_desc' => 'Use your phone to enter',
     'korean_support' => 'Korean Support',
+    'korean_support_desc' => 'We speak your language',
 
     // Related Products
     'similar_experiences' => 'Similar Experiences',
     'view_more' => 'View More',
+    'show_all_reviews' => 'Show all :count reviews',
+    'spots_left' => ':count spots left',
 
     // Share
     'link_copied' => 'Link copied!',
 
     // Units
     'persons_unit' => '',
+
+    // Booking Widget
+    'tour' => 'Tour',
+    'hosted_by' => 'Hosted by',
+    'max_guests' => 'Max guests',
+    'what_included' => "What's Included",
+    'reserve' => 'Reserve',
+    'wont_be_charged' => "You won't be charged yet",
+    'total' => 'Total',
+    'report_this_listing' => 'Report this listing',
+    'show_all_photos' => 'Show all photos',
+    'save' => 'Save',
+    'saved' => 'Saved',
 ];

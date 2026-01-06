@@ -119,21 +119,21 @@
                                 <svg class="w-6 h-6 text-slate-900 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                                 <div>
                                     <p class="font-bold text-slate-900">{{ __('product.instant_confirm') }}</p>
-                                    <p class="text-sm text-slate-500">{{ __('product.instant_confirm_desc') ?? 'Book without waiting for approval.' }}</p>
+                                    <p class="text-sm text-slate-500">{{ __('product.instant_confirm_desc') }}</p>
                                 </div>
                             </div>
                             <div class="flex gap-4 items-start min-w-[200px]">
                                 <svg class="w-6 h-6 text-slate-900 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 1.5H8.25A2.25 2.25 0 006 3.75v16.5a2.25 2.25 0 002.25 2.25h7.5A2.25 2.25 0 0018 20.25V3.75a2.25 2.25 0 00-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-3 18.75h3" /></svg>
                                 <div>
                                     <p class="font-bold text-slate-900">{{ __('product.mobile_ticket') }}</p>
-                                    <p class="text-sm text-slate-500">Use your phone to enter.</p>
+                                    <p class="text-sm text-slate-500">{{ __('product.mobile_ticket_desc') }}</p>
                                 </div>
                             </div>
                             <div class="flex gap-4 items-start min-w-[200px]">
                                 <svg class="w-6 h-6 text-slate-900 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 017.843 4.582M12 3a8.997 8.997 0 00-7.843 4.582m15.686 0A11.953 11.953 0 0112 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0121 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0112 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 013 12c0-1.605.42-3.113 1.157-4.418" /></svg>
                                 <div>
                                     <p class="font-bold text-slate-900">{{ __('product.korean_support') }}</p>
-                                    <p class="text-sm text-slate-500">We speak your language.</p>
+                                    <p class="text-sm text-slate-500">{{ __('product.korean_support_desc') }}</p>
                                 </div>
                             </div>
                         </div>
@@ -198,7 +198,7 @@
                         </div>
                          @if($product->review_count > 4)
                             <button class="mt-8 px-6 py-3 border border-slate-900 rounded-lg font-semibold text-slate-900 hover:bg-slate-50 transition-colors">
-                                Show all {{ $product->review_count }} reviews
+                                {{ __('product.show_all_reviews', ['count' => $product->review_count]) }}
                             </button>
                         @endif
                     </div>
@@ -225,7 +225,7 @@
                                     <svg class="w-3 h-3 text-slate-900" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg>
                                     <span class="text-slate-900">{{ number_format($product->average_rating, 1) }}</span>
                                     <span class="text-slate-400">·</span>
-                                    <span class="text-slate-500 underline">{{ $product->review_count }} reviews</span>
+                                    <span class="text-slate-500 underline">{{ __('product.reviews_count', ['count' => $product->review_count]) }}</span>
                                 </div>
                             </div>
 
@@ -279,7 +279,7 @@
                                                         class="w-full text-left px-3 py-2 text-sm hover:bg-gray-100 rounded-lg disabled:opacity-50"
                                                         :disabled="schedule.available_count <= 0">
                                                     <div class="font-medium" x-text="schedule.starts_at_human"></div>
-                                                    <div class="text-xs text-gray-500" x-text="schedule.available_count + ' spots left'"></div>
+                                                    <div class="text-xs text-gray-500" x-text="'{{ __('product.spots_left', ['count' => '__COUNT__']) }}'.replace('__COUNT__', schedule.available_count)"></div>
                                                 </button>
                                             </template>
                                             <div x-show="schedules.length === 0" class="p-3 text-sm text-gray-500 text-center">{{ __('product.no_available_dates') }}</div>

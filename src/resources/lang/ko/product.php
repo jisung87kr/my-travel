@@ -103,16 +103,34 @@ return [
 
     // Trust Badges
     'instant_confirm' => '즉시확정',
+    'instant_confirm_desc' => '승인 대기 없이 바로 예약 확정',
     'mobile_ticket' => '모바일티켓',
+    'mobile_ticket_desc' => '휴대폰으로 바로 입장 가능',
     'korean_support' => '한국어지원',
+    'korean_support_desc' => '한국어로 편하게 소통하세요',
 
     // Related Products
     'similar_experiences' => '비슷한 체험',
     'view_more' => '더보기',
+    'show_all_reviews' => ':count개의 리뷰 모두 보기',
+    'spots_left' => '잔여 :count자리',
 
     // Share
     'link_copied' => '링크가 복사되었습니다!',
 
     // Units
     'persons_unit' => '명',
+
+    // Booking Widget
+    'tour' => '투어',
+    'hosted_by' => '호스트:',
+    'max_guests' => '최대 인원',
+    'what_included' => '포함 사항',
+    'reserve' => '예약하기',
+    'wont_be_charged' => '예약 확정 전까지 결제되지 않습니다',
+    'total' => '총 금액',
+    'report_this_listing' => '이 상품 신고하기',
+    'show_all_photos' => '모든 사진 보기',
+    'save' => '저장',
+    'saved' => '저장됨',
 ];
