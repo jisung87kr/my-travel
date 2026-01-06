@@ -18,7 +18,7 @@
          }">
         <form action="{{ route('products.index', ['locale' => app()->getLocale()]) }}" method="GET" class="relative">
             <div class="flex flex-col md:flex-row md:items-center h-auto md:h-16">
-                
+
                 <!-- 1. Destination Input -->
                 <div class="relative flex-[1.5] group h-full">
                     <button type="button"
@@ -30,12 +30,12 @@
                         <label class="text-xs font-bold text-gray-800 uppercase tracking-wider mb-0.5 cursor-pointer">{{ __('home.where_to') }}</label>
                         <input type="text"
                                readonly
-                               class="bg-transparent border-none p-0 text-sm font-medium text-gray-600 placeholder-gray-400 focus:ring-0 focus:outline-none focus-visible:ring-0 focus-visible:outline-none cursor-pointer w-full truncate"
+                               class="bg-transparent border-none p-0 text-sm font-medium text-gray-600 placeholder-gray-400 focus:ring-0 focus:outline-none focus-visible:ring-0 !focus-visible:outline-none cursor-pointer w-full truncate"
                                :class="{ 'text-gray-900': destination }"
                                :value="destination"
                                placeholder="{{ __('home.search_placeholder') }}">
                     </button>
-                    
+
                     <!-- Dropdown -->
                     <div x-show="showDestination"
                          @click.away="showDestination = false"
@@ -47,7 +47,7 @@
                          x-transition:leave-end="opacity-0 translate-y-4"
                          class="absolute top-full left-0 mt-4 w-full md:w-[350px] bg-white rounded-3xl shadow-[0_8px_28px_rgba(0,0,0,0.28)] border border-gray-100 py-6 px-6 z-50 overflow-hidden"
                          style="display: none;">
-                         
+
                         <div class="relative mb-4">
                             <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" /></svg>
                             <input type="text"
@@ -55,7 +55,7 @@
                                    x-model="destination"
                                    placeholder="{{ __('home.search_placeholder') }}"
                                    class="w-full pl-12 pr-4 py-3 text-base bg-gray-100 border-none rounded-xl focus:ring-2 focus:ring-slate-900/10 focus:bg-white transition-all font-medium"
-                                   @keydown.enter="showDestination = false">
+                                   @keydown.enter="showDestination = false; showDate = true">
                         </div>
 
                         @if($regions->count() > 0)
@@ -64,7 +64,7 @@
                             <div class="space-y-1">
                                 @foreach($regions->take(5) as $region)
                                 <button type="button"
-                                        @click="destination = '{{ $region['name'] }}'; showDestination = false"
+                                        @click="destination = '{{ $region['name'] }}'; showDestination = false; showDate = true"
                                         class="w-full flex items-center gap-4 p-3 rounded-xl hover:bg-gray-50 transition-colors cursor-pointer group">
                                     <div class="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center text-gray-500 group-hover:bg-white group-hover:shadow-sm transition-all">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
@@ -83,7 +83,7 @@
 
                 <!-- Divider -->
                 <div class="hidden md:block w-px h-8 bg-gray-200"></div>
-                
+
                 <!-- 2. Date Input -->
                 <div class="relative flex-1 group h-full">
                     <button type="button"
@@ -93,14 +93,14 @@
                             class="w-full h-full flex flex-col justify-center px-8 rounded-full transition-colors cursor-pointer text-left relative z-10"
                             :class="{ 'bg-gray-100': hoveredSection === 'date' || showDate }">
                         <label class="text-xs font-bold text-gray-800 uppercase tracking-wider mb-0.5 cursor-pointer">{{ __('home.add_dates') }}</label>
-                         <input type="text" 
+                         <input type="text"
                                readonly
                                class="bg-transparent border-none p-0 text-sm font-medium text-gray-600 placeholder-gray-400 focus:ring-0 focus:outline-none focus-visible:ring-0 focus-visible:outline-none cursor-pointer w-full truncate"
                                :class="{ 'text-gray-900': date }"
                                :value="date ? date : ''"
                                placeholder="{{ __('home.select_date') }}">
                     </button>
-                    
+
                     <!-- Date Picker Dropdown -->
                                         <div x-show="showDate"
                                              @click.away="showDate = false"
@@ -130,14 +130,14 @@
                                                  isSelected(day) {
                                                      if (!date) return false;
                                                      const d = new Date(date);
-                                                     return d.getDate() === day && 
-                                                            d.getMonth() === this.currentDate.getMonth() && 
+                                                     return d.getDate() === day &&
+                                                            d.getMonth() === this.currentDate.getMonth() &&
                                                             d.getFullYear() === this.currentDate.getFullYear();
                                                  },
                                                  isToday(day) {
                                                      const today = new Date();
-                                                     return day === today.getDate() && 
-                                                            this.currentDate.getMonth() === today.getMonth() && 
+                                                     return day === today.getDate() &&
+                                                            this.currentDate.getMonth() === today.getMonth() &&
                                                             this.currentDate.getFullYear() === today.getFullYear();
                                                  },
                                                  isPast(day) {
@@ -153,9 +153,10 @@
                                                      const localDate = new Date(selected.getTime() - (offset*60*1000));
                                                      date = localDate.toISOString().split('T')[0];
                                                      showDate = false;
+                                                     showGuests = true;
                                                  }
                                              }">
-                                            
+
                                             <!-- Header -->
                                             <div class="flex items-center justify-between mb-4">
                                                 <button type="button" @click="prevMonth()" class="p-2 rounded-full hover:bg-gray-100 text-gray-600 transition-colors">
@@ -166,7 +167,7 @@
                                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
                                                 </button>
                                             </div>
-                    
+
                                             <!-- Grid -->
                                             <div class="grid grid-cols-7 mb-2">
                                                 <template x-for="day in weekdays">
@@ -196,7 +197,7 @@
                                                     </div>
                                                 </template>
                                             </div>
-                                            
+
                                             <!-- Hidden Input for Form Submission -->
                                             <input type="hidden" name="date" x-model="date">
                                         </div>                </div>
@@ -226,10 +227,10 @@
                          x-transition:enter-end="opacity-100 translate-y-0"
                          class="absolute top-full right-0 mt-4 w-[350px] bg-white rounded-3xl shadow-[0_8px_28px_rgba(0,0,0,0.28)] border border-gray-100 p-8 z-50 cursor-auto"
                          style="display: none;">
-                         
+
                         <input type="hidden" name="adults" :value="adults">
                         <input type="hidden" name="children" :value="children">
-                        
+
                         <!-- Adults -->
                         <div class="flex items-center justify-between pb-6 border-b border-gray-100">
                             <div>
@@ -251,7 +252,7 @@
                                 </button>
                             </div>
                         </div>
-                        
+
                         <!-- Children -->
                         <div class="flex items-center justify-between pt-6">
                             <div>
