@@ -5,7 +5,7 @@
 <div {{ $attributes->merge(['class' => $compact ? 'bg-white rounded-xl shadow-xl border border-gray-100 p-4 z-50 min-w-[300px]' : 'bg-white rounded-3xl shadow-[0_8px_28px_rgba(0,0,0,0.28)] border border-gray-100 p-6 z-50 overflow-hidden min-w-[340px]']) }}
      x-data="{
          currentDate: new Date(),
-         weekdays: ['{{ __('calendar.sun') ?? '일' }}', '{{ __('calendar.mon') ?? '월' }}', '{{ __('calendar.tue') ?? '화' }}', '{{ __('calendar.wed') ?? '수' }}', '{{ __('calendar.thu') ?? '목' }}', '{{ __('calendar.fri') ?? '금' }}', '{{ __('calendar.sat') ?? '토' }}'],
+         weekdays: {!! app()->getLocale() == 'ko' ? "['일', '월', '화', '수', '목', '금', '토']" : "['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']" !!},
          get monthName() {
              return this.currentDate.toLocaleString('{{ app()->getLocale() == 'ko' ? 'ko-KR' : 'en-US' }}', { month: 'long', year: 'numeric' });
          },
