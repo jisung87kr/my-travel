@@ -56,34 +56,15 @@
                                 <span class="text-sm truncate" :class="destination ? 'text-gray-900 font-medium' : 'text-gray-500'" x-text="destination || '{{ __('home.where_to') }}'"></span>
                             </button>
                             <!-- Destination Dropdown -->
+                            @php
+                                $headerRegions = \App\Models\Region::provinces()->featured()->active()->ordered()->take(5)->get();
+                            @endphp
                             <div x-show="showDestination"
                                  @click.away="showDestination = false"
                                  x-transition
-                                 class="absolute top-full left-0 mt-2 w-64 bg-white rounded-xl shadow-xl border border-gray-100 py-2 z-50">
-                                <input type="text"
-                                       name="keyword"
-                                       x-model="destination"
-                                       placeholder="{{ __('home.search_placeholder') }}"
-                                       class="w-full px-4 py-2 text-sm border-b border-gray-100 focus:outline-none"
-                                       @keydown.enter="showDestination = false">
-                                <div class="py-1">
-                                    @php
-                                        $headerRegions = \App\Models\Region::provinces()->featured()->active()->ordered()->take(5)->get();
-                                    @endphp
-                                    @foreach($headerRegions as $region)
-                                    <button type="button"
-                                            @click="destination = '{{ $region->getName(app()->getLocale()) }}'; showDestination = false"
-                                            class="w-full flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
-                                        <span class="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center">
-                                            <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
-                                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
-                                                <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
-                                            </svg>
-                                        </span>
-                                        {{ $region->getName(app()->getLocale()) }}
-                                    </button>
-                                    @endforeach
-                                </div>
+                                 class="absolute top-full left-0 mt-2 z-50"
+                                 style="display: none;">
+                                <x-search.destination-dropdown :regions="$headerRegions" :compact="true" />
                             </div>
                         </div>
 
@@ -103,13 +84,9 @@
                             <div x-show="showDate"
                                  @click.away="showDate = false"
                                  x-transition
-                                 class="absolute top-full left-1/2 -translate-x-1/2 mt-2 bg-white rounded-xl shadow-xl border border-gray-100 p-4 z-50">
-                                <input type="date"
-                                       name="date"
-                                       x-model="date"
-                                       @change="showDate = false"
-                                       class="px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent"
-                                       min="{{ date('Y-m-d') }}">
+                                 class="absolute top-full left-1/2 -translate-x-1/2 mt-2 z-50"
+                                 style="display: none;">
+                                <x-search.date-picker-dropdown :compact="true" />
                             </div>
                         </div>
 
@@ -123,65 +100,15 @@
                                 <svg class="w-4 h-4 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
                                 </svg>
-                                <span class="text-sm whitespace-nowrap" :class="totalGuests > 1 ? 'text-gray-900 font-medium' : 'text-gray-500'" x-text="totalGuests > 1 ? '성인 ' + adults + (children > 0 ? ', 아동 ' + children : '') : '{{ __('home.add_guests') }}'"></span>
+                                <span class="text-sm whitespace-nowrap" :class="totalGuests > 1 ? 'text-gray-900 font-medium' : 'text-gray-500'" x-text="totalGuests > 1 ? '{{ __('home.adults_label') }} ' + adults + (children > 0 ? ', {{ __('home.children_label') }} ' + children : '') : '{{ __('home.add_guests') }}'"></span>
                             </button>
                             <!-- Guests Dropdown -->
                             <div x-show="showGuests"
                                  @click.away="showGuests = false"
                                  x-transition
-                                 class="absolute top-full right-0 mt-2 w-56 bg-white rounded-xl shadow-xl border border-gray-100 p-4 z-50">
-                                <input type="hidden" name="adults" :value="adults">
-                                <input type="hidden" name="children" :value="children">
-                                <!-- Adults -->
-                                <div class="flex items-center justify-between pb-3 border-b border-gray-100">
-                                    <div>
-                                        <span class="text-sm font-medium text-gray-900">성인</span>
-                                        <p class="text-xs text-gray-500">만 13세 이상</p>
-                                    </div>
-                                    <div class="flex items-center gap-2">
-                                        <button type="button"
-                                                @click="adults = Math.max(1, adults - 1)"
-                                                class="w-7 h-7 rounded-full border border-gray-300 flex items-center justify-center text-gray-600 hover:border-gray-400 transition-colors disabled:opacity-50"
-                                                :disabled="adults <= 1">
-                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                                                <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 12h-15" />
-                                            </svg>
-                                        </button>
-                                        <span class="text-sm font-medium w-5 text-center" x-text="adults"></span>
-                                        <button type="button"
-                                                @click="adults = Math.min(20, adults + 1)"
-                                                class="w-7 h-7 rounded-full border border-gray-300 flex items-center justify-center text-gray-600 hover:border-gray-400 transition-colors">
-                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-                                            </svg>
-                                        </button>
-                                    </div>
-                                </div>
-                                <!-- Children -->
-                                <div class="flex items-center justify-between pt-3">
-                                    <div>
-                                        <span class="text-sm font-medium text-gray-900">아동</span>
-                                        <p class="text-xs text-gray-500">만 3~12세</p>
-                                    </div>
-                                    <div class="flex items-center gap-2">
-                                        <button type="button"
-                                                @click="children = Math.max(0, children - 1)"
-                                                class="w-7 h-7 rounded-full border border-gray-300 flex items-center justify-center text-gray-600 hover:border-gray-400 transition-colors disabled:opacity-50"
-                                                :disabled="children <= 0">
-                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                                                <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 12h-15" />
-                                            </svg>
-                                        </button>
-                                        <span class="text-sm font-medium w-5 text-center" x-text="children"></span>
-                                        <button type="button"
-                                                @click="children = Math.min(20, children + 1)"
-                                                class="w-7 h-7 rounded-full border border-gray-300 flex items-center justify-center text-gray-600 hover:border-gray-400 transition-colors">
-                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-                                            </svg>
-                                        </button>
-                                    </div>
-                                </div>
+                                 class="absolute top-full right-0 mt-2 z-50"
+                                 style="display: none;">
+                                <x-search.guests-dropdown :compact="true" />
                             </div>
                         </div>
 
