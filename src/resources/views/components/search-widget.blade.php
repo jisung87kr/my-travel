@@ -20,7 +20,7 @@
             <div class="flex flex-col md:flex-row md:items-center h-auto md:h-16">
 
                 <!-- 1. Destination Input -->
-                <div class="relative flex-[1.5] group h-full">
+                <div class="relative flex-1 group h-full">
                     <button type="button"
                             @click="showDestination = !showDestination; showDate = false; showGuests = false"
                             @mouseenter="hoveredSection = 'destination'"
@@ -80,9 +80,6 @@
                         @endif
                     </div>
                 </div>
-
-                <!-- Divider -->
-                <div class="hidden md:block w-px h-8 bg-gray-200"></div>
 
                 <!-- 2. Date Input -->
                 <div class="relative flex-1 group h-full">
@@ -202,11 +199,9 @@
                                             <input type="hidden" name="date" x-model="date">
                                         </div>                </div>
 
-                <!-- Divider -->
-                <div class="hidden md:block w-px h-8 bg-gray-200"></div>
 
                 <!-- 3. Guests Input + Search Button -->
-                <div class="relative flex-[1.2] group h-full flex items-center pr-2">
+                <div class="relative flex-1 group h-full flex items-center pr-2">
                     <button type="button"
                             @click="showGuests = !showGuests; showDestination = false; showDate = false"
                             @mouseenter="hoveredSection = 'guests'"
