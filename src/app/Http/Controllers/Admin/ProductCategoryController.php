@@ -7,6 +7,7 @@ use App\Models\ProductCategory;
 use App\Models\ProductCategoryTranslation;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
 class ProductCategoryController extends Controller
@@ -69,12 +70,19 @@ class ProductCategoryController extends Controller
             'sort_order' => 'nullable|integer|min:0',
             'is_active' => 'boolean',
             'is_featured' => 'boolean',
+            // Icon
+            'icon_type' => 'nullable|in:svg,image',
+            'icon_svg' => 'nullable|string|max:10000',
+            'icon_image' => 'nullable|image|mimes:png,jpg,jpeg,svg,webp|max:1024',
             // Translations
             'translations.ko.name' => 'required|string|max:100',
             'translations.ko.description' => 'nullable|string|max:1000',
             'translations.en.name' => 'nullable|string|max:100',
             'translations.en.description' => 'nullable|string|max:1000',
         ]);
+
+        // Handle icon
+        $iconData = $this->processIcon($request, $validated);
 
         $category = ProductCategory::create([
             'slug' => $validated['slug'],
@@ -83,6 +91,8 @@ class ProductCategoryController extends Controller
             'sort_order' => $validated['sort_order'] ?? 0,
             'is_active' => $validated['is_active'] ?? true,
             'is_featured' => $validated['is_featured'] ?? false,
+            'icon_type' => $iconData['type'],
+            'icon' => $iconData['icon'],
         ]);
 
         // Create translations
@@ -137,12 +147,38 @@ class ProductCategoryController extends Controller
             'sort_order' => 'nullable|integer|min:0',
             'is_active' => 'boolean',
             'is_featured' => 'boolean',
+            // Icon
+            'icon_type' => 'nullable|in:svg,image',
+            'icon_svg' => 'nullable|string|max:10000',
+            'icon_image' => 'nullable|image|mimes:png,jpg,jpeg,svg,webp|max:1024',
+            'remove_icon' => 'nullable|boolean',
             // Translations
             'translations.ko.name' => 'required|string|max:100',
             'translations.ko.description' => 'nullable|string|max:1000',
             'translations.en.name' => 'nullable|string|max:100',
             'translations.en.description' => 'nullable|string|max:1000',
         ]);
+
+        // Handle icon removal
+        $iconData = ['type' => $productCategory->icon_type, 'icon' => $productCategory->icon];
+
+        if ($request->boolean('remove_icon')) {
+            // Delete old image if exists
+            if ($productCategory->icon_type === 'image' && $productCategory->icon) {
+                Storage::disk('public')->delete($productCategory->icon);
+            }
+            $iconData = ['type' => null, 'icon' => null];
+        } else {
+            // Check for new icon
+            $newIconData = $this->processIcon($request, $validated);
+            if ($newIconData['type']) {
+                // Delete old image if replacing with new one
+                if ($productCategory->icon_type === 'image' && $productCategory->icon) {
+                    Storage::disk('public')->delete($productCategory->icon);
+                }
+                $iconData = $newIconData;
+            }
+        }
 
         $productCategory->update([
             'slug' => $validated['slug'],
@@ -151,6 +187,8 @@ class ProductCategoryController extends Controller
             'sort_order' => $validated['sort_order'] ?? 0,
             'is_active' => $validated['is_active'] ?? true,
             'is_featured' => $validated['is_featured'] ?? false,
+            'icon_type' => $iconData['type'],
+            'icon' => $iconData['icon'],
         ]);
 
         // Update translations
@@ -225,5 +263,31 @@ class ProductCategoryController extends Controller
         }
 
         return redirect()->back()->with('success', '순서가 변경되었습니다.');
+    }
+
+    /**
+     * Process icon from request (SVG or image upload)
+     */
+    private function processIcon(Request $request, array $validated): array
+    {
+        $iconType = $validated['icon_type'] ?? 'svg';
+
+        // SVG type
+        if ($iconType === 'svg' && !empty($validated['icon_svg'])) {
+            $svg = trim($validated['icon_svg']);
+            // Basic SVG validation
+            if (preg_match('/<svg[\s\S]*<\/svg>/i', $svg)) {
+                return ['type' => 'svg', 'icon' => $svg];
+            }
+        }
+
+        // Image type
+        if ($iconType === 'image' && $request->hasFile('icon_image')) {
+            $file = $request->file('icon_image');
+            $path = $file->store('product-categories/icons', 'public');
+            return ['type' => 'image', 'icon' => $path];
+        }
+
+        return ['type' => null, 'icon' => null];
     }
 }

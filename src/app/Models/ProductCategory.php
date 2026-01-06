@@ -27,6 +27,8 @@ class ProductCategory extends Model
         'sort_order',
         'is_active',
         'is_featured',
+        'icon_type',
+        'icon',
     ];
 
     protected function casts(): array
@@ -102,6 +104,42 @@ class ProductCategory extends Model
     public function getDescription(?string $locale = null): ?string
     {
         return $this->getTranslation($locale)?->description;
+    }
+
+    // Icon helpers
+    public function hasIcon(): bool
+    {
+        return !empty($this->icon);
+    }
+
+    public function getIconHtml(string $class = 'w-6 h-6'): string
+    {
+        if (!$this->hasIcon()) {
+            return '';
+        }
+
+        if ($this->icon_type === 'svg') {
+            // Add class to SVG
+            $svg = $this->icon;
+            if (preg_match('/<svg/i', $svg)) {
+                $svg = preg_replace('/<svg([^>]*)class="[^"]*"/', '<svg$1class="' . $class . '"', $svg);
+                if (!preg_match('/class="/', $svg)) {
+                    $svg = preg_replace('/<svg/', '<svg class="' . $class . '"', $svg, 1);
+                }
+            }
+            return $svg;
+        }
+
+        // Image type
+        return '<img src="' . asset('storage/' . $this->icon) . '" alt="' . e($this->getName()) . '" class="' . $class . ' object-contain">';
+    }
+
+    public function getIconUrl(): ?string
+    {
+        if ($this->icon_type === 'image' && $this->icon) {
+            return asset('storage/' . $this->icon);
+        }
+        return null;
     }
 
     // Hierarchy helpers
