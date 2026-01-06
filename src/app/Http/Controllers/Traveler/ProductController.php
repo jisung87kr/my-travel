@@ -50,12 +50,12 @@ class ProductController extends Controller
 
         if ($request->filled('category')) {
             $categorySlug = $request->category;
-            $category = ProductCategory::where('slug', $categorySlug)->first();
+            $category = ProductCategory::with('children')->where('slug', $categorySlug)->first();
             if ($category) {
                 $query->whereHas('categories', function ($q) use ($category) {
-                    // Include the category and all its descendants
+                    // Include the category and its direct children
                     $categoryIds = collect([$category->id]);
-                    $categoryIds = $categoryIds->merge($category->descendants->pluck('id'));
+                    $categoryIds = $categoryIds->merge($category->children->pluck('id'));
                     $q->whereIn('product_categories.id', $categoryIds);
                 });
             }
