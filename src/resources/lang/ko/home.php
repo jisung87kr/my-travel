@@ -22,6 +22,10 @@ return [
     'add_guests' => '여행자 추가',
     'guests_count' => '명',
     'search_button' => '검색하기',
+    'adults_label' => '성인',
+    'adults_age' => '만 13세 이상',
+    'children_label' => '아동',
+    'children_age' => '만 3~12세',
 
     // Regions
     'region_seoul' => '서울',

@@ -22,6 +22,10 @@ return [
     'add_guests' => 'Add guests',
     'guests_count' => ' guests',
     'search_button' => 'Search',
+    'adults_label' => 'Adults',
+    'adults_age' => 'Ages 13 or above',
+    'children_label' => 'Children',
+    'children_age' => 'Ages 3-12',
 
     // Regions
     'region_seoul' => 'Seoul',
