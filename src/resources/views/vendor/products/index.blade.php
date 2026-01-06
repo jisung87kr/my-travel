@@ -94,7 +94,7 @@
                                             {{ $product->getTranslation('ko')?->title ?? '제목 없음' }}
                                         </p>
                                         <p class="text-xs text-slate-500 mt-0.5">
-                                            {{ $product->region->label() }}
+                                            {{ $product->region?->getName(app()->getLocale()) ?? '-' }}
                                         </p>
                                     </div>
                                 </div>

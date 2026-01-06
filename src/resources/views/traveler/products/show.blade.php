@@ -104,9 +104,9 @@
                     <!-- Host/Type Info -->
                     <div class="border-b border-gray-200 pb-8 flex justify-between items-start">
                         <div>
-                            <h2 class="text-xl font-bold text-slate-900 mb-1">{{ $product->type->label() }} {{ __('product.hosted_by') }} MyTravel</h2>
+                            <h2 class="text-xl font-bold text-slate-900 mb-1">{{ $product->type?->label() ?? __('product.tour') }} {{ __('product.hosted_by') }} MyTravel</h2>
                             <p class="text-slate-500 text-sm">
-                                {{ __('product.max_guests') }} {{ $product->max_guests ?? '10+' }} • {{ $product->region->label() }}
+                                {{ __('product.max_guests') }} {{ $product->max_guests ?? '10+' }}@if($product->region) • {{ $product->region->getName(app()->getLocale()) }}@endif
                             </p>
                         </div>
                         <div class="w-12 h-12 rounded-full bg-slate-900 flex items-center justify-center text-white font-bold text-lg">M</div>

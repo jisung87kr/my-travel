@@ -69,12 +69,16 @@
                     <!-- Product Details -->
                     <div class="flex-1 p-6">
                         <div class="flex items-start gap-2 mb-2">
+                            @if($booking->product->type)
                             <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-pink-50 text-pink-700">
                                 {{ $booking->product->type->label() }}
                             </span>
+                            @endif
+                            @if($booking->product->region)
                             <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-700">
-                                {{ $booking->product->region->label() }}
+                                {{ $booking->product->region->getName(app()->getLocale()) }}
                             </span>
+                            @endif
                         </div>
                         <h2 class="text-xl font-bold text-gray-900 mb-3">
                             {{ $translation?->title ?? $booking->product->getTranslation('ko')?->title }}
