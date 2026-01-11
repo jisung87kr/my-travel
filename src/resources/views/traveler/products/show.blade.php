@@ -261,7 +261,7 @@
                             }" class="space-y-4">
                                 
                                 <!-- Inputs Container -->
-                                <div class="border border-gray-400 rounded-xl overflow-hidden divide-y divide-gray-400">
+                                <div class="border border-gray-400 rounded-xl divide-y divide-gray-400">
                                     <!-- Date Picker Trigger -->
                                     <div class="relative">
                                         <button type="button" 
@@ -275,7 +275,7 @@
                                              @click.away="showDatePicker = false"
                                              class="absolute top-0 right-0 mt-12 bg-white rounded-xl shadow-xl border border-gray-200 p-2 z-50 w-full max-h-60 overflow-y-auto">
                                             <template x-for="schedule in schedules" :key="schedule.id">
-                                                <button @click="selectSchedule(schedule)" 
+                                                <button @click="selectSchedule(schedule); showDatePicker = false" 
                                                         class="w-full text-left px-3 py-2 text-sm hover:bg-gray-100 rounded-lg disabled:opacity-50"
                                                         :disabled="schedule.available_count <= 0">
                                                     <div class="font-medium" x-text="schedule.starts_at_human"></div>
