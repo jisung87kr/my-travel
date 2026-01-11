@@ -8,4 +8,5 @@ return [
     'profile' => 'My Profile',
     'my_bookings' => 'My Bookings',
     'wishlist' => 'Wishlist',
+    'my_reviews' => 'My Reviews',
 ];

@@ -8,4 +8,5 @@ return [
     'profile' => '내 프로필',
     'my_bookings' => '예약 내역',
     'wishlist' => '위시리스트',
+    'my_reviews' => '내 리뷰',
 ];
