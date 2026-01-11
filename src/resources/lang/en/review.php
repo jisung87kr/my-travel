@@ -7,6 +7,9 @@ return [
     'good_reviews' => 'Good Reviews',
     'five_star_reviews' => '5-Star Reviews',
 
+    // Page description
+    'my_reviews_desc' => 'View and manage your reviews',
+
     // Empty state
     'no_reviews' => 'No reviews yet',
     'no_reviews_desc' => 'Complete an experience and write your first review!',
@@ -31,4 +34,10 @@ return [
     'save' => 'Save',
     'edit_success' => 'Review updated successfully.',
     'edit_error' => 'Failed to update review.',
+
+    // Images
+    'images' => 'Photos',
+    'max_images' => 'Max 5 photos',
+    'add_images' => 'Add Photos',
+    'max_size' => 'Max 5MB each',
 ];

@@ -50,9 +50,16 @@ class ReviewController extends Controller
         $validated = $request->validate([
             'rating' => 'sometimes|integer|min:1|max:5',
             'content' => 'sometimes|string|min:10|max:1000',
+            'images' => 'nullable|array|max:5',
+            'images.*' => 'image|mimes:jpeg,png,jpg,webp|max:5120',
+            'delete_images' => 'nullable|array',
+            'delete_images.*' => 'integer|exists:review_images,id',
         ]);
 
-        $this->reviewService->update($review, $validated);
+        $newImages = $request->file('images', []);
+        $deleteImageIds = $validated['delete_images'] ?? [];
+
+        $this->reviewService->update($review, $validated, $newImages, $deleteImageIds);
 
         return redirect()->back()->with('success', '리뷰가 수정되었습니다.');
     }

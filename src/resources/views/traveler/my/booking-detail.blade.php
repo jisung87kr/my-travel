@@ -306,13 +306,14 @@
                     @endif
 
                     @if($booking->isCompleted() && !$booking->review)
-                        <a href="{{ route('my.reviews', ['locale' => app()->getLocale()]) }}"
-                           class="w-full px-4 py-3 bg-gradient-to-r from-pink-500 to-rose-500 text-white rounded-xl font-semibold hover:shadow-lg hover:shadow-pink-500/25 transition-all flex items-center justify-center gap-2">
+                        <button type="button"
+                                onclick="openReviewModal()"
+                                class="w-full px-4 py-3 bg-gradient-to-r from-pink-500 to-rose-500 text-white rounded-xl font-semibold hover:shadow-lg hover:shadow-pink-500/25 transition-all flex items-center justify-center gap-2">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z" />
                             </svg>
                             {{ __('booking.write_review') }}
-                        </a>
+                        </button>
                     @endif
 
                     <a href="{{ route('messages.thread', ['locale' => app()->getLocale(), 'booking' => $booking->id]) }}"
@@ -404,6 +405,116 @@
         </div>
     @endif
 
+    {{-- Write Review Modal --}}
+    @if($booking->isCompleted() && !$booking->review)
+        <div id="review-modal"
+             class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 backdrop-blur-sm p-4"
+             onclick="if(event.target === this) closeReviewModal()">
+            <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto" onclick="event.stopPropagation()">
+                {{-- Header --}}
+                <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between sticky top-0 bg-white z-10">
+                    <h3 class="text-lg font-bold text-gray-900">{{ __('review.write_review') }}</h3>
+                    <button type="button" onclick="closeReviewModal()" class="w-8 h-8 rounded-full hover:bg-gray-100 flex items-center justify-center transition-colors">
+                        <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+
+                {{-- Body --}}
+                <form id="review-form" action="{{ route('reviews.store', ['booking' => $booking->id]) }}" method="POST" enctype="multipart/form-data">
+                    @csrf
+                    <div class="p-6 space-y-6">
+                        {{-- Product Info --}}
+                        <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
+                            <img src="{{ $booking->product->images->first()?->url ?? 'https://placehold.co/80x80?text=NO+IMAGE' }}"
+                                 alt="{{ $translation?->title }}"
+                                 class="w-16 h-16 rounded-lg object-cover">
+                            <div class="flex-1 min-w-0">
+                                <p class="font-semibold text-gray-900 truncate">{{ $translation?->title ?? $booking->product->getTranslation('ko')?->title }}</p>
+                                <p class="text-sm text-gray-500">{{ $booking->schedule->date->format('Y.m.d') }}</p>
+                            </div>
+                        </div>
+
+                        {{-- Rating --}}
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-3">{{ __('review.rating') }}</label>
+                            <div class="flex items-center gap-2" id="rating-stars">
+                                @for($i = 1; $i <= 5; $i++)
+                                    <button type="button"
+                                            onclick="setRating({{ $i }})"
+                                            class="rating-star w-10 h-10 text-gray-300 hover:text-yellow-400 transition-colors"
+                                            data-rating="{{ $i }}">
+                                        <svg class="w-full h-full" fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                        </svg>
+                                    </button>
+                                @endfor
+                            </div>
+                            <input type="hidden" name="rating" id="rating-input" value="5" required>
+                        </div>
+
+                        {{-- Content --}}
+                        <div>
+                            <label for="review-content" class="block text-sm font-medium text-gray-700 mb-2">{{ __('review.content') }}</label>
+                            <textarea id="review-content"
+                                      name="content"
+                                      rows="4"
+                                      placeholder="{{ __('review.content_placeholder') }}"
+                                      class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-pink-500/20 focus:border-pink-500 transition-colors resize-none"
+                                      required
+                                      minlength="10"
+                                      maxlength="1000"></textarea>
+                            <p class="mt-1 text-xs text-gray-500"><span id="content-count">0</span>/1000</p>
+                        </div>
+
+                        {{-- Images --}}
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                {{ __('review.images') }}
+                                <span class="text-gray-400 font-normal">({{ __('review.max_images') }})</span>
+                            </label>
+
+                            {{-- Image Preview Area --}}
+                            <div id="image-preview" class="grid grid-cols-5 gap-2 mb-3 hidden">
+                                {{-- Preview images will be added here --}}
+                            </div>
+
+                            {{-- Add Image Button --}}
+                            <label id="add-image-btn" class="flex items-center justify-center gap-2 p-4 border-2 border-dashed border-gray-200 rounded-xl cursor-pointer hover:border-pink-300 hover:bg-pink-50/50 transition-colors">
+                                <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                                </svg>
+                                <span class="text-sm text-gray-500">{{ __('review.add_images') }}</span>
+                                <span class="text-xs text-gray-400">({{ __('review.max_size') }})</span>
+                                <input type="file"
+                                       name="images[]"
+                                       id="image-input"
+                                       class="hidden"
+                                       accept="image/jpeg,image/png,image/jpg"
+                                       multiple>
+                            </label>
+                        </div>
+                    </div>
+
+                    {{-- Footer --}}
+                    <div class="px-6 py-4 border-t border-gray-100 flex gap-3 sticky bottom-0 bg-white">
+                        <button type="button"
+                                onclick="closeReviewModal()"
+                                class="flex-1 px-4 py-3 bg-gray-100 text-gray-700 rounded-xl font-semibold hover:bg-gray-200 transition-colors">
+                            {{ __('review.cancel') }}
+                        </button>
+                        <button type="submit"
+                                id="submit-review-btn"
+                                class="flex-1 px-4 py-3 bg-gradient-to-r from-pink-500 to-rose-500 text-white rounded-xl font-semibold hover:shadow-lg hover:shadow-pink-500/25 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+                            {{ __('review.save') }}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    @endif
+
     <script>
         function openCancelModal() {
             const modal = document.getElementById('cancel-modal');
@@ -427,7 +538,202 @@
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape') {
                 closeCancelModal();
+                closeReviewModal();
             }
         });
+
+        // Review Modal Functions
+        function openReviewModal() {
+            const modal = document.getElementById('review-modal');
+            if (modal) {
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+                document.body.style.overflow = 'hidden';
+                // Initialize with 5 stars
+                setRating(5);
+            }
+        }
+
+        function closeReviewModal() {
+            const modal = document.getElementById('review-modal');
+            if (modal) {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+                document.body.style.overflow = '';
+                // Reset form
+                resetReviewForm();
+            }
+        }
+
+        function resetReviewForm() {
+            const form = document.getElementById('review-form');
+            if (form) {
+                form.reset();
+                setRating(5);
+                document.getElementById('content-count').textContent = '0';
+                // Clear image previews
+                const previewContainer = document.getElementById('image-preview');
+                if (previewContainer) {
+                    previewContainer.innerHTML = '';
+                    previewContainer.classList.add('hidden');
+                }
+                // Show add button
+                const addBtn = document.getElementById('add-image-btn');
+                if (addBtn) {
+                    addBtn.classList.remove('hidden');
+                }
+                selectedFiles = [];
+            }
+        }
+
+        // Rating Stars
+        function setRating(rating) {
+            document.getElementById('rating-input').value = rating;
+            const stars = document.querySelectorAll('.rating-star');
+            stars.forEach((star, index) => {
+                if (index < rating) {
+                    star.classList.remove('text-gray-300');
+                    star.classList.add('text-yellow-400');
+                } else {
+                    star.classList.remove('text-yellow-400');
+                    star.classList.add('text-gray-300');
+                }
+            });
+        }
+
+        // Content character count
+        const contentTextarea = document.getElementById('review-content');
+        if (contentTextarea) {
+            contentTextarea.addEventListener('input', function() {
+                document.getElementById('content-count').textContent = this.value.length;
+            });
+        }
+
+        // Image handling
+        let selectedFiles = [];
+        const maxImages = 5;
+
+        const imageInput = document.getElementById('image-input');
+        if (imageInput) {
+            imageInput.addEventListener('change', function(e) {
+                const files = Array.from(e.target.files);
+                const remainingSlots = maxImages - selectedFiles.length;
+
+                if (files.length > remainingSlots) {
+                    alert('{{ __("review.max_images") }}');
+                    files.splice(remainingSlots);
+                }
+
+                files.forEach(file => {
+                    if (file.size > 5 * 1024 * 1024) {
+                        alert('{{ __("review.max_size") }}');
+                        return;
+                    }
+                    selectedFiles.push(file);
+                });
+
+                updateImagePreviews();
+                this.value = '';
+            });
+        }
+
+        function updateImagePreviews() {
+            const previewContainer = document.getElementById('image-preview');
+            const addBtn = document.getElementById('add-image-btn');
+
+            if (!previewContainer) return;
+
+            previewContainer.innerHTML = '';
+
+            if (selectedFiles.length > 0) {
+                previewContainer.classList.remove('hidden');
+                selectedFiles.forEach((file, index) => {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const div = document.createElement('div');
+                        div.className = 'relative aspect-square group';
+                        div.innerHTML = `
+                            <img src="${e.target.result}" class="w-full h-full object-cover rounded-lg" alt="Preview">
+                            <button type="button"
+                                    onclick="removeImage(${index})"
+                                    class="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-lg">
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="3">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        `;
+                        previewContainer.appendChild(div);
+                    };
+                    reader.readAsDataURL(file);
+                });
+            } else {
+                previewContainer.classList.add('hidden');
+            }
+
+            // Hide/show add button based on image count
+            if (addBtn) {
+                if (selectedFiles.length >= maxImages) {
+                    addBtn.classList.add('hidden');
+                } else {
+                    addBtn.classList.remove('hidden');
+                }
+            }
+        }
+
+        function removeImage(index) {
+            selectedFiles.splice(index, 1);
+            updateImagePreviews();
+        }
+
+        // Form submission
+        const reviewForm = document.getElementById('review-form');
+        if (reviewForm) {
+            reviewForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                const formData = new FormData(this);
+
+                // Remove default file input and add selected files
+                formData.delete('images[]');
+                selectedFiles.forEach(file => {
+                    formData.append('images[]', file);
+                });
+
+                const submitBtn = document.getElementById('submit-review-btn');
+                const originalText = submitBtn.textContent;
+                submitBtn.disabled = true;
+                submitBtn.textContent = '...';
+
+                fetch(this.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json'
+                    }
+                })
+                .then(response => {
+                    if (response.redirected) {
+                        window.location.href = response.url;
+                        return;
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data && data.errors) {
+                        const errorMessages = Object.values(data.errors).flat().join('\n');
+                        alert(errorMessages);
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = originalText;
+                    } else {
+                        window.location.reload();
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    window.location.reload();
+                });
+            });
+        }
     </script>
 </x-traveler.my.layout>

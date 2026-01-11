@@ -1,4 +1,19 @@
 <x-traveler.my.layout :title="__('nav.my_reviews')">
+    <!-- Header with Write Review Button -->
+    <div class="flex items-center justify-between mb-6">
+        <div>
+            <h1 class="text-xl font-bold text-gray-900">{{ __('nav.my_reviews') }}</h1>
+            <p class="text-sm text-gray-500 mt-1">{{ __('review.my_reviews_desc') }}</p>
+        </div>
+        <a href="{{ route('my.bookings', ['locale' => app()->getLocale(), 'status' => 'completed']) }}"
+           class="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-pink-500 to-rose-500 text-white font-medium rounded-xl shadow-lg shadow-pink-500/25 hover:shadow-xl hover:shadow-pink-500/30 transition-all text-sm">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/>
+            </svg>
+            {{ __('review.write_review') }}
+        </a>
+    </div>
+
     <!-- Stats Summary -->
     <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
         <div class="bg-white rounded-2xl shadow-sm p-4 sm:p-5">
@@ -142,6 +157,7 @@
                                     <button type="button"
                                             onclick="openEditModal({{ $review['id'] }}, {{ $review['rating'] }}, this)"
                                             data-content="{{ $review['content'] }}"
+                                            data-images='@json($review['images'])'
                                             class="p-2.5 rounded-xl text-gray-400 hover:text-pink-600 hover:bg-pink-50 transition-all cursor-pointer"
                                             title="{{ __('review.edit') }}">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
@@ -199,9 +215,9 @@
     <div id="edit-review-modal"
          class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 backdrop-blur-sm"
          onclick="if(event.target === this) closeEditModal()">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg mx-4 overflow-hidden" onclick="event.stopPropagation()">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg mx-4 overflow-hidden max-h-[90vh] flex flex-col" onclick="event.stopPropagation()">
             <!-- Modal Header -->
-            <div class="flex items-center justify-between p-5 border-b border-gray-100">
+            <div class="flex items-center justify-between p-5 border-b border-gray-100 flex-shrink-0">
                 <h3 class="text-lg font-bold text-gray-900">{{ __('review.edit_review') }}</h3>
                 <button type="button" onclick="closeEditModal()"
                         class="p-2 rounded-xl text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-all">
@@ -212,7 +228,7 @@
             </div>
 
             <!-- Modal Body -->
-            <form id="edit-review-form" class="p-5 space-y-5">
+            <form id="edit-review-form" class="p-5 space-y-5 overflow-y-auto flex-1" enctype="multipart/form-data">
                 <input type="hidden" id="edit-review-id" name="review_id">
 
                 <!-- Rating -->
@@ -235,15 +251,33 @@
                 <!-- Content -->
                 <div>
                     <label for="edit-content" class="block text-sm font-medium text-gray-700 mb-2">{{ __('review.content') }}</label>
-                    <textarea id="edit-content" name="content" rows="5" required minlength="10" maxlength="1000"
+                    <textarea id="edit-content" name="content" rows="4" required minlength="10" maxlength="1000"
                               class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-pink-500 resize-none transition-all"
                               placeholder="{{ __('review.content_placeholder') }}"></textarea>
                     <p class="mt-1 text-xs text-gray-500 text-right"><span id="edit-content-count">0</span>/1000</p>
                 </div>
+
+                <!-- Existing Images -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">{{ __('review.images') }} <span class="text-gray-400 font-normal">({{ __('review.max_images') }})</span></label>
+                    <div id="existing-images" class="grid grid-cols-4 gap-2 mb-3"></div>
+
+                    <!-- New Image Upload -->
+                    <div id="new-images-preview" class="grid grid-cols-4 gap-2 mb-3"></div>
+
+                    <label id="image-upload-label" class="flex items-center justify-center gap-2 px-4 py-3 border-2 border-dashed border-gray-300 rounded-xl cursor-pointer hover:border-pink-400 hover:bg-pink-50 transition-all">
+                        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/>
+                        </svg>
+                        <span class="text-sm text-gray-500">{{ __('review.add_images') }}</span>
+                        <input type="file" id="edit-images" name="images[]" multiple accept="image/jpeg,image/png,image/jpg,image/webp" class="hidden" onchange="previewNewImages(this)">
+                    </label>
+                    <p class="mt-1 text-xs text-gray-400">JPG, PNG, WebP ({{ __('review.max_size') }})</p>
+                </div>
             </form>
 
             <!-- Modal Footer -->
-            <div class="flex items-center justify-end gap-3 p-5 border-t border-gray-100 bg-gray-50">
+            <div class="flex items-center justify-end gap-3 p-5 border-t border-gray-100 bg-gray-50 flex-shrink-0">
                 <button type="button" onclick="closeEditModal()"
                         class="px-5 py-2.5 rounded-xl text-gray-700 font-medium hover:bg-gray-200 transition-all">
                     {{ __('review.cancel') }}
@@ -259,15 +293,26 @@
     @push('scripts')
         <script>
             let currentEditRating = 0;
+            let deleteImageIds = [];
+            let newImageFiles = [];
 
             function openEditModal(reviewId, rating, buttonEl) {
                 const content = buttonEl.dataset.content;
+                const images = JSON.parse(buttonEl.dataset.images || '[]');
+
+                // Reset state
+                deleteImageIds = [];
+                newImageFiles = [];
+                document.getElementById('edit-images').value = '';
+                document.getElementById('new-images-preview').innerHTML = '';
 
                 document.getElementById('edit-review-id').value = reviewId;
                 document.getElementById('edit-content').value = content;
                 document.getElementById('edit-content-count').textContent = content.length;
 
                 setEditRating(rating);
+                renderExistingImages(images);
+                updateImageUploadVisibility(images.length);
 
                 const modal = document.getElementById('edit-review-modal');
                 modal.classList.remove('hidden');
@@ -297,6 +342,105 @@
                 });
             }
 
+            function renderExistingImages(images) {
+                const container = document.getElementById('existing-images');
+                container.innerHTML = images.map(img => `
+                    <div class="relative group" data-image-id="${img.id}">
+                        <img src="${img.url}" class="w-full aspect-square object-cover rounded-lg">
+                        <button type="button" onclick="markImageForDeletion(${img.id}, this)"
+                                class="absolute top-1 right-1 w-6 h-6 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                            </svg>
+                        </button>
+                    </div>
+                `).join('');
+            }
+
+            function markImageForDeletion(imageId, button) {
+                const container = button.closest('[data-image-id]');
+                if (deleteImageIds.includes(imageId)) {
+                    // Restore
+                    deleteImageIds = deleteImageIds.filter(id => id !== imageId);
+                    container.classList.remove('opacity-50');
+                    container.querySelector('img').classList.remove('grayscale');
+                } else {
+                    // Mark for deletion
+                    deleteImageIds.push(imageId);
+                    container.classList.add('opacity-50');
+                    container.querySelector('img').classList.add('grayscale');
+                }
+                updateImageUploadVisibility();
+            }
+
+            function previewNewImages(input) {
+                const files = Array.from(input.files);
+                const existingCount = document.querySelectorAll('#existing-images [data-image-id]').length - deleteImageIds.length;
+                const maxNew = 5 - existingCount;
+
+                newImageFiles = files.slice(0, maxNew);
+
+                const container = document.getElementById('new-images-preview');
+                container.innerHTML = '';
+
+                newImageFiles.forEach((file, index) => {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        const div = document.createElement('div');
+                        div.className = 'relative group';
+                        div.innerHTML = `
+                            <img src="${e.target.result}" class="w-full aspect-square object-cover rounded-lg border-2 border-pink-300">
+                            <button type="button" onclick="removeNewImage(${index})"
+                                    class="absolute top-1 right-1 w-6 h-6 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                                </svg>
+                            </button>
+                        `;
+                        container.appendChild(div);
+                    };
+                    reader.readAsDataURL(file);
+                });
+
+                updateImageUploadVisibility();
+            }
+
+            function removeNewImage(index) {
+                newImageFiles.splice(index, 1);
+                // Re-render previews
+                const container = document.getElementById('new-images-preview');
+                container.innerHTML = '';
+                newImageFiles.forEach((file, i) => {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        const div = document.createElement('div');
+                        div.className = 'relative group';
+                        div.innerHTML = `
+                            <img src="${e.target.result}" class="w-full aspect-square object-cover rounded-lg border-2 border-pink-300">
+                            <button type="button" onclick="removeNewImage(${i})"
+                                    class="absolute top-1 right-1 w-6 h-6 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                                </svg>
+                            </button>
+                        `;
+                        container.appendChild(div);
+                    };
+                    reader.readAsDataURL(file);
+                });
+                document.getElementById('edit-images').value = '';
+                updateImageUploadVisibility();
+            }
+
+            function updateImageUploadVisibility(existingCount = null) {
+                if (existingCount === null) {
+                    existingCount = document.querySelectorAll('#existing-images [data-image-id]').length - deleteImageIds.length;
+                }
+                const totalCount = existingCount + newImageFiles.length;
+                const uploadLabel = document.getElementById('image-upload-label');
+                uploadLabel.style.display = totalCount >= 5 ? 'none' : 'flex';
+            }
+
             function submitEditReview() {
                 const reviewId = document.getElementById('edit-review-id').value;
                 const rating = document.getElementById('edit-rating-value').value;
@@ -310,28 +454,40 @@
                 const submitBtn = document.getElementById('edit-submit-btn');
                 submitBtn.disabled = true;
 
+                const formData = new FormData();
+                formData.append('_method', 'PUT');
+                formData.append('rating', rating);
+                formData.append('content', content);
+
+                deleteImageIds.forEach(id => {
+                    formData.append('delete_images[]', id);
+                });
+
+                newImageFiles.forEach(file => {
+                    formData.append('images[]', file);
+                });
+
                 fetch(`/reviews/${reviewId}`, {
-                    method: 'PUT',
+                    method: 'POST',
                     headers: {
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                        'Content-Type': 'application/json',
                         'Accept': 'application/json'
                     },
-                    body: JSON.stringify({ rating, content })
+                    body: formData
                 })
                 .then(response => {
-                    if (response.redirected) {
+                    if (response.redirected || response.ok) {
                         location.reload();
                         return;
                     }
                     return response.json();
                 })
                 .then(data => {
-                    if (data && data.success !== false) {
-                        location.reload();
-                    } else {
+                    if (data && data.success === false) {
                         alert(@json(__('review.edit_error')));
                         submitBtn.disabled = false;
+                    } else {
+                        location.reload();
                     }
                 })
                 .catch(() => {

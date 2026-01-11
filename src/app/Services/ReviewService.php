@@ -36,17 +36,35 @@ class ReviewService
         });
     }
 
-    public function update(Review $review, array $data): Review
+    public function update(Review $review, array $data, array $newImages = [], array $deleteImageIds = []): Review
     {
-        $review->update([
-            'rating' => $data['rating'] ?? $review->rating,
-            'content' => $data['content'] ?? $review->content,
-        ]);
+        return DB::transaction(function () use ($review, $data, $newImages, $deleteImageIds) {
+            $review->update([
+                'rating' => $data['rating'] ?? $review->rating,
+                'content' => $data['content'] ?? $review->content,
+            ]);
 
-        // Update product average rating
-        $this->updateProductRating($review->product);
+            // Delete specified images
+            if (!empty($deleteImageIds)) {
+                $imagesToDelete = $review->images()->whereIn('id', $deleteImageIds)->get();
+                foreach ($imagesToDelete as $image) {
+                    $this->deleteImage($image);
+                }
+            }
 
-        return $review->fresh();
+            // Add new images
+            $currentCount = $review->images()->count();
+            foreach ($newImages as $index => $image) {
+                if ($currentCount + $index < 5) { // Max 5 images
+                    $this->uploadImage($review, $image, $currentCount + $index);
+                }
+            }
+
+            // Update product average rating
+            $this->updateProductRating($review->product);
+
+            return $review->fresh(['images']);
+        });
     }
 
     public function delete(Review $review): void

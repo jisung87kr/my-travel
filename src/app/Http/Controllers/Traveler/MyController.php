@@ -159,7 +159,7 @@ class MyController extends Controller
         ];
 
         $reviews = $user->reviews()
-            ->with(['product.translations', 'product.images', 'booking'])
+            ->with(['product.translations', 'product.images', 'booking', 'images'])
             ->latest()
             ->paginate(10);
 
@@ -178,6 +178,10 @@ class MyController extends Controller
                 'content' => $review->content,
                 'created_at' => $review->created_at->format('Y-m-d'),
                 'formatted_date' => $review->created_at->format('M d, Y'),
+                'images' => $review->images->map(fn($img) => [
+                    'id' => $img->id,
+                    'url' => $img->url,
+                ])->toArray(),
             ];
         });
 
