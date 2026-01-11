@@ -149,6 +149,15 @@ class MyController extends Controller
         $user = auth()->user();
         $locale = app()->getLocale();
 
+        // Calculate stats from all reviews
+        $allReviews = $user->reviews()->get();
+        $stats = [
+            'total' => $allReviews->count(),
+            'average' => $allReviews->count() > 0 ? round($allReviews->avg('rating'), 1) : 0,
+            'good' => $allReviews->where('rating', '>=', 4)->count(),
+            'five_star' => $allReviews->where('rating', 5)->count(),
+        ];
+
         $reviews = $user->reviews()
             ->with(['product.translations', 'product.images', 'booking'])
             ->latest()
@@ -172,6 +181,6 @@ class MyController extends Controller
             ];
         });
 
-        return view('traveler.my.reviews', compact('reviews'));
+        return view('traveler.my.reviews', compact('reviews', 'stats'));
     }
 }

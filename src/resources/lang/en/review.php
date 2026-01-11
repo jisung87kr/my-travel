@@ -20,6 +20,15 @@ return [
     'was_helpful' => 'Was this review helpful?',
 
     // Confirm messages
-    'edit_not_ready' => 'Review editing feature is coming soon.',
     'delete_confirm' => 'Are you sure you want to delete this review?',
+
+    // Edit modal
+    'edit_review' => 'Edit Review',
+    'rating' => 'Rating',
+    'content' => 'Review Content',
+    'content_placeholder' => 'Enter your review (minimum 10 characters)',
+    'cancel' => 'Cancel',
+    'save' => 'Save',
+    'edit_success' => 'Review updated successfully.',
+    'edit_error' => 'Failed to update review.',
 ];

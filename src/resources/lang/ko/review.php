@@ -20,6 +20,15 @@ return [
     'was_helpful' => '이 리뷰가 도움이 되셨나요?',
 
     // Confirm messages
-    'edit_not_ready' => '리뷰 수정 기능은 준비 중입니다.',
     'delete_confirm' => '정말로 이 리뷰를 삭제하시겠습니까?',
+
+    // Edit modal
+    'edit_review' => '리뷰 수정',
+    'rating' => '평점',
+    'content' => '리뷰 내용',
+    'content_placeholder' => '리뷰 내용을 입력해주세요 (최소 10자)',
+    'cancel' => '취소',
+    'save' => '저장',
+    'edit_success' => '리뷰가 수정되었습니다.',
+    'edit_error' => '리뷰 수정에 실패했습니다.',
 ];
